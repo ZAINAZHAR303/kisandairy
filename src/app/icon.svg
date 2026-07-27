@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="100%" height="100%">
+  <!-- Background Badge (Dark Navy with Teal Accent Border) -->
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#1a2f5e" stroke="#00BFA6" stroke-width="3" />
+
+  <!-- Horns -->
+  <path d="M 17 22 C 14 14, 21 16, 23 20" fill="none" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" />
+  <path d="M 47 22 C 50 14, 43 16, 41 20" fill="none" stroke="#FBBF24" stroke-width="4" stroke-linecap="round" />
+
+  <!-- Ears -->
+  <ellipse cx="14" cy="27" rx="8" ry="4" fill="#FFFFFF" transform="rotate(-15 14 27)" />
+  <ellipse cx="14" cy="27" rx="5" ry="2.5" fill="#F472B6" transform="rotate(-15 14 27)" />
+  <ellipse cx="50" cy="27" rx="8" ry="4" fill="#FFFFFF" transform="rotate(15 50 27)" />
+  <ellipse cx="50" cy="27" rx="5" ry="2.5" fill="#F472B6" transform="rotate(15 50 27)" />
+
+  <!-- Main Head Contour -->
+  <path d="M 20 22 C 20 18, 44 18, 44 22 L 46 36 C 46 42, 38 45, 32 45 C 26 45, 18 42, 18 36 Z" fill="#FFFFFF" />
+
+  <!-- Black Cow Patch Spot (Right Eye Patch) -->
+  <path d="M 33 22 C 40 22, 45 25, 43 33 C 41 38, 35 34, 33 28 Z" fill="#1E293B" />
+
+  <!-- Eyes -->
+  <circle cx="26" cy="30" r="2.5" fill="#1E293B" />
+  <circle cx="25.2" cy="29.2" r="0.9" fill="#FFFFFF" />
+  <circle cx="38" cy="30" r="2.5" fill="#FFFFFF" />
+  <circle cx="38" cy="30" r="1.8" fill="#1E293B" />
+  <circle cx="37.4" cy="29.2" r="0.7" fill="#FFFFFF" />
+
+  <!-- Snout / Nose (Pink) -->
+  <path d="M 21 37 C 21 34, 43 34, 43 37 C 43 45, 21 45, 21 37 Z" fill="#F472B6" />
+
+  <!-- Nostrils -->
+  <ellipse cx="28" cy="39" rx="1.8" ry="2.5" fill="#831843" />
+  <ellipse cx="36" cy="39" rx="1.8" ry="2.5" fill="#831843" />
+</svg>
