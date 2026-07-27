@@ -42,8 +42,9 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
     <div className="min-h-screen bg-[#f0f2f5] font-sans">
       {/* Header */}
       <header className="fixed top-0 left-0 right-0 h-14 bg-[#1a2f5e] text-white z-50 flex items-center justify-between px-4 shadow-md">
-        <div className="flex items-center space-x-2">
-          <span className="text-xl font-bold tracking-wide">Kisan Dairy 🐄</span>
+        <div className="flex items-center space-x-2.5">
+          <img src="/logo.png" alt="Kisan Dairy Logo" className="w-8 h-8 object-contain bg-white/10 rounded-lg p-0.5" />
+          <span className="text-xl font-extrabold tracking-wide text-white">Kisan Dairy</span>
         </div>
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-[#00BFA6] flex items-center justify-center text-sm font-bold text-white shadow-sm">

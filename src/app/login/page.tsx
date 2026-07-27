@@ -128,8 +128,8 @@ export default function LoginPage() {
     <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 flex flex-col justify-center items-center p-4 font-[Inter]">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="pt-8 pb-6 px-8 text-center bg-slate-50 border-b border-slate-100">
-          <div className="text-4xl mb-2">🐄</div>
+        <div className="pt-8 pb-6 px-8 text-center bg-slate-50 border-b border-slate-100 flex flex-col items-center">
+          <img src="/logo.png" alt="Kisan Dairy Logo" className="w-16 h-16 object-contain mb-3" />
           <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Kisan Dairy</h1>
           <p className="text-slate-500 text-sm mt-1">Farm Management System</p>
         </div>

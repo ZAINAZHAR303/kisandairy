@@ -14,9 +14,9 @@ export default function Loader({ text = 'Loading Kisan Dairy...', fullScreen = f
         {/* Pulsing Outer Ring */}
         <div className="w-16 h-16 rounded-full border-4 border-[#00BFA6]/20 border-t-[#00BFA6] animate-spin" />
         
-        {/* Centered Emoji */}
-        <div className="absolute inset-0 flex items-center justify-center text-2xl animate-pulse">
-          🐄
+        {/* Centered Official Logo */}
+        <div className="absolute inset-0 flex items-center justify-center p-2">
+          <img src="/logo.png" alt="Kisan Dairy" className="w-8 h-8 object-contain animate-pulse" />
         </div>
       </div>
 
