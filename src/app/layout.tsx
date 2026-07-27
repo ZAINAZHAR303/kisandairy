@@ -1,22 +1,51 @@
-import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
-import "./globals.css";
+import type { Metadata } from 'next'
+import { Analytics } from '@vercel/analytics/next'
+import './globals.css'
 
 export const metadata: Metadata = {
-  title: "Kisan Dairy - Cow Farm Management",
-  description: "Professional cow farm management system for tracking animals, insemination records, milk sales, expenses, and vaccinations.",
-  keywords: ["dairy farm", "cow management", "insemination tracker", "farm management", "kisan dairy"],
-  icons: {
-    icon: "/icon.svg",
-    shortcut: "/icon.svg",
-    apple: "/icon.svg",
+  title: 'Kisan Dairy — Cow Farm Management System for Pakistani Farmers',
+  description: 'Free online dairy farm management system for Pakistani farmers. Track milk sales, vaccinations, insemination records and expenses for your cows and buffaloes.',
+  keywords: 'dairy farm management pakistan, cow farm app, kisan dairy, milk tracking app pakistan, cattle management system, buffalo farm record keeping',
+  openGraph: {
+    title: 'Kisan Dairy — Cow Farm Management System',
+    description: 'Manage your dairy farm easily. Track milk sales, vaccinations, insemination and expenses. Free for Pakistani farmers.',
+    url: 'https://kisandairy.tech',
+    siteName: 'Kisan Dairy',
+    images: [
+      {
+        url: 'https://kisandairy.tech/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Kisan Dairy — Cow Farm Management System',
+      },
+    ],
+    locale: 'en_PK',
+    type: 'website',
   },
-};
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Kisan Dairy — Cow Farm Management System',
+    description: 'Free dairy farm management for Pakistani farmers. Track milk, vaccines, insemination and expenses.',
+    images: ['https://kisandairy.tech/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: 'https://kisandairy.tech',
+  },
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
+}
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
     <html lang="en">
@@ -38,5 +67,5 @@ export default function RootLayout({
         <Analytics />
       </body>
     </html>
-  );
+  )
 }
