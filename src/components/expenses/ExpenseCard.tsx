@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { Expense, ExpenseCategory } from '@/lib/types'
+import { formatNumericDate } from '@/lib/dateUtils'
 
 interface ExpenseCardProps {
   expense: Expense
@@ -11,10 +12,7 @@ interface ExpenseCardProps {
 
 export default function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return 'N/A'
-    const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return 'N/A'
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    return formatNumericDate(dateStr)
   }
 
   const getCategoryTheme = (cat: ExpenseCategory) => {

@@ -34,6 +34,34 @@ export function calculateAge(dobStr: string | null | undefined): string {
   return `${years} Yr${years > 1 ? 's' : ''} ${months > 0 ? months + ' Mon' : ''}`
 }
 
+/**
+ * Formats any date string or Date object to DD/MM/YYYY numeric format (e.g. 27/07/2026).
+ * Eliminates month names (Jul, May, etc.) per farmer preference.
+ */
+export function formatNumericDate(dateInput: string | Date | null | undefined): string {
+  if (!dateInput) return 'N/A'
+  
+  let d: Date
+  if (typeof dateInput === 'string') {
+    // If string is already in YYYY-MM-DD or ISO format
+    const parts = dateInput.split('T')[0].split('-')
+    if (parts.length === 3 && parts[0].length === 4) {
+      // YYYY-MM-DD format
+      return `${parts[2].padStart(2, '0')}/${parts[1].padStart(2, '0')}/${parts[0]}`
+    }
+    d = new Date(dateInput)
+  } else {
+    d = dateInput
+  }
+
+  if (isNaN(d.getTime())) return 'N/A'
+
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const year = d.getFullYear()
+  return `${day}/${month}/${year}`
+}
+
 export function calculateNextDueDate(vaccineName: string, dateGivenStr: string): string {
   const d = new Date(dateGivenStr)
   if (isNaN(d.getTime())) return dateGivenStr

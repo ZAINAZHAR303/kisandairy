@@ -1,6 +1,7 @@
 'use client'
 
 import { InseminationRecord } from '@/lib/types'
+import { formatNumericDate } from '@/lib/dateUtils'
 
 interface InseminationCardProps {
   record: InseminationRecord
@@ -11,10 +12,7 @@ interface InseminationCardProps {
 export default function InseminationCard({ record, onEdit, onDelete }: InseminationCardProps) {
   // Helpers
   const formatDate = (dateStr: string | null | undefined) => {
-    if (!dateStr) return 'N/A'
-    const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return 'N/A'
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    return formatNumericDate(dateStr)
   }
 
   // Pregnancy Days

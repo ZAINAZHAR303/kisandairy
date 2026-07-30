@@ -52,10 +52,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
     const list: MonthlyFinancialSummary[] = []
     map.forEach((val, monthKey) => {
       const [year, monthNum] = monthKey.split('-')
-      const dateObj = new Date(Number(year), Number(monthNum) - 1, 1)
-      const monthLabel = isNaN(dateObj.getTime())
-        ? monthKey
-        : dateObj.toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })
+      const monthLabel = `${monthNum}/${year}`
 
       const netProfit = val.revenue - val.expenses
       const marginPercent = val.revenue > 0 ? (netProfit / val.revenue) * 100 : 0

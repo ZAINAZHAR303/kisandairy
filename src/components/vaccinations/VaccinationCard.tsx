@@ -2,6 +2,7 @@
 
 import React from 'react'
 import { VaccinationRecord } from '@/lib/types'
+import { formatNumericDate } from '@/lib/dateUtils'
 
 interface VaccinationCardProps {
   record: VaccinationRecord
@@ -12,10 +13,7 @@ interface VaccinationCardProps {
 
 export default function VaccinationCard({ record, onEdit, onDelete, isUrgentView = false }: VaccinationCardProps) {
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return 'N/A'
-    const d = new Date(dateStr)
-    if (isNaN(d.getTime())) return 'N/A'
-    return d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+    return formatNumericDate(dateStr)
   }
 
   const animalName = record.animals?.name || 'Unknown Animal'

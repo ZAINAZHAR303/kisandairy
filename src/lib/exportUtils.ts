@@ -2,6 +2,7 @@ import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import { MilkSaleEntry } from './types'
+import { formatNumericDate } from './dateUtils'
 
 export function exportToExcel(entries: MilkSaleEntry[], monthStr: string, sellerName: string) {
   if (!entries || entries.length === 0) {
@@ -79,7 +80,7 @@ export function exportToPDF(entries: MilkSaleEntry[], monthStr: string, sellerNa
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
 
-  const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+  const todayStr = formatNumericDate(new Date())
   doc.text(`Month: ${monthStr}  |  Seller Filter: ${sellerName}  |  Generated on: ${todayStr}`, 14, 33)
 
   // Table Data Preparation

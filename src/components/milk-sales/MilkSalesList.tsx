@@ -8,6 +8,7 @@ import RecordPaymentModal from './RecordPaymentModal'
 import BulkPriceUpdateModal from './BulkPriceUpdateModal'
 import { deleteMilkSaleEntry, deleteSeller, deleteSellerPayment } from '@/app/dashboard/milk-sales/actions'
 import { exportToExcel, exportToPDF } from '@/lib/exportUtils'
+import { formatNumericDate } from '@/lib/dateUtils'
 
 interface MilkSalesListProps {
   initialEntries: MilkSaleEntry[]
@@ -411,7 +412,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
                 <tbody className="divide-y divide-gray-50">
                   {selectedBuyerTransactions.map((tx) => (
                     <tr key={tx.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-3.5 px-3 font-semibold text-gray-800">{tx.date}</td>
+                      <td className="py-3.5 px-3 font-semibold text-gray-800">{formatNumericDate(tx.date)}</td>
                       <td className="py-3.5 px-3 font-bold text-blue-600">{tx.litres ? `${tx.litres}L` : '—'}</td>
                       <td className="py-3.5 px-3 font-medium text-gray-600">{tx.rate ? `PKR ${tx.rate}` : '—'}</td>
                       <td className="py-3.5 px-3 font-extrabold text-gray-900">{tx.total ? `PKR ${tx.total.toLocaleString()}` : '—'}</td>
@@ -653,7 +654,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
                 <tbody className="divide-y divide-gray-50">
                   {dateRangeFilteredEntries.map((entry) => (
                     <tr key={entry.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-3.5 px-3 font-semibold text-gray-800">{entry.date}</td>
+                      <td className="py-3.5 px-3 font-semibold text-gray-800">{formatNumericDate(entry.date)}</td>
                       <td className="py-3.5 px-3 font-bold text-gray-900 capitalize">{entry.sellers?.name || '—'}</td>
                       <td className="py-3.5 px-3 font-bold text-blue-600">{entry.total_liters}L</td>
                       <td className="py-3.5 px-3 font-medium text-gray-600">PKR {entry.rate_per_liter}</td>
