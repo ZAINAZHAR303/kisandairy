@@ -565,7 +565,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
           {/* Add Buyer Floating Action Button */}
           <button
             onClick={() => { setEditSeller(null); setIsSellerModalOpen(true); }}
-            className="fixed bottom-24 right-6 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 transition-all z-40"
+            className="fixed bottom-6 right-6 w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all z-40"
             title="Add New Buyer"
           >
             <span className="text-3xl font-light leading-none mb-1">+</span>

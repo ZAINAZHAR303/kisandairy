@@ -40,10 +40,11 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
 
   return (
     <div className="min-h-screen bg-[#f0f2f5] font-sans antialiased text-gray-900 selection:bg-[#00BFA6]/20">
-      {/* Top Header */}
+      {/* Top Header Bar (Navy Blue) */}
       <header className="fixed top-0 left-0 right-0 h-14 bg-[#1a2f5e] text-white z-50 shadow-md">
         <div className="max-w-7xl mx-auto h-full px-3 sm:px-6 flex items-center justify-between">
-          <Link href="/dashboard" className="flex items-center space-x-2 sm:space-x-2.5 group">
+          {/* Logo & Brand Name */}
+          <Link href="/dashboard" className="flex items-center space-x-2 sm:space-x-2.5 group flex-shrink-0">
             <img 
               src="/logo.png" 
               alt="Kisan Dairy Logo" 
@@ -54,7 +55,30 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
             </span>
           </Link>
 
-          <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Desktop Navigation Links (Centered inside Header for md+ screens) */}
+          <nav className="hidden lg:flex items-center space-x-1">
+            {navItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all ${
+                    isActive 
+                      ? 'bg-[#00BFA6] text-white shadow-sm' 
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                  }`}
+                >
+                  <span className="text-sm">{item.icon}</span>
+                  <span>{item.name}</span>
+                  <span className="text-[10px] opacity-75 font-normal">({item.sub})</span>
+                </Link>
+              )
+            })}
+          </nav>
+
+          {/* Right User Avatar & Logout */}
+          <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
             <div 
               className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#00BFA6] flex items-center justify-center text-xs sm:text-sm font-bold text-white shadow-sm ring-2 ring-white/20"
               title={user?.email || user?.phone || 'User'}
@@ -73,34 +97,29 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="pt-16 pb-24 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[calc(100vh-3.5rem)]">
-        {children}
-      </main>
-
-      {/* Bottom Navigation Bar (Optimized for all mobile screens) */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 shadow-[0_-4px_15px_rgba(0,0,0,0.06)] backdrop-blur-md bg-white/95">
+      {/* Secondary Top Navigation Bar for Mobile & Tablet (Fixed below top header) */}
+      <nav className="lg:hidden fixed top-14 left-0 right-0 bg-white border-b border-gray-200 z-40 shadow-sm backdrop-blur-md bg-white/95">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-around h-16 px-1 overflow-x-auto no-scrollbar">
+          <div className="flex items-center justify-around h-14 px-1 overflow-x-auto no-scrollbar">
             {navItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))
               return (
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`flex flex-col items-center justify-center min-w-[54px] sm:min-w-[70px] h-full px-1 py-1 transition-all duration-200 relative ${
-                    isActive ? 'text-[#00BFA6]' : 'text-gray-400 hover:text-gray-600 active:scale-95'
+                  className={`flex flex-col items-center justify-center min-w-[56px] h-full px-1.5 py-1 transition-all duration-200 relative ${
+                    isActive ? 'text-[#00BFA6]' : 'text-gray-500 hover:text-gray-700 active:scale-95'
                   }`}
                 >
-                  {/* Top Active Line Indicator */}
+                  {/* Bottom Active Line Indicator */}
                   {isActive && (
-                    <span className="absolute top-0 inset-x-2 h-0.5 bg-[#00BFA6] rounded-full animate-fade-in" />
+                    <span className="absolute bottom-0 inset-x-2 h-0.5 bg-[#00BFA6] rounded-full animate-fade-in" />
                   )}
                   
-                  <span className={`text-base sm:text-lg transition-transform duration-200 ${isActive ? 'scale-110 -translate-y-0.5' : ''}`}>
+                  <span className={`text-base transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
                     {item.icon}
                   </span>
-                  <span className={`text-[10px] sm:text-xs tracking-tight font-bold leading-tight ${isActive ? 'text-[#00BFA6]' : 'text-gray-600'}`}>
+                  <span className={`text-[10px] tracking-tight font-bold leading-tight ${isActive ? 'text-[#00BFA6]' : 'text-gray-700'}`}>
                     {item.name}
                   </span>
                   <span className={`text-[9px] leading-none ${isActive ? 'text-[#00BFA6] font-bold' : 'text-gray-400'}`}>
@@ -112,6 +131,11 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
           </div>
         </div>
       </nav>
+
+      {/* Main Content Area */}
+      <main className="pt-32 lg:pt-20 pb-16 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[calc(100vh-3.5rem)]">
+        {children}
+      </main>
     </div>
   )
 }
