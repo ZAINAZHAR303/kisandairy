@@ -200,10 +200,10 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
   }
 
   const handleDeleteSellerClick = async (sellerId: string) => {
-    if (confirm('Are you sure you want to delete this buyer?')) {
+    if (confirm('Are you sure you want to delete this buyer? This will also delete their transaction history.')) {
       const res = await deleteSeller(sellerId)
       if (res?.error) {
-        alert(res.error.message)
+        alert(typeof res.error === 'string' ? res.error : (res.error as any)?.message || 'Failed to delete buyer')
       } else {
         setSelectedBuyer(null)
       }

@@ -150,35 +150,43 @@ export async function deleteSeller(id: string) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return { error: new Error('Unauthorized') }
+    return { error: 'Unauthorized' }
   }
 
-  // Check if seller has entries linked
-  const { count, error: countErr } = await supabase
-    .from('milk_sale_entries')
-    .select('*', { count: 'exact', head: true })
-    .eq('seller_id', id)
+  try {
+    // Delete linked payments first (if any)
+    await supabase
+      .from('seller_payments')
+      .delete()
+      .eq('seller_id', id)
+      .eq('user_id', user.id)
 
-  if (countErr) {
-    return { error: countErr }
-  }
+    // Delete linked milk sale entries
+    await supabase
+      .from('milk_sale_entries')
+      .delete()
+      .eq('seller_id', id)
+      .eq('user_id', user.id)
 
-  if (count && count > 0) {
-    return { error: new Error(`Cannot delete buyer because they have ${count} milk sale entries linked. Delete the entries first.`) }
-  }
+    // Delete the seller
+    const { error } = await supabase
+      .from('sellers')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
 
-  const { error } = await supabase
-    .from('sellers')
-    .delete()
-    .eq('id', id)
-    .eq('user_id', user.id)
+    if (error) {
+      return { error: error.message || 'Failed to delete buyer' }
+    }
 
-  if (!error) {
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard/milk-sales/sellers')
-  }
+    revalidatePath('/dashboard')
 
-  return { error }
+    return { error: null }
+  } catch (err: any) {
+    return { error: err?.message || 'An unexpected error occurred while deleting buyer' }
+  }
 }
 
 export async function addMilkSaleEntry(formData: FormData) {
