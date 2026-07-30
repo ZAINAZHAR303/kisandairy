@@ -75,11 +75,11 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
   return (
     <>
       <div 
-        className="fixed inset-0 bg-black/50 z-50 transition-opacity duration-300 animate-fade-in" 
+        className="fixed inset-0 bg-black/60 z-[100] transition-opacity duration-300 animate-fade-in" 
         onClick={onClose}
       />
       <div 
-        className="fixed inset-x-0 bottom-0 sm:bottom-auto sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50 w-full sm:w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[90vh] flex flex-col shadow-2xl animate-slide-up"
+        className="fixed inset-x-0 bottom-0 sm:bottom-auto sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[100] w-full sm:w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-slide-up"
       >
         <div className="flex-none p-4 border-b border-gray-100 relative">
           <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-3 sm:hidden" />
