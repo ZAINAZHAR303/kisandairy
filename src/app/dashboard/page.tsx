@@ -1,11 +1,11 @@
-import { createClient } from '@/lib/supabase/server';
+import { createClient, getAuthUser } from '@/lib/supabase/server';
 import Link from 'next/link';
 
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  // Get current user
-  const { data: { user } } = await supabase.auth.getUser();
+  // Get current user (cached across request lifecycle)
+  const user = await getAuthUser();
 
   // Fetch counts
   // 1. Total Animals
