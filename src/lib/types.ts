@@ -20,8 +20,8 @@ export type PregnancyStatus =
   | 'Failed' 
   | 'Calved' 
   | 'Aborted'
-  | 'AI' // legacy compatibility
-  | 'Natural' // legacy compatibility
+  | 'AI' 
+  | 'Natural'
 
 export interface InseminationRecord {
   id: string
@@ -33,6 +33,7 @@ export interface InseminationRecord {
   lactation_no: number
   pregnancy_status: PregnancyStatus
   expected_calving_date: string | null
+  calving_date: string | null
   created_at: string
   // Joined from animals table
   animals?: Animal

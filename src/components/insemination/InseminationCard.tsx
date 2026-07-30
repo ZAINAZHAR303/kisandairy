@@ -58,9 +58,28 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
     expectedCalvingDate = new Date(aiDate.getTime() + daysToAdd * 24 * 60 * 60 * 1000)
   }
 
-  // Calving Due Days
+  // Calving Due / Days Since Calving Display
+  const isCalved = record.pregnancy_status?.toLowerCase() === 'calved'
   let calvingDueDisplay = <span className="text-gray-400 font-semibold">N/A</span>
-  if (record.pregnancy_status?.toLowerCase() === 'failed') {
+
+  if (isCalved) {
+    const cDate = record.calving_date 
+      ? new Date(record.calving_date) 
+      : (expectedCalvingDate || aiDate)
+    
+    if (cDate && !isNaN(cDate.getTime())) {
+      const diffMs = today.getTime() - cDate.getTime()
+      const daysSince = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
+
+      if (daysSince < 45) {
+        calvingDueDisplay = <span className="text-teal-700 font-bold">🍼 {daysSince} Days Ago (Healing Period)</span>
+      } else if (daysSince <= 90) {
+        calvingDueDisplay = <span className="text-emerald-700 font-bold animate-pulse">🎯 {daysSince} Days Ago — Ready for Next A.I.!</span>
+      } else {
+        calvingDueDisplay = <span className="text-orange-700 font-bold">⚠️ {daysSince} Days Ago — Needs Next Insemination</span>
+      }
+    }
+  } else if (record.pregnancy_status?.toLowerCase() === 'failed' || record.pregnancy_status?.toLowerCase() === 'aborted') {
     calvingDueDisplay = <span className="text-gray-400 font-semibold">N/A</span>
   } else if (expectedCalvingDate && !isNaN(expectedCalvingDate.getTime())) {
     const diffDays = Math.ceil((expectedCalvingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
@@ -116,8 +135,10 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
 
         {/* Row 3 */}
         <div className="bg-teal-50/50 rounded-lg p-3 flex justify-between items-center border border-teal-100">
-          <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">Calving Due Days</span>
-          <div className="text-sm">{calvingDueDisplay}</div>
+          <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
+            {isCalved ? 'Days Since Calving' : 'Calving Due Days'}
+          </span>
+          <div className="text-xs sm:text-sm">{calvingDueDisplay}</div>
         </div>
 
         {/* Row 4 */}

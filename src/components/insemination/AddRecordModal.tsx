@@ -28,6 +28,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
   const [newAnimalType, setNewAnimalType] = useState<'cow' | 'buffalo'>('cow')
   const [newAnimalBreed, setNewAnimalBreed] = useState('')
 
+  const [calvingDate, setCalvingDate] = useState<string>('')
   const [estimatedCalvingDate, setEstimatedCalvingDate] = useState<string | null>(null)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -50,6 +51,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
         setBullName(editRecord.bull_name || '')
         setLactationNo(editRecord.lactation_no || 1)
         setPregnancyStatus(editRecord.pregnancy_status || (editRecord.method || 'AI'))
+        setCalvingDate(editRecord.calving_date ? new Date(editRecord.calving_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
       } else {
         setSelectedAnimalId('')
         setAiDate(new Date().toISOString().split('T')[0])
@@ -58,6 +60,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
         setBullName('')
         setLactationNo(1)
         setPregnancyStatus('Inseminated')
+        setCalvingDate(new Date().toISOString().split('T')[0])
       }
       setShowAddAnimal(false)
       setError(null)
@@ -172,6 +175,9 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
       if (bullName) formData.append('bull_name', bullName)
       formData.append('lactation_no', lactationNo.toString())
       formData.append('pregnancy_status', pregnancyStatus)
+      if (pregnancyStatus === 'Calved' && calvingDate) {
+        formData.append('calving_date', calvingDate)
+      }
 
       let result
       if (editRecord && editRecord.id) {
@@ -368,6 +374,34 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 </select>
               </div>
             </div>
+
+            {/* Conditional Actual Calving Date input when status is Calved */}
+            {pregnancyStatus === 'Calved' && (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 space-y-3 animate-fade-in">
+                <div>
+                  <label className="block text-xs font-bold text-emerald-900 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <span>🍼</span>
+                    <span>Actual Calving Date (Gave Birth)</span>
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input 
+                    type="date"
+                    required
+                    value={calvingDate}
+                    onChange={e => setCalvingDate(e.target.value)}
+                    className="w-full rounded-xl border border-emerald-300 px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-white text-emerald-950"
+                  />
+                </div>
+                {calvingDate && (
+                  <div className="text-xs text-emerald-800 font-medium bg-white/80 rounded-lg p-2.5 border border-emerald-100 flex items-center justify-between">
+                    <span>Days Since Calving (DIM):</span>
+                    <span className="font-extrabold text-emerald-900 text-sm">
+                      {Math.max(0, Math.floor((new Date().getTime() - new Date(calvingDate).getTime()) / (1000 * 60 * 60 * 24)))} Days
+                    </span>
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 mt-2">
               <label className="block text-xs font-semibold text-teal-800 uppercase tracking-wider mb-1">Estimated Calving Date</label>

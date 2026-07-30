@@ -95,6 +95,7 @@ export async function addInseminationRecord(formData: FormData) {
   const bull_name = formData.get('bull_name') as string | null
   const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
   const pregnancy_status = formData.get('pregnancy_status') as string | null
+  const calving_date = formData.get('calving_date') as string | null
 
   // calculate expected_calving_date
   let expected_calving_date = null
@@ -119,7 +120,8 @@ export async function addInseminationRecord(formData: FormData) {
       bull_name,
       lactation_no,
       pregnancy_status,
-      expected_calving_date
+      expected_calving_date,
+      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null
     })
     .select()
     .single()
@@ -142,6 +144,7 @@ export async function updateInseminationRecord(formData: FormData) {
   const bull_name = formData.get('bull_name') as string | null
   const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
   const pregnancy_status = formData.get('pregnancy_status') as string | null
+  const calving_date = formData.get('calving_date') as string | null
 
   // calculate expected_calving_date
   let expected_calving_date = null
@@ -166,7 +169,8 @@ export async function updateInseminationRecord(formData: FormData) {
       bull_name,
       lactation_no,
       pregnancy_status,
-      expected_calving_date
+      expected_calving_date,
+      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null
     })
     .eq('id', id)
     .select()
