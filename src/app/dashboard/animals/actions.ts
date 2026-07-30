@@ -36,6 +36,7 @@ export async function addAnimal(formData: FormData) {
   const gender = (formData.get('gender') as 'female' | 'male') || 'female'
   const status = (formData.get('status') as string) || 'Lactating'
   const dam_info = formData.get('dam_info') as string | null
+  const bull_name = formData.get('bull_name') as string | null
   const weight_kg = formData.get('weight_kg') ? Number(formData.get('weight_kg')) : null
   const notes = formData.get('notes') as string | null
 
@@ -55,14 +56,23 @@ export async function addAnimal(formData: FormData) {
   if (gender) insertData.gender = gender
   if (status) insertData.status = status
   if (dam_info) insertData.dam_info = dam_info.trim()
+  if (bull_name) insertData.bull_name = bull_name.trim()
   if (weight_kg && !isNaN(weight_kg)) insertData.weight_kg = weight_kg
   if (notes) insertData.notes = notes.trim()
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('animals')
     .insert(insertData)
     .select()
     .single()
+
+  // Schema cache fallback if column bull_name isn't added to PostgreSQL yet
+  if (error && error.message?.includes('schema cache')) {
+    delete insertData.bull_name
+    const retry = await supabase.from('animals').insert(insertData).select().single()
+    data = retry.data
+    error = retry.error
+  }
 
   if (!error) {
     revalidatePath('/dashboard/animals')
@@ -90,6 +100,7 @@ export async function updateAnimal(formData: FormData) {
   const gender = (formData.get('gender') as 'female' | 'male') || 'female'
   const status = (formData.get('status') as string) || 'Lactating'
   const dam_info = formData.get('dam_info') as string | null
+  const bull_name = formData.get('bull_name') as string | null
   const weight_kg = formData.get('weight_kg') ? Number(formData.get('weight_kg')) : null
   const notes = formData.get('notes') as string | null
 
@@ -110,17 +121,25 @@ export async function updateAnimal(formData: FormData) {
     gender: gender || 'female',
     status: status || 'Lactating',
     dam_info: dam_info?.trim() || null,
+    bull_name: bull_name?.trim() || null,
     weight_kg: weight_kg && !isNaN(weight_kg) ? weight_kg : null,
     notes: notes?.trim() || null,
   }
 
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('animals')
     .update(updateData)
     .eq('id', id)
     .eq('user_id', user.id)
     .select()
     .single()
+
+  if (error && error.message?.includes('schema cache')) {
+    delete updateData.bull_name
+    const retry = await supabase.from('animals').update(updateData).eq('id', id).eq('user_id', user.id).select().single()
+    data = retry.data
+    error = retry.error
+  }
 
   if (!error) {
     revalidatePath('/dashboard/animals')

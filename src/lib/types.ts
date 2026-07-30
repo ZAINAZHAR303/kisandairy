@@ -9,7 +9,8 @@ export interface Animal {
   gender: 'female' | 'male'
   status: 'Calf' | 'Heifer' | 'Lactating' | 'Dry' | 'Bull'
   dam_info: string | null
-  weight_kg: number | null
+  bull_name?: string | null
+  weight_kg?: number | null
   notes: string | null
   created_at: string
 }

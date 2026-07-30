@@ -70,16 +70,26 @@ export default function AnimalCard({ animal, onEdit, onDelete }: AnimalCardProps
             <div className="font-semibold text-gray-800 truncate">{animal.breed || 'Not specified'}</div>
           </div>
           <div>
-            <div className="text-gray-400 uppercase tracking-wider font-medium">Body Weight</div>
-            <div className="font-semibold text-gray-800">{animal.weight_kg ? `${animal.weight_kg} kg` : 'N/A'}</div>
+            <div className="text-gray-400 uppercase tracking-wider font-medium">Father / Bull</div>
+            <div className="font-semibold text-gray-800 truncate" title={animal.bull_name || 'N/A'}>{animal.bull_name || 'N/A'}</div>
           </div>
         </div>
 
-        {/* Dam (Mother) Info if available */}
-        {animal.dam_info && (
-          <div className="bg-gray-50 rounded-lg p-2 text-xs text-gray-600 border border-gray-100 flex items-center justify-between">
-            <span className="text-gray-400">Mother / Dam:</span>
-            <span className="font-semibold text-gray-800">{animal.dam_info}</span>
+        {/* Genealogy (Mother & Father) Info */}
+        {(animal.dam_info || animal.bull_name) && (
+          <div className="bg-gray-50 rounded-lg p-2 text-xs text-gray-600 border border-gray-100 space-y-1">
+            {animal.dam_info && (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Mother / Dam:</span>
+                <span className="font-semibold text-gray-800">{animal.dam_info}</span>
+              </div>
+            )}
+            {animal.bull_name && (
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Father / Bull:</span>
+                <span className="font-semibold text-gray-800">{animal.bull_name}</span>
+              </div>
+            )}
           </div>
         )}
 

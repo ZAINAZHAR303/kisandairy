@@ -20,7 +20,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
   const [gender, setGender] = useState<'female' | 'male'>('female')
   const [status, setStatus] = useState<'Calf' | 'Heifer' | 'Lactating' | 'Dry' | 'Bull'>('Lactating')
   const [damInfo, setDamInfo] = useState('')
-  const [weightKg, setWeightKg] = useState<number | ''>('')
+  const [bullName, setBullName] = useState('')
   const [notes, setNotes] = useState('')
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -37,7 +37,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
         setGender(editAnimal.gender || 'female')
         setStatus(editAnimal.status || 'Lactating')
         setDamInfo(editAnimal.dam_info || '')
-        setWeightKg(editAnimal.weight_kg ?? '')
+        setBullName(editAnimal.bull_name || '')
         setNotes(editAnimal.notes || '')
       } else {
         setName('')
@@ -48,7 +48,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
         setGender('female')
         setStatus('Lactating')
         setDamInfo('')
-        setWeightKg('')
+        setBullName('')
         setNotes('')
       }
       setError(null)
@@ -79,7 +79,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
       formData.append('gender', gender)
       formData.append('status', status)
       formData.append('dam_info', damInfo)
-      formData.append('weight_kg', (weightKg || '').toString())
+      formData.append('bull_name', bullName)
       formData.append('notes', notes)
 
       let result
@@ -272,7 +272,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
               </div>
             </div>
 
-            {/* Dam (Mother) Info & Body Weight */}
+            {/* Dam (Mother) Info & Father (Bull) Info */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -289,15 +289,13 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Body Weight (kg)
+                  Father / Bull Info
                 </label>
                 <input 
-                  type="number" 
-                  step="0.1"
-                  min="0"
-                  value={weightKg}
-                  onChange={e => setWeightKg(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                  placeholder="e.g. 350"
+                  type="text" 
+                  value={bullName}
+                  onChange={e => setBullName(e.target.value)}
+                  placeholder="e.g. Bull: Sahiwal-101 / Straw #402"
                   className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
                 />
               </div>
