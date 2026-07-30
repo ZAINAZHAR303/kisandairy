@@ -96,6 +96,7 @@ export async function addInseminationRecord(formData: FormData) {
   const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
   const pregnancy_status = formData.get('pregnancy_status') as string | null
   const calving_date = formData.get('calving_date') as string | null
+  const notes = formData.get('notes') as string | null
 
   // calculate expected_calving_date
   let expected_calving_date = null
@@ -116,12 +117,13 @@ export async function addInseminationRecord(formData: FormData) {
       animal_id,
       ai_date,
       method,
-      semen_company,
-      bull_name,
+      semen_company: semen_company?.trim() || null,
+      bull_name: bull_name?.trim() || null,
       lactation_no,
       pregnancy_status,
       expected_calving_date,
-      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null
+      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null,
+      notes: notes?.trim() || null
     })
     .select()
     .single()
@@ -145,6 +147,7 @@ export async function updateInseminationRecord(formData: FormData) {
   const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
   const pregnancy_status = formData.get('pregnancy_status') as string | null
   const calving_date = formData.get('calving_date') as string | null
+  const notes = formData.get('notes') as string | null
 
   // calculate expected_calving_date
   let expected_calving_date = null
@@ -165,12 +168,13 @@ export async function updateInseminationRecord(formData: FormData) {
       animal_id,
       ai_date,
       method,
-      semen_company,
-      bull_name,
+      semen_company: semen_company?.trim() || null,
+      bull_name: bull_name?.trim() || null,
       lactation_no,
       pregnancy_status,
       expected_calving_date,
-      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null
+      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null,
+      notes: notes?.trim() || null
     })
     .eq('id', id)
     .select()

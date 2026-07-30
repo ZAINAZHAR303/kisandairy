@@ -29,6 +29,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
   const [newAnimalBreed, setNewAnimalBreed] = useState('')
 
   const [calvingDate, setCalvingDate] = useState<string>('')
+  const [notes, setNotes] = useState<string>('')
   const [estimatedCalvingDate, setEstimatedCalvingDate] = useState<string | null>(null)
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -52,6 +53,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
         setLactationNo(editRecord.lactation_no || 1)
         setPregnancyStatus(editRecord.pregnancy_status || (editRecord.method || 'AI'))
         setCalvingDate(editRecord.calving_date ? new Date(editRecord.calving_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
+        setNotes(editRecord.notes || '')
       } else {
         setSelectedAnimalId('')
         setAiDate(new Date().toISOString().split('T')[0])
@@ -61,6 +63,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
         setLactationNo(1)
         setPregnancyStatus('Inseminated')
         setCalvingDate(new Date().toISOString().split('T')[0])
+        setNotes('')
       }
       setShowAddAnimal(false)
       setError(null)
@@ -177,6 +180,9 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
       formData.append('pregnancy_status', pregnancyStatus)
       if (pregnancyStatus === 'Calved' && calvingDate) {
         formData.append('calving_date', calvingDate)
+      }
+      if (notes) {
+        formData.append('notes', notes)
       }
 
       let result
@@ -402,6 +408,20 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 )}
               </div>
             )}
+
+            {/* Notes / Health Remarks Input */}
+            <div>
+              <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
+                Notes / Health Remarks 📝 <span className="text-gray-400 font-normal">(Optional)</span>
+              </label>
+              <textarea
+                rows={2}
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
+                placeholder="Add vet notes, straw codes, heat symptoms, or calving details..."
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+              />
+            </div>
 
             <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 mt-2">
               <label className="block text-xs font-semibold text-teal-800 uppercase tracking-wider mb-1">Estimated Calving Date</label>

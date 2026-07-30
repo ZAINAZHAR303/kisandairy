@@ -161,6 +161,14 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
           </div>
         </div>
 
+        {/* Optional Notes Row */}
+        {record.notes && (
+          <div className="bg-gray-50 border border-gray-100 rounded-lg p-2.5 text-xs text-gray-600 flex items-start space-x-1.5">
+            <span className="text-sm">📝</span>
+            <span className="flex-1 italic leading-relaxed text-gray-700 font-medium">{record.notes}</span>
+          </div>
+        )}
+
         {/* Row 5 */}
         <div className="flex justify-end space-x-2 pt-2">
           <button 

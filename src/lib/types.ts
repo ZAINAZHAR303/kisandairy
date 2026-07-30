@@ -34,6 +34,7 @@ export interface InseminationRecord {
   pregnancy_status: PregnancyStatus
   expected_calving_date: string | null
   calving_date: string | null
+  notes: string | null
   created_at: string
   // Joined from animals table
   animals?: Animal
