@@ -16,6 +16,7 @@
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -27,6 +28,7 @@ body {
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 4px;
+  height: 4px;
 }
 
 ::-webkit-scrollbar-track {
@@ -38,13 +40,13 @@ body {
   border-radius: 2px;
 }
 
-/* Hide scrollbar for filter bar */
-.hide-scrollbar {
+/* Hide scrollbar for filter bar & mobile nav */
+.hide-scrollbar, .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
 
-.hide-scrollbar::-webkit-scrollbar {
+.hide-scrollbar::-webkit-scrollbar, .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
 
