@@ -32,14 +32,22 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
 
   // Status Badge
   const getStatusBadge = (status: string | undefined | null) => {
-    let bg = 'bg-gray-100 text-gray-800'
     switch (status?.toLowerCase()) {
-      case 'ai': bg = 'bg-blue-100 text-blue-800'; break;
-      case 'natural': bg = 'bg-purple-100 text-purple-800'; break;
-      case 'confirmed': bg = 'bg-green-100 text-green-800'; break;
-      case 'failed': bg = 'bg-red-100 text-red-800'; break;
+      case 'inseminated':
+      case 'ai':
+      case 'natural':
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">⏳ Inseminated</span>
+      case 'confirmed':
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">🤰 Confirmed</span>
+      case 'calved':
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">🍼 Calved</span>
+      case 'aborted':
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">🚨 Aborted</span>
+      case 'failed':
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800 border border-red-200">❌ Failed</span>
+      default:
+        return <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">{status || 'Unknown'}</span>
     }
-    return <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${bg}`}>{status || 'Unknown'}</span>
   }
 
   // Est Calving Date

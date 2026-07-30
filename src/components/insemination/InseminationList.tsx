@@ -12,7 +12,7 @@ interface InseminationListProps {
   initialFilter?: PregnancyFilter
 }
 
-const filterOptions: PregnancyFilter[] = ['All', 'AI', 'Natural', 'Confirmed', 'Failed']
+const filterOptions: PregnancyFilter[] = ['All', 'Inseminated', 'Confirmed', 'Calved', 'Aborted', 'Failed']
 
 export default function InseminationList({ initialRecords, animals, initialFilter = 'All' }: InseminationListProps) {
   const [filter, setFilter] = useState<PregnancyFilter>(initialFilter)

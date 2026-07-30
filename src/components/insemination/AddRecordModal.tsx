@@ -57,7 +57,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
         setSemenCompany('')
         setBullName('')
         setLactationNo(1)
-        setPregnancyStatus('AI')
+        setPregnancyStatus('Inseminated')
       }
       setShowAddAnimal(false)
       setError(null)
@@ -358,12 +358,13 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 <select 
                   value={pregnancyStatus}
                   onChange={e => setPregnancyStatus(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all appearance-none bg-white"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white"
                 >
-                  <option value="AI">AI</option>
-                  <option value="Natural">Natural</option>
-                  <option value="Confirmed">Confirmed</option>
-                  <option value="Failed">Failed</option>
+                  <option value="Inseminated">⏳ Inseminated (Pending Check)</option>
+                  <option value="Confirmed">🤰 Confirmed Pregnant</option>
+                  <option value="Failed">❌ Failed / Not Pregnant</option>
+                  <option value="Calved">🍼 Calved / Delivered (Gave Birth)</option>
+                  <option value="Aborted">🚨 Aborted / Miscarriage</option>
                 </select>
               </div>
             </div>

@@ -14,6 +14,15 @@ export interface Animal {
   created_at: string
 }
 
+export type PregnancyStatus = 
+  | 'Inseminated' 
+  | 'Confirmed' 
+  | 'Failed' 
+  | 'Calved' 
+  | 'Aborted'
+  | 'AI' // legacy compatibility
+  | 'Natural' // legacy compatibility
+
 export interface InseminationRecord {
   id: string
   animal_id: string
@@ -22,14 +31,14 @@ export interface InseminationRecord {
   semen_company: string | null
   bull_name: string | null
   lactation_no: number
-  pregnancy_status: 'AI' | 'Natural' | 'Confirmed' | 'Failed'
+  pregnancy_status: PregnancyStatus
   expected_calving_date: string | null
   created_at: string
   // Joined from animals table
   animals?: Animal
 }
 
-export type PregnancyFilter = 'All' | 'AI' | 'Natural' | 'Confirmed' | 'Failed'
+export type PregnancyFilter = 'All' | 'Inseminated' | 'Confirmed' | 'Failed' | 'Calved' | 'Aborted'
 
 export interface Seller {
   id: string
