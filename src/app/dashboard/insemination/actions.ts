@@ -111,22 +111,42 @@ export async function addInseminationRecord(formData: FormData) {
     }
   }
 
-  const { data, error } = await supabase
+  const recordPayload: any = {
+    animal_id,
+    ai_date,
+    method,
+    semen_company: semen_company?.trim() || null,
+    bull_name: bull_name?.trim() || null,
+    lactation_no,
+    pregnancy_status,
+    expected_calving_date
+  }
+
+  if (pregnancy_status?.toLowerCase() === 'calved') {
+    recordPayload.calving_date = calving_date || new Date().toISOString().split('T')[0]
+  }
+  if (notes?.trim()) {
+    recordPayload.notes = notes.trim()
+  }
+
+  let { data, error } = await supabase
     .from('insemination_records')
-    .insert({
-      animal_id,
-      ai_date,
-      method,
-      semen_company: semen_company?.trim() || null,
-      bull_name: bull_name?.trim() || null,
-      lactation_no,
-      pregnancy_status,
-      expected_calving_date,
-      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null,
-      notes: notes?.trim() || null
-    })
+    .insert(recordPayload)
     .select()
     .single()
+
+  // Fallback: If new columns aren't in Supabase SQL schema yet, retry without new columns
+  if (error && error.message?.includes('schema cache')) {
+    delete recordPayload.calving_date
+    delete recordPayload.notes
+    const retry = await supabase
+      .from('insemination_records')
+      .insert(recordPayload)
+      .select()
+      .single()
+    data = retry.data
+    error = retry.error
+  }
 
   if (!error) {
     revalidatePath('/dashboard/insemination')
@@ -162,23 +182,44 @@ export async function updateInseminationRecord(formData: FormData) {
     }
   }
 
-  const { data, error } = await supabase
+  const recordPayload: any = {
+    animal_id,
+    ai_date,
+    method,
+    semen_company: semen_company?.trim() || null,
+    bull_name: bull_name?.trim() || null,
+    lactation_no,
+    pregnancy_status,
+    expected_calving_date
+  }
+
+  if (pregnancy_status?.toLowerCase() === 'calved') {
+    recordPayload.calving_date = calving_date || new Date().toISOString().split('T')[0]
+  }
+  if (notes?.trim()) {
+    recordPayload.notes = notes.trim()
+  }
+
+  let { data, error } = await supabase
     .from('insemination_records')
-    .update({
-      animal_id,
-      ai_date,
-      method,
-      semen_company: semen_company?.trim() || null,
-      bull_name: bull_name?.trim() || null,
-      lactation_no,
-      pregnancy_status,
-      expected_calving_date,
-      calving_date: pregnancy_status?.toLowerCase() === 'calved' ? (calving_date || new Date().toISOString().split('T')[0]) : null,
-      notes: notes?.trim() || null
-    })
+    .update(recordPayload)
     .eq('id', id)
     .select()
     .single()
+
+  // Fallback: If new columns aren't in Supabase SQL schema yet, retry without new columns
+  if (error && error.message?.includes('schema cache')) {
+    delete recordPayload.calving_date
+    delete recordPayload.notes
+    const retry = await supabase
+      .from('insemination_records')
+      .update(recordPayload)
+      .eq('id', id)
+      .select()
+      .single()
+    data = retry.data
+    error = retry.error
+  }
 
   if (!error) {
     revalidatePath('/dashboard/insemination')
