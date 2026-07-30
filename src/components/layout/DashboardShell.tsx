@@ -30,12 +30,12 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
   }
 
   const navItems = [
-    { name: 'Home', href: '/dashboard', icon: '🏠' },
-    { name: 'Animals', href: '/dashboard/animals', icon: '🐮' },
-    { name: 'Milk', href: '/dashboard/milk-sales', icon: '🥛' },
-    { name: 'Breeding', href: '/dashboard/insemination', icon: '💉' },
-    { name: 'Expenses', href: '/dashboard/expenses', icon: '🧾' },
-    { name: 'Vaccines', href: '/dashboard/vaccinations', icon: '🩺' },
+    { name: 'Home', sub: 'ہوم', href: '/dashboard', icon: '🏠' },
+    { name: 'Animals', sub: 'جانور', href: '/dashboard/animals', icon: '🐮' },
+    { name: 'Milk', sub: 'دودھ سیل', href: '/dashboard/milk-sales', icon: '🥛' },
+    { name: 'Breeding', sub: 'ٹیکا / بیج', href: '/dashboard/insemination', icon: '💉' },
+    { name: 'Expenses', sub: 'خرچہ', href: '/dashboard/expenses', icon: '🧾' },
+    { name: 'Vaccines', sub: 'بیماری ٹیکہ', href: '/dashboard/vaccinations', icon: '🩺' },
   ]
 
   return (
@@ -97,11 +97,14 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
                     <span className="absolute top-0 inset-x-2 h-0.5 bg-[#00BFA6] rounded-full animate-fade-in" />
                   )}
                   
-                  <span className={`text-lg sm:text-xl transition-transform duration-200 ${isActive ? 'scale-110 -translate-y-0.5' : ''}`}>
+                  <span className={`text-base sm:text-lg transition-transform duration-200 ${isActive ? 'scale-110 -translate-y-0.5' : ''}`}>
                     {item.icon}
                   </span>
-                  <span className={`text-[10px] sm:text-xs tracking-tight font-bold mt-0.5 whitespace-nowrap ${isActive ? 'text-[#00BFA6]' : 'text-gray-500'}`}>
+                  <span className={`text-[10px] sm:text-xs tracking-tight font-bold leading-tight ${isActive ? 'text-[#00BFA6]' : 'text-gray-600'}`}>
                     {item.name}
+                  </span>
+                  <span className={`text-[9px] leading-none ${isActive ? 'text-[#00BFA6] font-bold' : 'text-gray-400'}`}>
+                    {item.sub}
                   </span>
                 </Link>
               )

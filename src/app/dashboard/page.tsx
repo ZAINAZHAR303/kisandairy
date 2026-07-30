@@ -102,9 +102,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-blue-900 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>🐮</span>
-              <span className="truncate">Animals</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>🐮</span>
+                <span className="truncate">Animals</span>
+              </div>
+              <span className="text-[10px] text-gray-400">کل جانور</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -119,9 +122,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-teal-500 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>📋</span>
-              <span className="truncate">Active Records</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>📋</span>
+                <span className="truncate">Breeding Records</span>
+              </div>
+              <span className="text-[10px] text-gray-400">ٹیکا ہسٹری</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -136,9 +142,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-[#00BFA6] p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>🥛</span>
-              <span className="truncate">Today&apos;s Milk</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>🥛</span>
+                <span className="truncate">Today&apos;s Milk</span>
+              </div>
+              <span className="text-[10px] text-gray-400">آج کا دودھ</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -153,9 +162,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-emerald-600 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>💰</span>
-              <span className="truncate">Month Revenue</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>💰</span>
+                <span className="truncate">Month Revenue</span>
+              </div>
+              <span className="text-[10px] text-gray-400">دودھ کی آمدنی</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -170,9 +182,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-orange-600 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>🧾</span>
-              <span className="truncate">Month Expenses</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>🧾</span>
+                <span className="truncate">Month Expenses</span>
+              </div>
+              <span className="text-[10px] text-gray-400">کل خرچہ</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -187,9 +202,12 @@ export default async function DashboardPage() {
           className={`bg-white rounded-2xl shadow-sm border-l-4 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group ${isProfitable ? 'border-l-green-600' : 'border-l-red-600'}`}
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>📈</span>
-              <span className="truncate">Net Profit</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>📈</span>
+                <span className="truncate">Net Profit</span>
+              </div>
+              <span className="text-[10px] text-gray-400">خالص منافع / نقصان</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -204,9 +222,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-red-600 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>🚨</span>
-              <span className="truncate">Overdue Vaccines</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>🚨</span>
+                <span className="truncate">Overdue Vaccines</span>
+              </div>
+              <span className="text-[10px] text-gray-400">بیماری کے ٹیکے</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -221,9 +242,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-green-500 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>✅</span>
-              <span className="truncate">Pregnant Cows</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>✅</span>
+                <span className="truncate">Pregnant Cows</span>
+              </div>
+              <span className="text-[10px] text-gray-400">گابھن جانور</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
@@ -238,9 +262,12 @@ export default async function DashboardPage() {
           className="bg-white rounded-2xl shadow-sm border-l-4 border-l-orange-500 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-gray-500 text-xs sm:text-sm font-medium">
-              <span>📅</span>
-              <span className="truncate">Due Calvings</span>
+            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
+              <div className="flex items-center gap-1">
+                <span>📅</span>
+                <span className="truncate">Due Calvings</span>
+              </div>
+              <span className="text-[10px] text-gray-400">بچہ دینے والی</span>
             </div>
             <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>

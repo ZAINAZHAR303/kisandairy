@@ -72,11 +72,11 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
       const daysSince = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
 
       if (daysSince < 45) {
-        calvingDueDisplay = <span className="text-teal-700 font-bold">🍼 {daysSince} Days Ago (Healing Period)</span>
+        calvingDueDisplay = <span className="text-teal-700 font-bold">🍼 {daysSince} Days In Milk (سُوئے کو {daysSince} دن)</span>
       } else if (daysSince <= 90) {
-        calvingDueDisplay = <span className="text-emerald-700 font-bold animate-pulse">🎯 {daysSince} Days Ago — Ready for Next A.I.!</span>
+        calvingDueDisplay = <span className="text-emerald-700 font-bold animate-pulse">🎯 {daysSince} Days — Naye Teke ka Taim! (نئے ٹیکے کا ٹائم)</span>
       } else {
-        calvingDueDisplay = <span className="text-orange-700 font-bold">⚠️ {daysSince} Days Ago — Needs Next Insemination</span>
+        calvingDueDisplay = <span className="text-orange-700 font-bold">⚠️ {daysSince} Days — Teka Lagwein (ٹیکا لگوائیں)</span>
       }
     }
   } else if (record.pregnancy_status?.toLowerCase() === 'failed' || record.pregnancy_status?.toLowerCase() === 'aborted') {
@@ -84,9 +84,9 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
   } else if (expectedCalvingDate && !isNaN(expectedCalvingDate.getTime())) {
     const diffDays = Math.ceil((expectedCalvingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
     if (diffDays >= 0) {
-      calvingDueDisplay = <span className="text-teal-600 font-semibold">{diffDays} days remaining</span>
+      calvingDueDisplay = <span className="text-teal-600 font-semibold">{diffDays} days remaining (بچہ دینے میں {diffDays} دن)</span>
     } else {
-      calvingDueDisplay = <span className="text-red-600 font-semibold">Overdue by {Math.abs(diffDays)} days</span>
+      calvingDueDisplay = <span className="text-red-600 font-semibold">Overdue by {Math.abs(diffDays)} days (ٹائم اوپر)</span>
     }
   }
 

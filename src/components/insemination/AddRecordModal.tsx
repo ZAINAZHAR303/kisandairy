@@ -372,11 +372,11 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                   onChange={e => setPregnancyStatus(e.target.value)}
                   className="w-full rounded-xl border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white"
                 >
-                  <option value="Inseminated">⏳ Inseminated (Pending Check)</option>
-                  <option value="Confirmed">🤰 Confirmed Pregnant</option>
-                  <option value="Failed">❌ Failed / Not Pregnant</option>
-                  <option value="Calved">🍼 Calved / Delivered (Gave Birth)</option>
-                  <option value="Aborted">🚨 Aborted / Miscarriage</option>
+                  <option value="Inseminated">⏳ Inseminated (ٹیکا لگ گیا)</option>
+                  <option value="Confirmed">🤰 Confirmed Pregnant (گابھن پاس)</option>
+                  <option value="Failed">❌ Failed / Repeat (ٹیکا خالی رہ گیا)</option>
+                  <option value="Calved">🍼 Calved / Delivered (بچہ دے دیا)</option>
+                  <option value="Aborted">🚨 Aborted / Lost (حمل ضائع ہو گیا)</option>
                 </select>
               </div>
             </div>

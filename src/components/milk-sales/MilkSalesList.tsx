@@ -277,7 +277,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
               </div>
 
               <div className="text-left sm:text-right">
-                <div className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Outstanding</div>
+                <div className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Outstanding (بقایا / ادھار)</div>
                 <div className={`text-2xl sm:text-3xl font-black ${
                   (buyerLedgers.get(selectedBuyer.id)?.outstanding || 0) > 0 ? 'text-red-600' : 'text-emerald-600'
                 }`}>
@@ -289,21 +289,21 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
             {/* Metrics Summary */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100 text-center">
               <div>
-                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Sales</div>
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Sales (کل سیل)</div>
                 <div className="text-base sm:text-lg font-extrabold text-gray-900">
                   PKR {(buyerLedgers.get(selectedBuyer.id)?.totalSales || 0).toLocaleString()}
                 </div>
               </div>
 
               <div>
-                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Paid</div>
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Paid (وصولی / کیش)</div>
                 <div className="text-base sm:text-lg font-extrabold text-emerald-600">
                   PKR {(buyerLedgers.get(selectedBuyer.id)?.totalPaid || 0).toLocaleString()}
                 </div>
               </div>
 
               <div>
-                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Default Price</div>
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Default Price (ریٹ)</div>
                 <div className="text-base sm:text-lg font-extrabold text-gray-900">
                   PKR {selectedBuyer.rate_per_liter}/L
                 </div>
