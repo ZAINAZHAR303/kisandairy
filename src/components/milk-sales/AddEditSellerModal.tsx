@@ -14,6 +14,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
   const [name, setName] = useState('')
   const [contactNumber, setContactNumber] = useState('')
   const [ratePerLiter, setRatePerLiter] = useState<number | ''>('')
+  const [paymentTerms, setPaymentTerms] = useState<string>('End of Month')
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,10 +25,12 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
         setName(editSeller.name || '')
         setContactNumber(editSeller.contact_number || '')
         setRatePerLiter(editSeller.rate_per_liter ?? '')
+        setPaymentTerms(editSeller.payment_terms || 'End of Month')
       } else {
         setName('')
         setContactNumber('')
         setRatePerLiter('')
+        setPaymentTerms('End of Month')
       }
       setError(null)
     }
@@ -49,6 +52,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
       formData.append('name', name)
       formData.append('contact_number', contactNumber)
       formData.append('rate_per_liter', (ratePerLiter || 0).toString())
+      formData.append('payment_terms', paymentTerms)
 
       let result
       if (editSeller && editSeller.id) {
@@ -142,9 +146,24 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
                 min="0"
                 value={ratePerLiter}
                 onChange={e => setRatePerLiter(e.target.value === '' ? '' : parseFloat(e.target.value))}
-                placeholder="e.g. 75.00"
+                placeholder="e.g. 200.00"
                 className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                Payment Terms
+              </label>
+              <select
+                value={paymentTerms}
+                onChange={e => setPaymentTerms(e.target.value)}
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white"
+              >
+                <option value="End of Month">End of Month</option>
+                <option value="Weekly (7 days)">Weekly (7 days)</option>
+                <option value="Daily">Daily</option>
+              </select>
             </div>
           </form>
         </div>

@@ -1,10 +1,10 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import MilkSalesList from '@/components/milk-sales/MilkSalesList'
-import { MilkSaleEntry, Seller } from '@/lib/types'
+import { MilkSaleEntry, Seller, SellerPayment } from '@/lib/types'
 
 export const metadata: Metadata = {
-  title: 'Milk Sale Tracking | Kisan Dairy',
+  title: 'Milk Sales & Buyers | Kisan Dairy',
 }
 
 export default async function MilkSalesPage() {
@@ -16,16 +16,23 @@ export default async function MilkSalesPage() {
     .select('*, sellers(*)')
     .order('date', { ascending: false })
 
-  // Fetch sellers
+  // Fetch sellers / buyers
   const { data: sellers } = await supabase
     .from('sellers')
     .select('*')
     .order('name', { ascending: true })
 
+  // Fetch seller payments (safely fallback if table doesn't exist yet)
+  const { data: payments } = await supabase
+    .from('seller_payments')
+    .select('*, sellers(*)')
+    .order('date', { ascending: false })
+
   return (
     <MilkSalesList
       initialEntries={(entries as MilkSaleEntry[]) || []}
       sellers={(sellers as Seller[]) || []}
+      initialPayments={(payments as SellerPayment[]) || []}
     />
   )
 }

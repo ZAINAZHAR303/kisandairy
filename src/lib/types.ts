@@ -48,7 +48,19 @@ export interface Seller {
   name: string
   contact_number: string | null
   rate_per_liter: number
+  payment_terms?: string | null
   created_at: string
+}
+
+export interface SellerPayment {
+  id: string
+  user_id: string
+  seller_id: string
+  date: string
+  amount_paid: number
+  notes: string | null
+  created_at: string
+  sellers?: Seller
 }
 
 export interface MilkSaleEntry {
@@ -61,6 +73,8 @@ export interface MilkSaleEntry {
   total_liters: number
   rate_per_liter: number
   total_amount: number
+  amount_paid?: number
+  notes?: string | null
   created_at: string
   // Joined from sellers table
   sellers?: Seller
