@@ -54,8 +54,9 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
 
       const result = await addSellerPayment(formData)
 
-      if (result?.error) {
-        setError(typeof result.error === 'string' ? result.error : (result.error as Error)?.message || 'Failed to record payment')
+      if (result && 'error' in result && result.error) {
+        const errObj = result.error as any
+        setError(typeof errObj === 'string' ? errObj : errObj.message || 'Failed to record payment')
       } else {
         onClose()
       }

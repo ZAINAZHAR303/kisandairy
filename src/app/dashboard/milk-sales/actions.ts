@@ -332,7 +332,7 @@ export async function addSellerPayment(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return { data: null, error: new Error('Unauthorized') }
+    return { data: null, error: 'Unauthorized' }
   }
 
   const seller_id = formData.get('seller_id') as string
@@ -341,7 +341,7 @@ export async function addSellerPayment(formData: FormData) {
   const notes = formData.get('notes') as string | null
 
   if (!seller_id || !date || isNaN(amount_paid) || amount_paid <= 0) {
-    return { data: null, error: new Error('Valid seller, date and payment amount are required') }
+    return { data: null, error: 'Valid seller, date and payment amount are required' }
   }
 
   const insertData = {
@@ -358,11 +358,12 @@ export async function addSellerPayment(formData: FormData) {
     .select()
     .single()
 
-  if (!error) {
-    revalidatePath('/dashboard/milk-sales')
+  if (error) {
+    return { data: null, error: error.message || 'Failed to record payment' }
   }
 
-  return { data, error }
+  revalidatePath('/dashboard/milk-sales')
+  return { data, error: null }
 }
 
 export async function getSellerPayments() {
