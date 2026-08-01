@@ -95,7 +95,7 @@ export function exportToPDF(entries: MilkSaleEntry[], monthStr: string, sellerNa
   doc.text(`Month: ${monthStr}  |  Seller Filter: ${sellerName}  |  Generated on: ${todayStr}`, 14, 33)
 
   // Table Data Preparation
-  const head = [['Date', 'Seller Name', 'Morning (L)', 'Evening (L)', 'Total (L)', 'Rate (Rs/L)', 'Amount (Rs)']]
+  const head = [['Date', 'Seller Name', 'Morning (L)', 'Evening (L)', 'Total (L)', 'Amount (Rs)']]
 
   const body = entries.map(entry => [
     formatNumericDate(entry.date) || '',
@@ -103,7 +103,6 @@ export function exportToPDF(entries: MilkSaleEntry[], monthStr: string, sellerNa
     Number(entry.morning_liters || 0).toFixed(1),
     Number(entry.evening_liters || 0).toFixed(1),
     Number(entry.total_liters || 0).toFixed(1),
-    `Rs. ${Number(entry.rate_per_liter || 0).toFixed(2)}`,
     `Rs. ${Number(entry.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
   ])
 
@@ -118,7 +117,6 @@ export function exportToPDF(entries: MilkSaleEntry[], monthStr: string, sellerNa
     entries.reduce((sum, e) => sum + Number(e.morning_liters || 0), 0).toFixed(1),
     entries.reduce((sum, e) => sum + Number(e.evening_liters || 0), 0).toFixed(1),
     `${totalLiters.toFixed(1)} L`,
-    '-',
     `Rs. ${totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
   ]]
 
@@ -219,12 +217,11 @@ export function exportBuyerStatementPDF(buyerName: string, transactions: BuyerTx
   doc.setFont('helvetica', 'normal')
   doc.text(`Buyer: ${buyerName}  |  Generated on: ${todayStr}`, 14, 33)
 
-  const head = [['Date', 'Litres', 'Price/L', 'Total Sales', 'Paid', 'Outstanding', 'Notes']]
+  const head = [['Date', 'Litres', 'Total Sales', 'Paid', 'Outstanding', 'Notes']]
 
   const body = transactions.map(tx => [
     formatNumericDate(tx.date),
     tx.litres ? `${tx.litres}L` : '-',
-    tx.rate ? `Rs. ${tx.rate}` : '-',
     tx.total ? `Rs. ${tx.total.toLocaleString()}` : '-',
     tx.paid ? `Rs. ${tx.paid.toLocaleString()}` : 'Rs. 0',
     tx.total ? `Rs. ${(tx.total - tx.paid).toLocaleString()}` : '-',
@@ -239,7 +236,6 @@ export function exportBuyerStatementPDF(buyerName: string, transactions: BuyerTx
   const foot = [[
     'TOTAL SUMMARY',
     `${totalLitres.toFixed(1)} L`,
-    '-',
     `Rs. ${totalSales.toLocaleString()}`,
     `Rs. ${totalPaid.toLocaleString()}`,
     `Rs. ${outstanding.toLocaleString()}`,
