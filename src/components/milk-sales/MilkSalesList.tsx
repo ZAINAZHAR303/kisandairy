@@ -7,7 +7,7 @@ import AddEditSellerModal from './AddEditSellerModal'
 import RecordPaymentModal from './RecordPaymentModal'
 import BulkPriceUpdateModal from './BulkPriceUpdateModal'
 import { deleteMilkSaleEntry, deleteSeller, deleteSellerPayment } from '@/app/dashboard/milk-sales/actions'
-import { exportToExcel, exportToPDF } from '@/lib/exportUtils'
+import { exportToExcel, exportToPDF, exportBuyerStatementExcel, exportBuyerStatementPDF } from '@/lib/exportUtils'
 import { formatNumericDate } from '@/lib/dateUtils'
 
 interface MilkSalesListProps {
@@ -212,11 +212,19 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
 
   // Export handlers
   const handleExportExcel = () => {
-    exportToExcel(dateRangeFilteredEntries, dateFilter, 'Buyers Report')
+    if (selectedBuyer) {
+      exportBuyerStatementExcel(selectedBuyer.name, selectedBuyerTransactions)
+    } else {
+      exportToExcel(dateRangeFilteredEntries, dateFilter, 'Buyers Report')
+    }
   }
 
   const handleExportPDF = () => {
-    exportToPDF(dateRangeFilteredEntries, dateFilter, 'Buyers Report')
+    if (selectedBuyer) {
+      exportBuyerStatementPDF(selectedBuyer.name, selectedBuyerTransactions)
+    } else {
+      exportToPDF(dateRangeFilteredEntries, dateFilter, 'Buyers Report')
+    }
   }
 
   return (
