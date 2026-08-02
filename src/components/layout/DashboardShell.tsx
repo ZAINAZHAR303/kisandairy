@@ -4,6 +4,8 @@ import React, { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
+import OfflineIndicator from '@/components/pwa/OfflineIndicator'
+import InstallPrompt from '@/components/pwa/InstallPrompt'
 
 interface DashboardShellProps {
   user: any // Supabase User type
@@ -53,6 +55,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
             <span className="text-lg sm:text-xl font-extrabold tracking-wide text-white group-hover:text-teal-300 transition-colors">
               Kisan Dairy
             </span>
+            <OfflineIndicator />
           </Link>
 
           {/* Desktop Navigation Links (Centered inside Header for md+ screens) */}
@@ -134,6 +137,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
 
       {/* Main Content Area */}
       <main className="pt-32 lg:pt-20 pb-16 px-3 sm:px-6 lg:px-8 max-w-7xl mx-auto min-h-[calc(100vh-3.5rem)]">
+        <InstallPrompt />
         {children}
       </main>
     </div>
