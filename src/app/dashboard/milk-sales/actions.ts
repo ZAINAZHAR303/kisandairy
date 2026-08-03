@@ -194,7 +194,7 @@ export async function addMilkSaleEntry(formData: FormData) {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
-    return { data: null, error: new Error('Unauthorized') }
+    return { data: null, error: 'Unauthorized' }
   }
 
   const seller_id = formData.get('seller_id') as string
@@ -205,43 +205,49 @@ export async function addMilkSaleEntry(formData: FormData) {
   const notes = formData.get('notes') as string | null
 
   if (!seller_id) {
-    return { data: null, error: new Error('Please select a buyer') }
+    return { data: null, error: 'Please select a buyer' }
   }
 
   if (!date) {
-    return { data: null, error: new Error('Date is required') }
+    return { data: null, error: 'Date is required' }
   }
 
-  const insertData: any = {
-    seller_id,
-    date,
-    morning_liters: isNaN(morning_liters) ? 0 : morning_liters,
-    evening_liters: isNaN(evening_liters) ? 0 : evening_liters,
-    rate_per_liter: isNaN(rate_per_liter) ? 0 : rate_per_liter,
-    user_id: user.id
-  }
+  try {
+    const insertData: any = {
+      seller_id,
+      date,
+      morning_liters: isNaN(morning_liters) ? 0 : morning_liters,
+      evening_liters: isNaN(evening_liters) ? 0 : evening_liters,
+      rate_per_liter: isNaN(rate_per_liter) ? 0 : rate_per_liter,
+      user_id: user.id
+    }
 
-  if (notes) insertData.notes = notes.trim()
+    if (notes) insertData.notes = notes.trim()
 
-  let { data, error } = await supabase
-    .from('milk_sale_entries')
-    .insert(insertData)
-    .select()
-    .single()
+    let { data, error } = await supabase
+      .from('milk_sale_entries')
+      .insert(insertData)
+      .select()
+      .single()
 
-  if (error && error.message?.includes('schema cache')) {
-    delete insertData.notes
-    const retry = await supabase.from('milk_sale_entries').insert(insertData).select().single()
-    data = retry.data
-    error = retry.error
-  }
+    if (error && error.message?.includes('schema cache')) {
+      delete insertData.notes
+      const retry = await supabase.from('milk_sale_entries').insert(insertData).select().single()
+      data = retry.data
+      error = retry.error
+    }
 
-  if (!error) {
+    if (error) {
+      return { data: null, error: error.message || 'Failed to save milk sale entry' }
+    }
+
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard')
-  }
 
-  return { data, error }
+    return { data, error: null }
+  } catch (err: any) {
+    return { data: null, error: err?.message || 'An unexpected error occurred' }
+  }
 }
 
 export async function updateMilkSaleEntry(formData: FormData) {

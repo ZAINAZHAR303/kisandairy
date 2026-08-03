@@ -1,6 +1,5 @@
 // Kisan Dairy — Service Worker for Offline PWA Support
-const CACHE_NAME = 'kisan-dairy-v1'
-const OFFLINE_URL = '/offline'
+const CACHE_NAME = 'kisan-dairy-v2'
 
 // Static assets to pre-cache on install
 const PRECACHE_URLS = [
@@ -14,18 +13,22 @@ const PRECACHE_URLS = [
   '/manifest.json',
 ]
 
+// Only cache http/https requests — skip chrome-extension, data, blob etc.
+function isCacheable(request) {
+  const url = new URL(request.url)
+  return url.protocol === 'http:' || url.protocol === 'https:'
+}
+
 // Install Event — Pre-cache essential files
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       console.log('[SW] Pre-caching app shell')
-      // Use addAll with catch to handle any failing URLs gracefully
       return cache.addAll(PRECACHE_URLS).catch((err) => {
         console.warn('[SW] Some URLs failed to pre-cache:', err)
       })
     })
   )
-  // Activate immediately without waiting
   self.skipWaiting()
 })
 
@@ -43,38 +46,41 @@ self.addEventListener('activate', (event) => {
       )
     })
   )
-  // Take control of all pages immediately
   self.clients.claim()
 })
 
-// Fetch Event — Network-first for API calls, Cache-first for static assets
+// Fetch Event
 self.addEventListener('fetch', (event) => {
   const { request } = event
-  const url = new URL(request.url)
 
   // Skip non-GET requests (POST/PUT/DELETE for server actions)
   if (request.method !== 'GET') return
 
-  // Skip Supabase API calls and auth endpoints — always go to network
-  if (
-    url.hostname.includes('supabase') ||
-    url.pathname.startsWith('/auth') ||
-    url.pathname.includes('/_next/data')
-  ) {
-    return
-  }
+  // Skip non http/https requests (chrome-extension://, data:, blob: etc.)
+  if (!isCacheable(request)) return
+
+  const url = new URL(request.url)
+
+  // Skip Supabase API calls — always go to network
+  if (url.hostname.includes('supabase')) return
+
+  // Skip Next.js internal data routes
+  if (url.pathname.includes('/_next/data')) return
 
   // For Next.js static assets (_next/static) — Cache-first
   if (url.pathname.startsWith('/_next/static')) {
     event.respondWith(
       caches.match(request).then((cached) => {
-        return cached || fetch(request).then((response) => {
-          if (response.ok) {
+        if (cached) return cached
+        return fetch(request).then((response) => {
+          if (response && response.ok && isCacheable(request)) {
             const responseClone = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone))
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone).catch(() => {})
+            })
           }
           return response
-        })
+        }).catch(() => cached || new Response('', { status: 503 }))
       })
     )
     return
@@ -85,39 +91,47 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Cache the successful response
-          if (response.ok) {
+          if (response && response.ok && isCacheable(request)) {
             const responseClone = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone))
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone).catch(() => {})
+            })
           }
           return response
         })
         .catch(() => {
-          // Offline — serve from cache
+          // Offline — try cache, then fallback to dashboard cache
           return caches.match(request).then((cached) => {
-            return cached || caches.match('/dashboard')
+            return cached || caches.match('/dashboard') || new Response(
+              '<h1>You are offline</h1><p>Please check your connection.</p>',
+              { status: 503, headers: { 'Content-Type': 'text/html' } }
+            )
           })
         })
     )
     return
   }
 
-  // For other static assets (images, fonts, CSS) — Stale-while-revalidate
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      const fetchPromise = fetch(request)
-        .then((response) => {
-          if (response.ok) {
-            const responseClone = response.clone()
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone))
-          }
-          return response
-        })
-        .catch(() => cached)
+  // For other static assets (images, fonts) — Stale-while-revalidate
+  if (isCacheable(request)) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        const fetchPromise = fetch(request)
+          .then((response) => {
+            if (response && response.ok && isCacheable(request)) {
+              const responseClone = response.clone()
+              caches.open(CACHE_NAME).then((cache) => {
+                cache.put(request, responseClone).catch(() => {})
+              })
+            }
+            return response
+          })
+          .catch(() => cached || new Response('', { status: 503 }))
 
-      return cached || fetchPromise
-    })
-  )
+        return cached || fetchPromise
+      })
+    )
+  }
 })
 
 // Listen for messages from the app
