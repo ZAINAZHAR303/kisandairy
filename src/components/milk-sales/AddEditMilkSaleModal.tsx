@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { MilkSaleEntry, Seller } from '@/lib/types'
 import { addMilkSaleEntry, updateMilkSaleEntry, addSeller } from '@/app/dashboard/milk-sales/actions'
+import { savePendingMilkSale } from '@/lib/offlineDb'
 
 interface AddEditMilkSaleModalProps {
   isOpen: boolean
@@ -136,6 +137,21 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
     setError(null)
 
     try {
+      // ── OFFLINE MODE: save to IndexedDB and show success ──
+      if (!navigator.onLine && !editEntry) {
+        await savePendingMilkSale({
+          seller_id: selectedSellerId,
+          date,
+          morning_liters: mNum,
+          evening_liters: eNum,
+          rate_per_liter: rNum,
+          notes: '',
+        })
+        onClose()
+        alert('✅ Saved offline! یہ ریکارڈ انٹرنیٹ آنے پر خود بخود Supabase میں بھیجا جائے گا۔')
+        return
+      }
+
       const formData = new FormData()
       formData.append('seller_id', selectedSellerId)
       formData.append('date', date)
@@ -152,12 +168,31 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
       }
 
       if (result?.error) {
-        setError(typeof result.error === 'string' ? result.error : (result.error as Error)?.message || 'An error occurred')
+        setError(typeof result.error === 'string' ? result.error : (result.error as any)?.message || 'An error occurred')
       } else {
         onClose()
       }
-    } catch (err) {
-      setError('An unexpected error occurred')
+    } catch (err: any) {
+      // If network failed mid-request, fallback to offline save
+      if (!navigator.onLine && !editEntry) {
+        try {
+          await savePendingMilkSale({
+            seller_id: selectedSellerId,
+            date,
+            morning_liters: mNum,
+            evening_liters: eNum,
+            rate_per_liter: rNum,
+            notes: '',
+          })
+          onClose()
+          alert('✅ Saved offline! انٹرنیٹ آنے پر خود بخود sync ہو گا۔')
+          return
+        } catch {
+          setError('Could not save offline. Please try again.')
+        }
+      } else {
+        setError(err?.message || 'An unexpected error occurred')
+      }
     } finally {
       setIsSubmitting(false)
     }

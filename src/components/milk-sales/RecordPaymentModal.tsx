@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Seller } from '@/lib/types'
 import { addSellerPayment } from '@/app/dashboard/milk-sales/actions'
+import { savePendingPayment } from '@/lib/offlineDb'
 
 interface RecordPaymentModalProps {
   isOpen: boolean
@@ -46,6 +47,19 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
     setError(null)
 
     try {
+      // ── OFFLINE MODE: save to IndexedDB ──
+      if (!navigator.onLine) {
+        await savePendingPayment({
+          seller_id: sellerId,
+          date,
+          amount_paid: Number(amountPaid),
+          notes: notes || '',
+        })
+        onClose()
+        alert('✅ Payment saved offline! انٹرنیٹ آنے پر خود بخود sync ہو گا۔')
+        return
+      }
+
       const formData = new FormData()
       formData.append('seller_id', sellerId)
       formData.append('date', date)
@@ -60,8 +74,25 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
       } else {
         onClose()
       }
-    } catch (err) {
-      setError('An error occurred while saving payment')
+    } catch (err: any) {
+      // Network failed mid-request — fallback to offline
+      if (!navigator.onLine) {
+        try {
+          await savePendingPayment({
+            seller_id: sellerId,
+            date,
+            amount_paid: Number(amountPaid),
+            notes: notes || '',
+          })
+          onClose()
+          alert('✅ Payment saved offline! انٹرنیٹ آنے پر خود بخود sync ہو گا۔')
+          return
+        } catch {
+          setError('Could not save offline. Please try again.')
+        }
+      } else {
+        setError(err?.message || 'An error occurred while saving payment')
+      }
     } finally {
       setIsSubmitting(false)
     }
