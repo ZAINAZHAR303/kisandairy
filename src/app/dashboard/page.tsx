@@ -95,11 +95,11 @@ export default async function DashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
         {/* Total Animals Card */}
         <Link 
           href="/dashboard/animals"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-blue-500"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
         {/* Active Records Card */}
         <Link 
           href="/dashboard/insemination"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-green-500"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -137,7 +137,7 @@ export default async function DashboardPage() {
         {/* Today's Milk (L) Card */}
         <Link 
           href="/dashboard/milk-sales"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group lg:col-span-2"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-blue-400"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -156,7 +156,7 @@ export default async function DashboardPage() {
         {/* This Month Revenue Card */}
         <Link 
           href="/dashboard/milk-sales"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-green-500"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -175,7 +175,7 @@ export default async function DashboardPage() {
         {/* This Month Expenses Card */}
         <Link 
           href="/dashboard/expenses"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-orange-400"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -194,7 +194,7 @@ export default async function DashboardPage() {
         {/* Net Profit Card */}
         <Link 
           href="/dashboard/reports/financials"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group lg:col-span-2"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-purple-500"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -213,7 +213,7 @@ export default async function DashboardPage() {
         {/* Overdue Vaccines Card */}
         <Link 
           href="/dashboard/vaccinations?tab=overdue"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-pink-400"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -232,7 +232,7 @@ export default async function DashboardPage() {
         {/* Confirmed Pregnancies Card */}
         <Link 
           href="/dashboard/insemination?status=Confirmed"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-emerald-400"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
@@ -251,7 +251,7 @@ export default async function DashboardPage() {
         {/* Upcoming Calvings Card */}
         <Link 
           href="/dashboard/insemination?status=Confirmed"
-          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group"
+          className="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-md hover:-translate-y-1 transition-all duration-300 cursor-pointer group border-t-4 border-t-orange-400"
         >
           <div className="flex items-center justify-between">
             <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
