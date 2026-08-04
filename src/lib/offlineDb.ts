@@ -74,6 +74,22 @@ function generateId(): string {
   return `offline_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`
 }
 
+// Register background sync
+async function registerBackgroundSync() {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    try {
+      const registration = await navigator.serviceWorker.ready
+      if ('sync' in registration) {
+        // @ts-ignore - TS doesn't have SyncManager types by default
+        await registration.sync.register('sync-offline-records')
+        console.log('[OfflineDB] Background sync registered')
+      }
+    } catch (err) {
+      console.log('[OfflineDB] Background sync registration failed', err)
+    }
+  }
+}
+
 // =================== Milk Sales ===================
 
 export async function savePendingMilkSale(data: {
@@ -93,6 +109,7 @@ export async function savePendingMilkSale(data: {
   }
   await db.put(STORE_MILK_SALES, record)
   if (typeof window !== 'undefined') window.dispatchEvent(new Event('offlineSync'))
+  await registerBackgroundSync()
   return record
 }
 
@@ -126,6 +143,7 @@ export async function savePendingPayment(data: {
   }
   await db.put(STORE_PAYMENTS, record)
   if (typeof window !== 'undefined') window.dispatchEvent(new Event('offlineSync'))
+  await registerBackgroundSync()
   return record
 }
 
@@ -159,6 +177,7 @@ export async function savePendingExpense(data: {
   }
   await db.put(STORE_EXPENSES, record)
   if (typeof window !== 'undefined') window.dispatchEvent(new Event('offlineSync'))
+  await registerBackgroundSync()
   return record
 }
 

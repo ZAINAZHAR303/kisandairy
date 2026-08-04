@@ -140,3 +140,94 @@ self.addEventListener('message', (event) => {
     self.skipWaiting()
   }
 })
+
+// ==========================================
+// BACKGROUND SYNC LOGIC
+// ==========================================
+
+// Helper to interact with IndexedDB directly
+function openIDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('kisan-dairy-offline', 1)
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve(request.result)
+  })
+}
+
+function getStoreData(db, storeName) {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains(storeName)) return resolve([])
+    const tx = db.transaction(storeName, 'readonly')
+    const store = tx.objectStore(storeName)
+    const request = store.getAll()
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => {
+      // Filter for only unsynced records
+      const unsynced = (request.result || []).filter(r => !r.synced)
+      resolve(unsynced)
+    }
+  })
+}
+
+function deleteStoreData(db, storeName, id) {
+  return new Promise((resolve, reject) => {
+    if (!db.objectStoreNames.contains(storeName)) return resolve()
+    const tx = db.transaction(storeName, 'readwrite')
+    const store = tx.objectStore(storeName)
+    const request = store.delete(id)
+    request.onerror = () => reject(request.error)
+    request.onsuccess = () => resolve()
+  })
+}
+
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-offline-records') {
+    console.log('[SW] Background sync triggered')
+    event.waitUntil(syncOfflineData())
+  }
+})
+
+async function syncOfflineData() {
+  try {
+    const db = await openIDB()
+    
+    const milkSales = await getStoreData(db, 'pendingMilkSales')
+    const payments = await getStoreData(db, 'pendingPayments')
+    const expenses = await getStoreData(db, 'pendingExpenses')
+
+    if (milkSales.length === 0 && payments.length === 0 && expenses.length === 0) {
+      console.log('[SW] No offline data to sync.')
+      return
+    }
+
+    console.log('[SW] Syncing data to server...', { milkSales, payments, expenses })
+
+    const response = await fetch('/api/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ milkSales, payments, expenses })
+    })
+
+    if (!response.ok) {
+      throw new Error('Sync API returned ' + response.status)
+    }
+
+    const result = await response.json()
+    console.log('[SW] Sync successful:', result)
+
+    // Delete synced records
+    for (const sale of milkSales) await deleteStoreData(db, 'pendingMilkSales', sale.id)
+    for (const payment of payments) await deleteStoreData(db, 'pendingPayments', payment.id)
+    for (const expense of expenses) await deleteStoreData(db, 'pendingExpenses', expense.id)
+
+    // Notify clients to update UI
+    self.clients.matchAll().then(clients => {
+      clients.forEach(client => client.postMessage({ type: 'SYNC_COMPLETE' }))
+    })
+
+  } catch (error) {
+    console.error('[SW] Background sync failed:', error)
+    throw error // Re-throw so the browser can retry later
+  }
+}
+

@@ -45,10 +45,24 @@ export default function OfflineIndicator() {
     const handleSyncUpdate = () => checkPendingRecords()
     window.addEventListener('offlineSync', handleSyncUpdate)
 
+    // Listen for Background Sync messages from Service Worker
+    const handleSWMessage = (event: MessageEvent) => {
+      if (event.data && event.data.type === 'SYNC_COMPLETE') {
+        showToast('success', 'Background Sync Complete', 'بیک گراؤنڈ میں ڈیٹا بھیج دیا گیا')
+        checkPendingRecords()
+      }
+    }
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', handleSWMessage)
+    }
+
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
       window.removeEventListener('offlineSync', handleSyncUpdate)
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.removeEventListener('message', handleSWMessage)
+      }
     }
   }, [checkPendingRecords])
 
