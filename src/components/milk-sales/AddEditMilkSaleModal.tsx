@@ -249,7 +249,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                 value={showAddSeller ? 'new' : selectedSellerId}
                 onChange={handleSellerChange}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all bg-white"
               >
                 <option value="">-- Select Seller --</option>
                 {localSellers.map(s => (
@@ -263,8 +263,8 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
 
             {/* Inline Mini-Form for New Seller */}
             {showAddSeller && (
-              <div className="p-4 bg-teal-50/50 rounded-xl border border-teal-100 space-y-3">
-                <h3 className="text-xs font-semibold text-teal-800 uppercase tracking-wider">New Seller Details</h3>
+              <div className="p-4 bg-blue-50/50 rounded-xl border border-blue-100 space-y-3">
+                <h3 className="text-xs font-semibold text-blue-800 uppercase tracking-wider">New Seller Details</h3>
                 {sellerError && <div className="text-red-600 text-xs">{sellerError}</div>}
                 
                 <div>
@@ -274,7 +274,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                     value={newSellerName}
                     onChange={e => setNewSellerName(e.target.value)}
                     placeholder="e.g. City Dairy / Ramesh"
-                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6]"
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -285,7 +285,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                       value={newSellerContact}
                       onChange={e => setNewSellerContact(e.target.value)}
                       placeholder="Optional"
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6]"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]"
                     />
                   </div>
                   <div>
@@ -297,7 +297,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                       value={newSellerRate}
                       onChange={e => setNewSellerRate(e.target.value === '' ? '' : parseFloat(e.target.value))}
                       placeholder="e.g. 75"
-                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6]"
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]"
                     />
                   </div>
                 </div>
@@ -314,7 +314,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                     type="button"
                     onClick={handleAddSeller}
                     disabled={isAddingSeller}
-                    className="px-3 py-1.5 text-xs font-medium text-white bg-[#00BFA6] rounded-lg hover:bg-[#00a892] disabled:opacity-70 flex items-center"
+                    className="px-3 py-1.5 text-xs font-medium text-white bg-[var(--color-blue)] rounded-lg hover:bg-blue-600 disabled:opacity-70 flex items-center"
                   >
                     {isAddingSeller && <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-1.5" />}
                     Save Seller
@@ -333,7 +333,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                 value={date}
                 onChange={e => setDate(e.target.value)}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
@@ -350,7 +350,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                   value={morningLiters}
                   onChange={e => setMorningLiters(e.target.value === '' ? '' : parseFloat(e.target.value))}
                   placeholder="0.0"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -365,7 +365,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                   value={eveningLiters}
                   onChange={e => setEveningLiters(e.target.value === '' ? '' : parseFloat(e.target.value))}
                   placeholder="0.0"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -389,17 +389,17 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
                 onChange={e => setRatePerLiter(e.target.value === '' ? '' : parseFloat(e.target.value))}
                 placeholder="e.g. 80.00"
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
             {/* Total Amount Read-Only Preview */}
-            <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 flex justify-between items-center">
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex justify-between items-center">
               <div>
-                <span className="block text-xs font-semibold text-teal-800 uppercase tracking-wider">Total Amount</span>
-                <span className="text-xs text-teal-600 font-normal">({totalLitersCalculated.toFixed(2)} L × Rs. {rNum})</span>
+                <span className="block text-xs font-semibold text-blue-800 uppercase tracking-wider">Total Amount</span>
+                <span className="text-xs text-blue-600 font-normal">({totalLitersCalculated.toFixed(2)} L × Rs. {rNum})</span>
               </div>
-              <span className="text-xl font-extrabold text-[#00BFA6]">
+              <span className="text-xl font-extrabold text-[var(--color-blue)]">
                 Rs. {totalAmountCalculated.toFixed(2)}
               </span>
             </div>
@@ -412,7 +412,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
             type="submit"
             form="milkEntryForm"
             disabled={isSubmitting}
-            className="w-full bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
+            className="w-full bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
           >
             {isSubmitting ? (
               <>

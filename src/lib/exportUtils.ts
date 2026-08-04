@@ -78,7 +78,7 @@ export function exportToPDF(entries: MilkSaleEntry[], monthStr: string, sellerNa
   const doc = new jsPDF()
 
   // Title & Header Banner (Navy `#1a2f5e`)
-  doc.setFillColor(26, 47, 94) // #1a2f5e
+  doc.setFillColor(2, 18, 59) // #1a2f5e
   doc.rect(0, 0, 210, 25, 'F')
 
   doc.setTextColor(255, 255, 255)
@@ -203,7 +203,7 @@ export function exportBuyerStatementPDF(buyerName: string, transactions: BuyerTx
   const doc = new jsPDF()
 
   // Header Banner
-  doc.setFillColor(26, 47, 94)
+  doc.setFillColor(2, 18, 59)
   doc.rect(0, 0, 210, 25, 'F')
 
   doc.setTextColor(255, 255, 255)

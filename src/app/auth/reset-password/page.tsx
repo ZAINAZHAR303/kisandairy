@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
           )}
 
           {success && (
-            <div className="mb-4 p-3 bg-teal-50 border border-teal-100 text-teal-700 text-sm rounded-xl">
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-100 text-blue-700 text-sm rounded-xl">
               {success}
             </div>
           )}
@@ -86,7 +86,7 @@ export default function ResetPasswordPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 placeholder="Enter new password"
               />
             </div>
@@ -98,7 +98,7 @@ export default function ResetPasswordPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 placeholder="Confirm new password"
               />
             </div>
@@ -106,7 +106,7 @@ export default function ResetPasswordPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-3.5 px-4 bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
+              className="w-full py-3.5 px-4 bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
             >
               {isLoading ? (
                 <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>

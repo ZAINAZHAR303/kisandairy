@@ -118,7 +118,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
 
         <button
           onClick={handleOpenAdd}
-          className="bg-[#00BFA6] hover:bg-[#00a892] text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-1"
+          className="bg-[var(--color-blue)] hover:bg-blue-600 text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-1"
         >
           <span>+ Log Expense</span>
         </button>
@@ -180,7 +180,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
             <select
               value={selectedCategory}
               onChange={e => setSelectedCategory(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-gray-50 font-medium"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-gray-50 font-medium"
             >
               <option value="all">All Categories</option>
               <option value="Feed">🌾 Feed (wanda, fodder, silage)</option>
@@ -199,7 +199,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
               type="month"
               value={selectedMonth}
               onChange={e => setSelectedMonth(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-gray-50 font-medium"
+              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-gray-50 font-medium"
             />
           </div>
         </div>
@@ -208,7 +208,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
         {(selectedCategory !== 'all' || selectedMonth !== currentMonthStr) && (
           <button
             onClick={() => { setSelectedCategory('all'); setSelectedMonth(currentMonthStr); }}
-            className="text-xs text-teal-600 hover:text-teal-800 font-semibold self-end sm:self-center px-2.5 py-1.5 bg-teal-50 rounded-lg border border-teal-100"
+            className="text-xs text-blue-600 hover:text-blue-800 font-semibold self-end sm:self-center px-2.5 py-1.5 bg-blue-50 rounded-lg border border-blue-100"
           >
             Reset Filters
           </button>
@@ -230,11 +230,11 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
           </div>
 
           {/* Monthly Total Row (Pinned) */}
-          <div className="bg-[#1a2f5e] text-white rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row justify-between items-center gap-3 border border-orange-500/30">
+          <div className="bg-white border-b border-gray-100 text-white rounded-2xl p-4 shadow-lg flex flex-col sm:flex-row justify-between items-center gap-3 border border-orange-500/30">
             <div className="flex items-center space-x-2">
               <span className="text-xl">🧾</span>
               <div>
-                <div className="text-xs text-teal-300 font-semibold uppercase tracking-wider">
+                <div className="text-xs text-blue-300 font-semibold uppercase tracking-wider">
                   Total Filtered Expenses ({selectedMonth})
                 </div>
                 <div className="text-xs text-white/70">
@@ -262,7 +262,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
           </p>
           <button
             onClick={handleOpenAdd}
-            className="inline-flex items-center space-x-2 bg-[#00BFA6] hover:bg-[#00a892] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
+            className="inline-flex items-center space-x-2 bg-[var(--color-blue)] hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
           >
             <span>+ Log Expense</span>
           </button>
@@ -286,9 +286,9 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
           {/* Milk Revenue */}
-          <div className="bg-teal-50/50 p-3.5 rounded-xl border border-teal-100">
-            <div className="text-xs font-semibold text-teal-800 uppercase tracking-wider mb-1">Total Milk Revenue</div>
-            <div className="text-lg font-extrabold text-teal-900">
+          <div className="bg-blue-50/50 p-3.5 rounded-xl border border-blue-100">
+            <div className="text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Total Milk Revenue</div>
+            <div className="text-lg font-extrabold text-blue-900">
               Rs. {monthMilkRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
@@ -316,7 +316,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
       {/* Floating Action Button */}
       <button
         onClick={handleOpenAdd}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-[#00BFA6] hover:bg-[#00a892] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-[var(--color-blue)] hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40"
         title="Log Expense"
       >
         <span className="text-3xl font-light leading-none mb-1">+</span>

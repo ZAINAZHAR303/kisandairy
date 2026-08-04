@@ -246,7 +246,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 value={showAddAnimal ? 'new' : selectedAnimalId}
                 onChange={handleAnimalSelectChange}
                 disabled={!!editRecord}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-500 appearance-none bg-white"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-500 appearance-none bg-white"
               >
                 <option value="">-- Select Animal --</option>
                 {localAnimals.map(animal => (
@@ -269,31 +269,31 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Name *</label>
-                    <input type="text" value={newAnimalName} onChange={e => setNewAnimalName(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6]" />
+                    <input type="text" value={newAnimalName} onChange={e => setNewAnimalName(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Tag Number</label>
-                    <input type="text" value={newAnimalTag} onChange={e => setNewAnimalTag(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6]" />
+                    <input type="text" value={newAnimalTag} onChange={e => setNewAnimalTag(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]" />
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Type</label>
-                    <select value={newAnimalType} onChange={e => setNewAnimalType(e.target.value as 'cow' | 'buffalo')} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6] bg-white">
+                    <select value={newAnimalType} onChange={e => setNewAnimalType(e.target.value as 'cow' | 'buffalo')} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)] bg-white">
                       <option value="cow">Cow</option>
                       <option value="buffalo">Buffalo</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Breed</label>
-                    <input type="text" value={newAnimalBreed} onChange={e => setNewAnimalBreed(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[#00BFA6] focus:border-[#00BFA6]" />
+                    <input type="text" value={newAnimalBreed} onChange={e => setNewAnimalBreed(e.target.value)} className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]" />
                   </div>
                 </div>
 
                 <div className="flex justify-end gap-2 mt-2">
                   <button type="button" onClick={() => { setShowAddAnimal(false); setSelectedAnimalId(''); setAnimalError(null); }} className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-                  <button type="button" onClick={handleAddAnimal} disabled={isAddingAnimal} className="px-3 py-1.5 text-xs font-medium text-white bg-[#00BFA6] rounded-lg hover:bg-[#00a892] disabled:opacity-70 flex items-center">
+                  <button type="button" onClick={handleAddAnimal} disabled={isAddingAnimal} className="px-3 py-1.5 text-xs font-medium text-white bg-[var(--color-blue)] rounded-lg hover:bg-blue-600 disabled:opacity-70 flex items-center">
                     {isAddingAnimal ? <span className="w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2"></span> : null}
                     Save Animal
                   </button>
@@ -308,7 +308,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 value={aiDate}
                 onChange={e => setAiDate(e.target.value)}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
@@ -318,14 +318,14 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 <button 
                   type="button"
                   onClick={() => setMethod('AI')}
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${method === 'AI' ? 'bg-[#00BFA6] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${method === 'AI' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   AI
                 </button>
                 <button 
                   type="button"
                   onClick={() => setMethod('Natural')}
-                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${method === 'Natural' ? 'bg-[#00BFA6] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                  className={`flex-1 py-2 text-sm font-medium rounded-lg transition-colors ${method === 'Natural' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
                 >
                   Natural
                 </button>
@@ -340,7 +340,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                   value={semenCompany}
                   onChange={e => setSemenCompany(e.target.value)}
                   placeholder="Optional"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
               <div>
@@ -350,7 +350,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                   value={bullName}
                   onChange={e => setBullName(e.target.value)}
                   placeholder="Optional"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -363,7 +363,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                   min="1"
                   value={lactationNo}
                   onChange={e => setLactationNo(parseInt(e.target.value) || 1)}
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
               <div>
@@ -371,7 +371,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 <select 
                   value={pregnancyStatus}
                   onChange={e => setPregnancyStatus(e.target.value)}
-                  className="w-full rounded-xl border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-3 text-xs sm:text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all bg-white"
                 >
                   <option value="Inseminated">⏳ Inseminated (ٹیکا لگ گیا)</option>
                   <option value="Confirmed">🤰 Confirmed Pregnant (گابھن پاس)</option>
@@ -396,7 +396,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                     required
                     value={calvingDate}
                     onChange={e => setCalvingDate(e.target.value)}
-                    className="w-full rounded-xl border border-emerald-300 px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-white text-emerald-950"
+                    className="w-full rounded-xl border border-emerald-300 px-3 py-2.5 text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-white text-emerald-950"
                   />
                 </div>
                 {calvingDate && (
@@ -420,14 +420,14 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Add vet notes, straw codes, heat symptoms, or calving details..."
-                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
-            <div className="bg-teal-50 border border-teal-100 rounded-xl p-4 mt-2">
-              <label className="block text-xs font-semibold text-teal-800 uppercase tracking-wider mb-1">Estimated Calving Date</label>
-              <div className="text-teal-900 font-medium">
-                {estimatedCalvingDate ? estimatedCalvingDate : <span className="text-teal-700/60 text-sm">Select animal and date to calculate</span>}
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 mt-2">
+              <label className="block text-xs font-semibold text-blue-800 uppercase tracking-wider mb-1">Estimated Calving Date</label>
+              <div className="text-blue-900 font-medium">
+                {estimatedCalvingDate ? estimatedCalvingDate : <span className="text-blue-700/60 text-sm">Select animal and date to calculate</span>}
               </div>
             </div>
           </form>
@@ -438,7 +438,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
             type="submit"
             form="recordForm"
             disabled={isSubmitting}
-            className="w-full bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
+            className="w-full bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
           >
             {isSubmitting ? (
               <>

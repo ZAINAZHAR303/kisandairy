@@ -62,7 +62,7 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardPr
         <div className="flex items-center space-x-2">
           <button
             onClick={() => onEdit(expense)}
-            className="p-1.5 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors text-xs font-semibold flex items-center space-x-1"
+            className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors text-xs font-semibold flex items-center space-x-1"
             title="Edit Expense"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

@@ -143,7 +143,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
     const doc = new jsPDF()
 
     // Header Banner
-    doc.setFillColor(26, 47, 94) // #1a2f5e
+    doc.setFillColor(2, 18, 59) // #1a2f5e
     doc.rect(0, 0, 210, 25, 'F')
 
     doc.setTextColor(255, 255, 255)
@@ -265,7 +265,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
           <select
             value={selectedYear}
             onChange={e => setSelectedYear(e.target.value)}
-            className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-semibold bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#00BFA6]"
+            className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-semibold bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
           >
             <option value="all">All Years</option>
             {availableYears.map(y => (
@@ -286,7 +286,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
                 className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-shadow"
               >
                 {/* Header Row */}
-                <div className="bg-[#1a2f5e] text-white px-5 py-3.5 flex justify-between items-center">
+                <div className="bg-white border-b border-gray-100 text-white px-5 py-3.5 flex justify-between items-center">
                   <div className="font-bold text-base tracking-wide flex items-center space-x-2">
                     <span>🗓️</span>
                     <span>{item.monthLabel}</span>
@@ -303,9 +303,9 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
                     <div className="text-sm font-bold text-gray-900">{item.litersSold.toFixed(1)} L</div>
                   </div>
 
-                  <div className="bg-teal-50/50 p-3 rounded-xl border border-teal-100">
-                    <div className="text-[10px] text-teal-700 font-semibold uppercase tracking-wider mb-0.5">Milk Revenue</div>
-                    <div className="text-sm font-bold text-teal-900">
+                  <div className="bg-blue-50/50 p-3 rounded-xl border border-blue-100">
+                    <div className="text-[10px] text-blue-700 font-semibold uppercase tracking-wider mb-0.5">Milk Revenue</div>
+                    <div className="text-sm font-bold text-blue-900">
                       Rs. {item.revenue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                     </div>
                   </div>
@@ -331,7 +331,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
                 <div className="bg-gray-50 px-5 py-2.5 flex justify-between items-center text-xs text-gray-500">
                   <span>Margin: <strong className="text-gray-800">{item.marginPercent.toFixed(1)}%</strong></span>
                   <div className="flex space-x-3">
-                    <Link href={`/dashboard/milk-sales?month=${item.monthKey}`} className="text-teal-600 hover:underline font-medium">
+                    <Link href={`/dashboard/milk-sales?month=${item.monthKey}`} className="text-blue-600 hover:underline font-medium">
                       View Sales →
                     </Link>
                     <Link href={`/dashboard/expenses?month=${item.monthKey}`} className="text-orange-600 hover:underline font-medium">

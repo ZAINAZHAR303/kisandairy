@@ -42,7 +42,7 @@ export default function LandingPage() {
       <main className="flex-1">
         {/* B. Hero Section */}
         <section className="relative py-16 lg:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center space-x-2 bg-teal-50 border border-teal-100 text-[var(--color-blue)] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+          <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-100 text-[var(--color-blue)] px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
             <span>🇵🇰 Designed for Pakistani Dairy Farms</span>
           </div>
 
@@ -77,7 +77,7 @@ export default function LandingPage() {
               <span className="text-3xl">🐄</span>
               <div className="text-left">
                 <div className="font-extrabold text-lg text-white">Built for Pakistani Farmers</div>
-                <div className="text-xs text-teal-300">Cows & Buffaloes Optimized</div>
+                <div className="text-xs text-blue-300">Cows & Buffaloes Optimized</div>
               </div>
             </div>
 
@@ -85,7 +85,7 @@ export default function LandingPage() {
               <span className="text-3xl">📊</span>
               <div className="text-left">
                 <div className="font-extrabold text-lg text-white">4 Powerful Trackers</div>
-                <div className="text-xs text-teal-300">Milk, Breeding, Health & Profits</div>
+                <div className="text-xs text-blue-300">Milk, Breeding, Health & Profits</div>
               </div>
             </div>
 
@@ -93,7 +93,7 @@ export default function LandingPage() {
               <span className="text-3xl">🆓</span>
               <div className="text-left">
                 <div className="font-extrabold text-lg text-white">100% Free to Use</div>
-                <div className="text-xs text-teal-300">No Hidden Costs or Fees</div>
+                <div className="text-xs text-blue-300">No Hidden Costs or Fees</div>
               </div>
             </div>
           </div>
@@ -125,7 +125,7 @@ export default function LandingPage() {
             {/* Feature 2: Milk Sales */}
             <div className="bg-white rounded-2xl p-6 shadow-sm border-l-4 border-l-[var(--color-blue)] hover:shadow-md transition-all space-y-3">
               <div className="flex items-center space-x-3">
-                <span className="text-3xl p-2 bg-teal-50 rounded-xl">🥛</span>
+                <span className="text-3xl p-2 bg-blue-50 rounded-xl">🥛</span>
                 <h3 className="text-xl font-bold text-gray-900">Milk Sale Tracking</h3>
               </div>
               <p className="text-sm text-gray-600 leading-relaxed">
@@ -209,7 +209,7 @@ export default function LandingPage() {
             <h2 className="text-3xl sm:text-4xl font-extrabold text-white">
               Ready to Modernize Your Dairy Farm?
             </h2>
-            <p className="text-teal-200 text-base sm:text-lg">
+            <p className="text-blue-200 text-base sm:text-lg">
               Join Pakistani farmers already using Kisan Dairy to track their farm smarter.
             </p>
             <div className="pt-4">

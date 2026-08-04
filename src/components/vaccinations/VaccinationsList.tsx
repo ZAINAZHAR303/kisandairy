@@ -96,7 +96,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
 
         <button
           onClick={handleOpenAdd}
-          className="bg-[#00BFA6] hover:bg-[#00a892] text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-1"
+          className="bg-[var(--color-blue)] hover:bg-blue-600 text-white text-xs font-semibold px-3.5 py-2.5 rounded-xl shadow-sm transition-all flex items-center space-x-1"
         >
           <span>+ Log Vaccination</span>
         </button>
@@ -193,7 +193,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
               <select
                 value={selectedAnimalId}
                 onChange={e => setSelectedAnimalId(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-gray-50 font-medium"
+                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-gray-50 font-medium"
               >
                 <option value="all">All Animals ({animals.length})</option>
                 {animals.map(a => (
@@ -207,7 +207,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
               <select
                 value={selectedVaccine}
                 onChange={e => setSelectedVaccine(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-gray-50 font-medium"
+                className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-gray-50 font-medium"
               >
                 {vaccineOptions.map(v => (
                   <option key={v} value={v}>{v}</option>
@@ -239,7 +239,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
               </p>
               <button
                 onClick={handleOpenAdd}
-                className="inline-flex items-center space-x-2 bg-[#00BFA6] hover:bg-[#00a892] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
+                className="inline-flex items-center space-x-2 bg-[var(--color-blue)] hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
               >
                 <span>+ Log Vaccination</span>
               </button>
@@ -278,7 +278,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
       {/* Floating Action Button */}
       <button
         onClick={handleOpenAdd}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-[#00BFA6] hover:bg-[#00a892] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-[var(--color-blue)] hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40"
         title="Log Vaccination"
       >
         <span className="text-3xl font-light leading-none mb-1">+</span>

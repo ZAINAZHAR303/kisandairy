@@ -37,15 +37,15 @@ export default function AnimalCard({ animal, onEdit, onDelete }: AnimalCardProps
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
       {/* Card Header: Dark Navy (#1a2f5e) */}
-      <div className="bg-[#1a2f5e] px-4 py-3 flex justify-between items-center rounded-t-xl">
+      <div className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center rounded-t-xl">
         <div className="flex items-center space-x-2 truncate flex-1 pr-2">
           <span className="text-xl">{isBuffalo ? '🦬' : '🐮'}</span>
-          <span className="text-white font-bold truncate text-base">{animal.name}</span>
-          <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${isMale ? 'bg-blue-500 text-white' : 'bg-pink-500 text-white'}`}>
+          <span className="text-gray-900 font-bold truncate text-base">{animal.name}</span>
+          <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${isMale ? 'bg-blue-500 text-gray-900' : 'bg-pink-500 text-gray-900'}`}>
             {isMale ? '♂ Male' : '♀ Female'}
           </span>
         </div>
-        <div className="text-white/80 text-xs bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap border border-white/10 font-mono">
+        <div className="text-gray-900/80 text-xs bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap border border-white/10 font-mono">
           {animal.tag_number ? `TAG: ${animal.tag_number}` : 'No Tag'}
         </div>
       </div>
@@ -53,10 +53,10 @@ export default function AnimalCard({ animal, onEdit, onDelete }: AnimalCardProps
       {/* Card Body */}
       <div className="p-4 space-y-3 flex-1 flex flex-col justify-between">
         {/* Live Age & Stage Highlight Row */}
-        <div className="bg-teal-50/70 rounded-xl p-2.5 border border-teal-100 flex items-center justify-between">
+        <div className="bg-blue-50/70 rounded-xl p-2.5 border border-blue-100 flex items-center justify-between">
           <div>
-            <div className="text-[10px] text-teal-700 uppercase tracking-wider font-semibold">Live Age</div>
-            <div className="text-sm font-extrabold text-teal-950">{liveAge}</div>
+            <div className="text-[10px] text-blue-700 uppercase tracking-wider font-semibold">Live Age</div>
+            <div className="text-sm font-extrabold text-blue-950">{liveAge}</div>
           </div>
           <div>
             {getStatusBadge(animal.status)}
@@ -105,7 +105,7 @@ export default function AnimalCard({ animal, onEdit, onDelete }: AnimalCardProps
           {!isMale && (
             <Link
               href="/dashboard/insemination"
-              className="flex-1 text-center py-1.5 px-3 bg-teal-50 hover:bg-teal-100 text-[#00BFA6] rounded-lg text-xs font-semibold transition-colors"
+              className="flex-1 text-center py-1.5 px-3 bg-blue-50 hover:bg-blue-100 text-[var(--color-blue)] rounded-lg text-xs font-semibold transition-colors"
             >
               + Insemination
             </Link>
@@ -113,7 +113,7 @@ export default function AnimalCard({ animal, onEdit, onDelete }: AnimalCardProps
 
           <button
             onClick={() => onEdit(animal)}
-            className="p-1.5 text-gray-500 hover:text-teal-600 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-100 rounded-lg transition-colors"
             title="Edit Animal Details"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">

@@ -62,7 +62,7 @@ export default function SellersList({ initialSellers }: SellersListProps) {
 
         <button
           onClick={handleOpenAdd}
-          className="bg-[#00BFA6] hover:bg-[#00a892] text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm transition-all flex items-center space-x-1"
+          className="bg-[var(--color-blue)] hover:bg-blue-600 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm transition-all flex items-center space-x-1"
         >
           <span>+ Add Seller</span>
         </button>
@@ -86,7 +86,7 @@ export default function SellersList({ initialSellers }: SellersListProps) {
                     {seller.contact_number ? `📞 ${seller.contact_number}` : 'No contact details'}
                   </div>
                 </div>
-                <div className="bg-teal-50 text-[#00BFA6] font-bold text-xs px-2.5 py-1 rounded-full border border-teal-100">
+                <div className="bg-blue-50 text-[var(--color-blue)] font-bold text-xs px-2.5 py-1 rounded-full border border-blue-100">
                   Rs. {seller.rate_per_liter}/L
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function SellersList({ initialSellers }: SellersListProps) {
               <div className="flex justify-end items-center space-x-2 pt-2 border-t border-gray-100">
                 <button
                   onClick={() => handleOpenEdit(seller)}
-                  className="px-3 py-1.5 text-teal-600 border border-teal-600 rounded-lg text-xs font-semibold hover:bg-teal-50 transition-colors"
+                  className="px-3 py-1.5 text-blue-600 border border-blue-600 rounded-lg text-xs font-semibold hover:bg-blue-50 transition-colors"
                 >
                   Edit
                 </button>
@@ -118,7 +118,7 @@ export default function SellersList({ initialSellers }: SellersListProps) {
           </p>
           <button
             onClick={handleOpenAdd}
-            className="inline-flex items-center space-x-2 bg-[#00BFA6] hover:bg-[#00a892] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
+            className="inline-flex items-center space-x-2 bg-[var(--color-blue)] hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
           >
             <span>+ Add New Seller</span>
           </button>

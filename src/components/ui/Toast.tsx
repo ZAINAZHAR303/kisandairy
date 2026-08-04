@@ -53,9 +53,9 @@ const TOAST_CONFIG: Record<ToastType, { icon: string; bg: string; border: string
   },
   offline: {
     icon: '📱',
-    bg: 'bg-gradient-to-r from-emerald-50 to-teal-50',
-    border: 'border-teal-400',
-    text: 'text-teal-800',
+    bg: 'bg-gradient-to-r from-emerald-50 to-blue-50',
+    border: 'border-blue-400',
+    text: 'text-blue-800',
   },
 }
 

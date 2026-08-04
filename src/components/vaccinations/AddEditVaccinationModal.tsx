@@ -178,7 +178,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                 value={selectedAnimalId}
                 onChange={e => setSelectedAnimalId(e.target.value)}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white font-medium"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all bg-white font-medium"
               >
                 <option value="">-- Select Animal --</option>
                 {animals.map(a => (
@@ -197,7 +197,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
               <select
                 value={vaccineSelect}
                 onChange={e => setVaccineSelect(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white font-medium mb-2"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all bg-white font-medium mb-2"
               >
                 {standardVaccines.map(v => (
                   <option key={v.name} value={v.name}>
@@ -213,7 +213,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                   onChange={e => setCustomVaccineName(e.target.value)}
                   placeholder="Enter custom vaccine name..."
                   required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6]"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
                 />
               )}
             </div>
@@ -229,7 +229,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                   value={dateGiven}
                   onChange={e => setDateGiven(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -242,7 +242,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                   value={givenBy}
                   onChange={e => setGivenBy(e.target.value)}
                   placeholder="e.g. Dr. Ahmed / Self"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -253,12 +253,12 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                 Next Due Date <span className="text-red-500">*</span>
               </label>
               {vaccineSelect !== 'Other' ? (
-                <div className="bg-teal-50 border border-teal-100 rounded-xl p-3 flex justify-between items-center">
+                <div className="bg-blue-50 border border-blue-100 rounded-xl p-3 flex justify-between items-center">
                   <div>
-                    <span className="block text-xs font-semibold text-teal-800 uppercase tracking-wider">Auto-Calculated Next Due</span>
-                    <span className="text-xs text-teal-600">Based on vaccine schedule</span>
+                    <span className="block text-xs font-semibold text-blue-800 uppercase tracking-wider">Auto-Calculated Next Due</span>
+                    <span className="text-xs text-blue-600">Based on vaccine schedule</span>
                   </div>
-                  <span className="text-base font-extrabold text-[#00BFA6]">
+                  <span className="text-base font-extrabold text-[var(--color-blue)]">
                     {nextDueDate || 'N/A'}
                   </span>
                 </div>
@@ -268,7 +268,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                   value={nextDueDate}
                   onChange={e => setNextDueDate(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               )}
             </div>
@@ -283,7 +283,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Optional notes or reaction observations..."
                 rows={2}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] resize-none"
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] resize-none"
               />
             </div>
           </form>
@@ -295,7 +295,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
             type="submit"
             form="vaccineForm"
             disabled={isSubmitting}
-            className="w-full bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
+            className="w-full bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
           >
             {isSubmitting ? (
               <>

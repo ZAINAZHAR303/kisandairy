@@ -191,7 +191,7 @@ export default function LoginPage() {
             </div>
           )}
           {success && (
-            <div className="mb-4 p-3 bg-teal-50 border border-teal-100 text-teal-700 text-sm rounded-xl">
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-100 text-blue-700 text-sm rounded-xl">
               {success}
             </div>
           )}
@@ -211,7 +211,7 @@ export default function LoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                   placeholder="you@example.com"
                 />
               </div>
@@ -219,7 +219,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-3 px-4 bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
+                className="w-full py-3 px-4 bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
               >
                 {isLoading ? (
                   <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -232,7 +232,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   onClick={() => { setIsForgotPassword(false); resetMessages(); }}
-                  className="text-sm text-slate-500 hover:text-[#00BFA6] font-medium transition-colors"
+                  className="text-sm text-slate-500 hover:text-[var(--color-blue)] font-medium transition-colors"
                 >
                   &larr; Back to Sign In
                 </button>
@@ -250,7 +250,7 @@ export default function LoginPage() {
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                       placeholder="you@example.com"
                     />
                   </div>
@@ -262,7 +262,7 @@ export default function LoginPage() {
                         <button
                           type="button"
                           onClick={() => { setIsForgotPassword(true); resetMessages(); }}
-                          className="text-xs text-[#00BFA6] hover:underline font-semibold"
+                          className="text-xs text-[var(--color-blue)] hover:underline font-semibold"
                         >
                           Forgot Password?
                         </button>
@@ -273,7 +273,7 @@ export default function LoginPage() {
                       required
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                      className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                       placeholder="••••••••"
                     />
                   </div>
@@ -281,7 +281,7 @@ export default function LoginPage() {
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3 px-4 bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
+                    className="w-full py-3 px-4 bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
                   >
                     {isLoading ? (
                       <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -294,7 +294,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => { setIsSignUp(!isSignUp); resetMessages(); }}
-                      className="text-sm text-slate-500 hover:text-[#00BFA6] font-medium transition-colors"
+                      className="text-sm text-slate-500 hover:text-[var(--color-blue)] font-medium transition-colors"
                     >
                       {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
                     </button>
@@ -318,7 +318,7 @@ export default function LoginPage() {
                             required
                             value={phone}
                             onChange={(e) => setPhone(e.target.value)}
-                            className="flex-1 px-4 py-3 rounded-r-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                            className="flex-1 px-4 py-3 rounded-r-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                             placeholder="3001234567"
                           />
                         </div>
@@ -326,7 +326,7 @@ export default function LoginPage() {
                       <button
                         type="submit"
                         disabled={isLoading || !phone}
-                        className="w-full py-3 px-4 bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
+                        className="w-full py-3 px-4 bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
                       >
                         {isLoading ? (
                           <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -344,14 +344,14 @@ export default function LoginPage() {
                           required
                           value={otp}
                           onChange={(e) => setOtp(e.target.value)}
-                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all text-center tracking-widest text-lg font-semibold"
+                          className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all text-center tracking-widest text-lg font-semibold"
                           placeholder="••••••"
                         />
                       </div>
                       <button
                         type="submit"
                         disabled={isLoading || !otp}
-                        className="w-full py-3 px-4 bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
+                        className="w-full py-3 px-4 bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium rounded-xl shadow-sm transition-all disabled:opacity-70 flex justify-center items-center"
                       >
                         {isLoading ? (
                           <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
@@ -363,7 +363,7 @@ export default function LoginPage() {
                         <button
                           type="button"
                           onClick={() => setIsOtpSent(false)}
-                          className="text-sm text-slate-500 hover:text-[#00BFA6] font-medium transition-colors"
+                          className="text-sm text-slate-500 hover:text-[var(--color-blue)] font-medium transition-colors"
                         >
                           Use a different phone number
                         </button>

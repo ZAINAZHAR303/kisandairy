@@ -38,7 +38,7 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
       case 'confirmed':
         return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">🤰 Confirmed</span>
       case 'calved':
-        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-teal-800 border border-teal-200">🍼 Calved</span>
+        return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200">🍼 Calved</span>
       case 'aborted':
         return <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">🚨 Aborted</span>
       case 'failed':
@@ -70,7 +70,7 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
       const daysSince = Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)))
 
       if (daysSince < 45) {
-        calvingDueDisplay = <span className="text-teal-700 font-bold">🍼 {daysSince} Days In Milk (سُوئے کو {daysSince} دن)</span>
+        calvingDueDisplay = <span className="text-blue-700 font-bold">🍼 {daysSince} Days In Milk (سُوئے کو {daysSince} دن)</span>
       } else if (daysSince <= 90) {
         calvingDueDisplay = <span className="text-emerald-700 font-bold animate-pulse">🎯 {daysSince} Days — Naye Teke ka Taim! (نئے ٹیکے کا ٹائم)</span>
       } else {
@@ -82,7 +82,7 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
   } else if (expectedCalvingDate && !isNaN(expectedCalvingDate.getTime())) {
     const diffDays = Math.ceil((expectedCalvingDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
     if (diffDays >= 0) {
-      calvingDueDisplay = <span className="text-teal-600 font-semibold">{diffDays} days remaining (بچہ دینے میں {diffDays} دن)</span>
+      calvingDueDisplay = <span className="text-blue-600 font-semibold">{diffDays} days remaining (بچہ دینے میں {diffDays} دن)</span>
     } else {
       calvingDueDisplay = <span className="text-red-600 font-semibold">Overdue by {Math.abs(diffDays)} days (ٹائم اوپر)</span>
     }
@@ -91,11 +91,11 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
       {/* Header Row */}
-      <div className="bg-[#1a2f5e] px-4 py-3 flex justify-between items-center rounded-t-xl">
-        <div className="text-white font-semibold truncate flex-1 pr-2">
+      <div className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center rounded-t-xl">
+        <div className="text-gray-900 font-semibold truncate flex-1 pr-2">
           {(record as any).animals?.name || 'Unknown Animal'}
         </div>
-        <div className="text-white/70 text-sm whitespace-nowrap">
+        <div className="text-gray-900/70 text-sm whitespace-nowrap">
           <span className="text-xs mr-1 uppercase">Tag:</span>
           {(record as any).animals?.tag_number || 'No Tag'}
         </div>
@@ -132,7 +132,7 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
         </div>
 
         {/* Row 3 */}
-        <div className="bg-teal-50/50 rounded-lg p-3 flex justify-between items-center border border-teal-100">
+        <div className="bg-blue-50/50 rounded-lg p-3 flex justify-between items-center border border-blue-100">
           <span className="text-xs text-gray-500 uppercase tracking-wider font-semibold">
             {isCalved ? 'Days Since Calving' : 'Calving Due Days'}
           </span>
@@ -171,7 +171,7 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
         <div className="flex justify-end space-x-2 pt-2">
           <button 
             onClick={() => onEdit(record)}
-            className="flex items-center space-x-1 px-3 py-1.5 text-teal-600 border border-teal-600 rounded-md hover:bg-teal-50 transition-colors text-sm font-medium"
+            className="flex items-center space-x-1 px-3 py-1.5 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors text-sm font-medium"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />

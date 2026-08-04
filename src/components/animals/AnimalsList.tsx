@@ -72,14 +72,14 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-2">
             <h1 className="text-xl font-bold text-gray-800">My Animals 🐮</h1>
-            <span className="bg-teal-100 text-[#00BFA6] text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className="bg-blue-100 text-[var(--color-blue)] text-xs font-bold px-2 py-0.5 rounded-full">
               {filteredAnimals.length}
             </span>
           </div>
 
           <button
             onClick={() => setShowSearch(!showSearch)}
-            className={`p-2 rounded-lg transition-colors ${showSearch ? 'bg-teal-50 text-[#00BFA6]' : 'text-gray-500 hover:bg-gray-100'}`}
+            className={`p-2 rounded-lg transition-colors ${showSearch ? 'bg-blue-50 text-[var(--color-blue)]' : 'text-gray-500 hover:bg-gray-100'}`}
             title="Search Animals"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -96,7 +96,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search by name, tag number, or breed..."
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:bg-white transition-all"
+              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:bg-white transition-all"
               autoFocus
             />
             <svg className="w-4 h-4 text-gray-400 absolute left-3.5 top-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -118,7 +118,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
           <button
             onClick={() => setFilter('All')}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1 ${
-              filter === 'All' ? 'bg-[#00BFA6] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === 'All' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             <span>All Animals</span>
@@ -128,7 +128,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
           <button
             onClick={() => setFilter('cow')}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1 ${
-              filter === 'cow' ? 'bg-[#00BFA6] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === 'cow' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             <span>🐮 Cows</span>
@@ -138,7 +138,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
           <button
             onClick={() => setFilter('buffalo')}
             className={`px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors flex items-center space-x-1 ${
-              filter === 'buffalo' ? 'bg-[#00BFA6] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              filter === 'buffalo' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
             }`}
           >
             <span>🦬 Buffaloes</span>
@@ -170,7 +170,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
           </p>
           <button
             onClick={handleOpenAdd}
-            className="inline-flex items-center space-x-2 bg-[#00BFA6] hover:bg-[#00a892] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
+            className="inline-flex items-center space-x-2 bg-[var(--color-blue)] hover:bg-blue-600 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm transition-all"
           >
             <span>+ Add New Animal</span>
           </button>
@@ -180,7 +180,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
       {/* Floating Action Button */}
       <button
         onClick={handleOpenAdd}
-        className="fixed bottom-24 right-6 w-14 h-14 bg-[#00BFA6] hover:bg-[#00a892] text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40"
+        className="fixed bottom-24 right-6 w-14 h-14 bg-[var(--color-blue)] hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg hover:scale-105 active:scale-95 transition-all z-40"
         title="Add Animal"
       >
         <span className="text-3xl font-light leading-none mb-1">+</span>

@@ -91,7 +91,7 @@ export default function InseminationList({ initialRecords, animals, initialFilte
               placeholder="Search by animal name or tag..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#00BFA6] focus:border-[#00BFA6]"
+              className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[var(--color-blue)] focus:border-[var(--color-blue)]"
             />
           </div>
         </div>
@@ -104,7 +104,7 @@ export default function InseminationList({ initialRecords, animals, initialFilte
               onClick={() => setFilter(f)}
               className={`whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-colors ${
                 filter === f
-                  ? 'bg-[#00BFA6] text-white'
+                  ? 'bg-[var(--color-blue)] text-white'
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
@@ -139,7 +139,7 @@ export default function InseminationList({ initialRecords, animals, initialFilte
       {/* Floating Action Button */}
       <button
         onClick={openAddModal}
-        className="fixed bottom-24 right-6 z-50 flex items-center justify-center w-14 h-14 bg-[#00BFA6] text-white rounded-full shadow-lg hover:scale-105 transition-transform duration-200 focus:outline-none"
+        className="fixed bottom-24 right-6 z-50 flex items-center justify-center w-14 h-14 bg-[var(--color-blue)] text-white rounded-full shadow-lg hover:scale-105 transition-transform duration-200 focus:outline-none"
         aria-label="Add record"
       >
         <span className="text-2xl font-light leading-none">+</span>

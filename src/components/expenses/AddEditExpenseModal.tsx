@@ -125,7 +125,7 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
                 value={category}
                 onChange={e => setCategory(e.target.value as ExpenseCategory)}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white font-medium"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all bg-white font-medium"
               >
                 <option value="Feed">🌾 Feed (wanda, fodder, silage)</option>
                 <option value="Veterinary / Medicine">🩺 Veterinary & Medicine</option>
@@ -147,7 +147,7 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
                   value={date}
                   onChange={e => setDate(e.target.value)}
                   required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -163,7 +163,7 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
                   onChange={e => setAmount(e.target.value === '' ? '' : parseFloat(e.target.value))}
                   placeholder="e.g. 5000"
                   required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all font-bold text-gray-900"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all font-bold text-gray-900"
                 />
               </div>
             </div>
@@ -178,7 +178,7 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
                 value={description}
                 onChange={e => setDescription(e.target.value)}
                 placeholder="e.g. 50kg wanda from store, Dr. visit fee"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
           </form>
@@ -190,7 +190,7 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
             type="submit"
             form="expenseForm"
             disabled={isSubmitting}
-            className="w-full bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
+            className="w-full bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
           >
             {isSubmitting ? (
               <>

@@ -22,11 +22,11 @@ export default function MilkSaleCard({ entry, onEdit, onDelete }: MilkSaleCardPr
   return (
     <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
       {/* Header Row: Dark Navy (#1a2f5e) */}
-      <div className="bg-[#1a2f5e] px-4 py-3 flex justify-between items-center rounded-t-xl">
-        <div className="text-white font-bold text-sm tracking-wide">
+      <div className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center rounded-t-xl">
+        <div className="text-gray-900 font-bold text-sm tracking-wide">
           📅 {formatDate(entry.date)}
         </div>
-        <div className="text-[#00BFA6] font-semibold text-sm bg-teal-950/60 px-3 py-1 rounded-full border border-teal-500/30 truncate max-w-[180px]">
+        <div className="text-[var(--color-blue)] font-semibold text-sm bg-blue-950/60 px-3 py-1 rounded-full border border-blue-500/30 truncate max-w-[180px]">
           👤 {sellerName}
         </div>
       </div>
@@ -44,8 +44,8 @@ export default function MilkSaleCard({ entry, onEdit, onDelete }: MilkSaleCardPr
             <div className="text-xs font-bold text-gray-800">{entry.evening_liters} L</div>
           </div>
           <div className="border-l border-gray-200">
-            <div className="text-[10px] text-[#00BFA6] uppercase tracking-wider font-semibold mb-0.5">Total Milk</div>
-            <div className="text-xs font-extrabold text-[#00BFA6]">{entry.total_liters} L</div>
+            <div className="text-[10px] text-[var(--color-blue)] uppercase tracking-wider font-semibold mb-0.5">Total Milk</div>
+            <div className="text-xs font-extrabold text-[var(--color-blue)]">{entry.total_liters} L</div>
           </div>
         </div>
 
@@ -67,7 +67,7 @@ export default function MilkSaleCard({ entry, onEdit, onDelete }: MilkSaleCardPr
         <div className="flex justify-end space-x-2 pt-2 border-t border-gray-100">
           <button
             onClick={() => onEdit(entry)}
-            className="flex items-center space-x-1 px-3 py-1.5 text-teal-600 border border-teal-600 rounded-md hover:bg-teal-50 transition-colors text-xs font-medium"
+            className="flex items-center space-x-1 px-3 py-1.5 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors text-xs font-medium"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />

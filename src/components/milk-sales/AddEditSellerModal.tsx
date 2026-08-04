@@ -119,7 +119,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
                 onChange={e => setName(e.target.value)}
                 placeholder="e.g. City Dairy / Ramesh"
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
@@ -132,7 +132,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
                 value={contactNumber}
                 onChange={e => setContactNumber(e.target.value)}
                 placeholder="e.g. +91 9876543210"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
@@ -147,7 +147,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
                 value={ratePerLiter}
                 onChange={e => setRatePerLiter(e.target.value === '' ? '' : parseFloat(e.target.value))}
                 placeholder="e.g. 200.00"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
             </div>
 
@@ -158,7 +158,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
               <select
                 value={paymentTerms}
                 onChange={e => setPaymentTerms(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all bg-white"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all bg-white"
               >
                 <option value="End of Month">End of Month</option>
                 <option value="Weekly (7 days)">Weekly (7 days)</option>
@@ -173,7 +173,7 @@ export default function AddEditSellerModal({ isOpen, onClose, editSeller }: AddE
             type="submit"
             form="sellerForm"
             disabled={isSubmitting}
-            className="w-full bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
+            className="w-full bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
           >
             {isSubmitting ? (
               <>

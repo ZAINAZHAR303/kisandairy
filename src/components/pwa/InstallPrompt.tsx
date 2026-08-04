@@ -55,7 +55,7 @@ export default function InstallPrompt() {
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
       <div className="flex items-center justify-between gap-3 relative z-10">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-xl shadow-sm border border-emerald-100 flex items-center justify-center flex-shrink-0">
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-blue-50 rounded-xl shadow-sm border border-emerald-100 flex items-center justify-center flex-shrink-0">
             <span className="text-2xl">📲</span>
           </div>
           <div className="min-w-0">

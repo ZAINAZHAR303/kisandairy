@@ -157,7 +157,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                   onChange={e => setName(e.target.value)}
                   placeholder="e.g. Gauri / Cow 1"
                   required
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -170,7 +170,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                   value={tagNumber}
                   onChange={e => setTagNumber(e.target.value)}
                   placeholder="e.g. TAG-1024"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -185,14 +185,14 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                   <button 
                     type="button"
                     onClick={() => setType('cow')}
-                    className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center space-x-1 ${type === 'cow' ? 'bg-[#00BFA6] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                    className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center space-x-1 ${type === 'cow' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
                   >
                     <span>🐮 Cow</span>
                   </button>
                   <button 
                     type="button"
                     onClick={() => setType('buffalo')}
-                    className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center space-x-1 ${type === 'buffalo' ? 'bg-[#00BFA6] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
+                    className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center justify-center space-x-1 ${type === 'buffalo' ? 'bg-[var(--color-blue)] text-white shadow-sm' : 'text-gray-600 hover:bg-gray-100'}`}
                   >
                     <span>🦬 Buffalo</span>
                   </button>
@@ -231,13 +231,13 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                 type="date" 
                 value={dateOfBirth}
                 onChange={e => setDateOfBirth(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
               />
 
               {calculatedAgeText && (
-                <div className="mt-2 bg-teal-50/80 border border-teal-100 rounded-xl p-3 flex justify-between items-center text-xs">
-                  <span className="font-medium text-teal-800 uppercase tracking-wider">Live Calculated Age:</span>
-                  <span className="font-extrabold text-teal-900 text-sm">{calculatedAgeText}</span>
+                <div className="mt-2 bg-blue-50/80 border border-blue-100 rounded-xl p-3 flex justify-between items-center text-xs">
+                  <span className="font-medium text-blue-800 uppercase tracking-wider">Live Calculated Age:</span>
+                  <span className="font-extrabold text-blue-900 text-sm">{calculatedAgeText}</span>
                 </div>
               )}
             </div>
@@ -251,7 +251,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                 <select
                   value={status}
                   onChange={e => setStatus(e.target.value as any)}
-                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-white"
+                  className="w-full rounded-xl border border-gray-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-white"
                 >
                   <option value="Calf">Calf 🍼 (Newborn/Young)</option>
                   <option value="Heifer">Heifer 🐄 (Young Female)</option>
@@ -270,7 +270,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                   value={breed}
                   onChange={e => setBreed(e.target.value)}
                   placeholder="e.g. Sahiwal / HF"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -286,7 +286,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                   value={damInfo}
                   onChange={e => setDamInfo(e.target.value)}
                   placeholder="e.g. Dam: Cow 1"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -299,7 +299,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                   value={bullName}
                   onChange={e => setBullName(e.target.value)}
                   placeholder="e.g. Bull: Sahiwal-101 / Straw #402"
-                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all"
+                  className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
                 onChange={e => setNotes(e.target.value)}
                 placeholder="Optional health marks, vaccination notes..."
                 rows={2}
-                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] focus:border-transparent transition-all resize-none"
+                className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] focus:border-transparent transition-all resize-none"
               />
             </div>
           </form>
@@ -326,7 +326,7 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
             type="submit"
             form="animalForm"
             disabled={isSubmitting}
-            className="w-full bg-[#00BFA6] hover:bg-[#00a892] text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
+            className="w-full bg-[var(--color-blue)] hover:bg-blue-600 text-white font-medium py-3.5 px-4 rounded-xl transition-colors disabled:opacity-70 flex items-center justify-center shadow-sm"
           >
             {isSubmitting ? (
               <>

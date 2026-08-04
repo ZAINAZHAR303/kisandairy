@@ -38,11 +38,11 @@ export default function VaccinationCard({ record, onEdit, onDelete, isUrgentView
   return (
     <div className={`bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow ${leftBorderClass}`}>
       {/* Header Row: Dark Navy (#1a2f5e) */}
-      <div className="bg-[#1a2f5e] px-4 py-3 flex justify-between items-center rounded-t-xl">
-        <div className="text-white font-bold text-sm truncate flex-1 pr-2">
+      <div className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center rounded-t-xl">
+        <div className="text-gray-900 font-bold text-sm truncate flex-1 pr-2">
           🐮 {animalName}
         </div>
-        <div className="text-white/80 text-xs bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap border border-white/10 font-mono">
+        <div className="text-gray-900/80 text-xs bg-white/10 px-2.5 py-1 rounded-full whitespace-nowrap border border-white/10 font-mono">
           {tagNumber}
         </div>
       </div>
@@ -95,7 +95,7 @@ export default function VaccinationCard({ record, onEdit, onDelete, isUrgentView
         <div className="flex justify-end space-x-2 pt-2 border-t border-gray-100">
           <button
             onClick={() => onEdit(record)}
-            className="flex items-center space-x-1 px-3 py-1.5 text-teal-600 border border-teal-600 rounded-md hover:bg-teal-50 transition-colors text-xs font-medium"
+            className="flex items-center space-x-1 px-3 py-1.5 text-blue-600 border border-blue-600 rounded-md hover:bg-blue-50 transition-colors text-xs font-medium"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
               <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.379-8.379-2.828-2.828z" />

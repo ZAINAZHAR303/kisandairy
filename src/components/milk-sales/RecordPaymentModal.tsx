@@ -146,7 +146,7 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
                 value={sellerId}
                 onChange={e => setSellerId(e.target.value)}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6] bg-white font-medium"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-white font-medium"
               >
                 <option value="">-- Select Buyer --</option>
                 {sellers.map(s => (
@@ -164,7 +164,7 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
                 required
                 value={date}
                 onChange={e => setDate(e.target.value)}
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
               />
             </div>
 
@@ -193,7 +193,7 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
                 value={notes}
                 onChange={e => setNotes(e.target.value)}
                 placeholder="e.g. Cash paid / JazzCash / Bank transfer"
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00BFA6]"
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
               />
             </div>
           </form>
