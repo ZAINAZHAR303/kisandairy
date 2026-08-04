@@ -1,7 +1,7 @@
 import { openDB, type IDBPDatabase } from 'idb'
 
 const DB_NAME = 'kisan-dairy-offline'
-const DB_VERSION = 1
+const DB_VERSION = 2 // Bumped to 2 to remove invalid boolean index
 
 // Store names
 const STORE_MILK_SALES = 'pendingMilkSales'
@@ -47,21 +47,29 @@ async function getDb(): Promise<IDBPDatabase> {
   if (dbInstance) return dbInstance
 
   dbInstance = await openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      // Milk Sales store
+    upgrade(db, oldVersion, newVersion, transaction) {
+      // V1: Initial stores (some had bad boolean indexes)
       if (!db.objectStoreNames.contains(STORE_MILK_SALES)) {
-        const store = db.createObjectStore(STORE_MILK_SALES, { keyPath: 'id' })
-        store.createIndex('by-synced', 'synced')
+        db.createObjectStore(STORE_MILK_SALES, { keyPath: 'id' })
       }
-      // Payments store
       if (!db.objectStoreNames.contains(STORE_PAYMENTS)) {
-        const store = db.createObjectStore(STORE_PAYMENTS, { keyPath: 'id' })
-        store.createIndex('by-synced', 'synced')
+        db.createObjectStore(STORE_PAYMENTS, { keyPath: 'id' })
       }
-      // Expenses store
       if (!db.objectStoreNames.contains(STORE_EXPENSES)) {
-        const store = db.createObjectStore(STORE_EXPENSES, { keyPath: 'id' })
-        store.createIndex('by-synced', 'synced')
+        db.createObjectStore(STORE_EXPENSES, { keyPath: 'id' })
+      }
+
+      // V2: Remove the 'by-synced' index because IndexedDB doesn't allow booleans as index keys
+      if (oldVersion < 2) {
+        const stores = [STORE_MILK_SALES, STORE_PAYMENTS, STORE_EXPENSES]
+        stores.forEach(storeName => {
+          if (db.objectStoreNames.contains(storeName)) {
+            const store = transaction.objectStore(storeName)
+            if (store.indexNames.contains('by-synced')) {
+              store.deleteIndex('by-synced')
+            }
+          }
+        })
       }
     },
   })
@@ -115,9 +123,9 @@ export async function savePendingMilkSale(data: {
 
 export async function getPendingMilkSales(): Promise<PendingMilkSale[]> {
   const db = await getDb()
-  // @ts-ignore - IDBValidKey type mismatch with boolean in idb types
-  const all = await db.getAllFromIndex(STORE_MILK_SALES, 'by-synced', false)
-  return all as PendingMilkSale[]
+  const all = await db.getAll(STORE_MILK_SALES)
+  // Manually filter because IndexedDB doesn't support boolean indexes
+  return (all as PendingMilkSale[]).filter(r => !r.synced)
 }
 
 export async function removePendingMilkSale(id: string): Promise<void> {
@@ -149,9 +157,8 @@ export async function savePendingPayment(data: {
 
 export async function getPendingPayments(): Promise<PendingPayment[]> {
   const db = await getDb()
-  // @ts-ignore - IDBValidKey type mismatch with boolean in idb types
-  const all = await db.getAllFromIndex(STORE_PAYMENTS, 'by-synced', false)
-  return all as PendingPayment[]
+  const all = await db.getAll(STORE_PAYMENTS)
+  return (all as PendingPayment[]).filter(r => !r.synced)
 }
 
 export async function removePendingPayment(id: string): Promise<void> {
@@ -183,9 +190,8 @@ export async function savePendingExpense(data: {
 
 export async function getPendingExpenses(): Promise<PendingExpense[]> {
   const db = await getDb()
-  // @ts-ignore - IDBValidKey type mismatch with boolean in idb types
-  const all = await db.getAllFromIndex(STORE_EXPENSES, 'by-synced', false)
-  return all as PendingExpense[]
+  const all = await db.getAll(STORE_EXPENSES)
+  return (all as PendingExpense[]).filter(r => !r.synced)
 }
 
 export async function removePendingExpense(id: string): Promise<void> {
