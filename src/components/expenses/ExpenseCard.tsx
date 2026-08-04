@@ -10,6 +10,15 @@ interface ExpenseCardProps {
   onDelete: (id: string) => void
 }
 
+const BORDER_THEMES = [
+  'border-t-green-500',
+  'border-t-blue-500',
+  'border-t-purple-500',
+  'border-t-amber-400',
+  'border-t-teal-400',
+  'border-t-rose-400',
+]
+
 export default function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardProps) {
   const formatDate = (dateStr: string) => {
     return formatNumericDate(dateStr)
@@ -33,9 +42,11 @@ export default function ExpenseCard({ expense, onEdit, onDelete }: ExpenseCardPr
   }
 
   const theme = getCategoryTheme(expense.category)
+  const colorIndex = expense.id ? expense.id.charCodeAt(0) % BORDER_THEMES.length : 0
+  const themeBorder = BORDER_THEMES[colorIndex]
 
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col p-4 space-y-3 hover:shadow-lg transition-shadow border-l-4 border-l-[#1a2f5e]">
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col p-4 space-y-3 hover:shadow-lg transition-all border-t-4 ${themeBorder}`}>
       {/* Top Row: Category Label & Date */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">

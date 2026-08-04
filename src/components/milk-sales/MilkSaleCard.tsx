@@ -9,6 +9,15 @@ interface MilkSaleCardProps {
   onDelete: (id: string) => void
 }
 
+const BORDER_THEMES = [
+  'border-t-green-500',
+  'border-t-blue-500',
+  'border-t-purple-500',
+  'border-t-amber-400',
+  'border-t-teal-400',
+  'border-t-rose-400',
+]
+
 export default function MilkSaleCard({ entry, onEdit, onDelete }: MilkSaleCardProps) {
   const formatDate = (dateStr: string) => {
     if (!dateStr) return 'N/A'
@@ -19,8 +28,11 @@ export default function MilkSaleCard({ entry, onEdit, onDelete }: MilkSaleCardPr
 
   const sellerName = entry.sellers?.name || 'Unknown Seller'
 
+  const colorIndex = entry.id ? entry.id.charCodeAt(0) % BORDER_THEMES.length : 0
+  const themeBorder = BORDER_THEMES[colorIndex]
+
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col hover:shadow-lg transition-shadow">
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-all border-t-4 ${themeBorder}`}>
       {/* Header Row: Dark Navy (#1a2f5e) */}
       <div className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center rounded-t-xl">
         <div className="text-gray-900 font-bold text-sm tracking-wide">

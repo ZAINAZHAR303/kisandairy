@@ -9,6 +9,15 @@ interface InseminationCardProps {
   onDelete: (id: string) => void
 }
 
+const BORDER_THEMES = [
+  'border-t-green-500',
+  'border-t-blue-500',
+  'border-t-purple-500',
+  'border-t-amber-400',
+  'border-t-teal-400',
+  'border-t-rose-400',
+]
+
 export default function InseminationCard({ record, onEdit, onDelete }: InseminationCardProps) {
   // Helpers
   const formatDate = (dateStr: string | null | undefined) => {
@@ -88,8 +97,11 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
     }
   }
 
+  const colorIndex = record.id ? record.id.charCodeAt(0) % BORDER_THEMES.length : 0
+  const themeBorder = BORDER_THEMES[colorIndex]
+
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden flex flex-col">
+    <div className={`bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-lg transition-all border-t-4 ${themeBorder}`}>
       {/* Header Row */}
       <div className="bg-white border-b border-gray-100 px-4 py-3 flex justify-between items-center rounded-t-xl">
         <div className="text-gray-900 font-semibold truncate flex-1 pr-2">
