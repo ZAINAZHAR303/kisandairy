@@ -70,8 +70,6 @@ export default function OfflineIndicator() {
           </span>
         )}
       </div>
-
-      </div>
     </>
   )
 }
