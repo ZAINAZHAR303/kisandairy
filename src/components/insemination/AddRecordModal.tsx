@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from 'react'
 import { InseminationRecord, Animal } from '@/lib/types'
-import { addInseminationRecord, updateInseminationRecord, addAnimal } from '@/app/dashboard/insemination/actions'
+import { addInseminationRecord, updateInseminationRecord } from '@/app/dashboard/insemination/actions'
+import { addAnimal } from '@/app/dashboard/animals/actions'
 
 interface AddRecordModalProps {
   isOpen: boolean

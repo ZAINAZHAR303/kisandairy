@@ -98,8 +98,9 @@ export async function savePendingMilkSale(data: {
 
 export async function getPendingMilkSales(): Promise<PendingMilkSale[]> {
   const db = await getDb()
-  const all = await db.getAll(STORE_MILK_SALES)
-  return (all as PendingMilkSale[]).filter(r => !r.synced)
+  // @ts-ignore - IDBValidKey type mismatch with boolean in idb types
+  const all = await db.getAllFromIndex(STORE_MILK_SALES, 'by-synced', false)
+  return all as PendingMilkSale[]
 }
 
 export async function removePendingMilkSale(id: string): Promise<void> {
@@ -130,8 +131,9 @@ export async function savePendingPayment(data: {
 
 export async function getPendingPayments(): Promise<PendingPayment[]> {
   const db = await getDb()
-  const all = await db.getAll(STORE_PAYMENTS)
-  return (all as PendingPayment[]).filter(r => !r.synced)
+  // @ts-ignore - IDBValidKey type mismatch with boolean in idb types
+  const all = await db.getAllFromIndex(STORE_PAYMENTS, 'by-synced', false)
+  return all as PendingPayment[]
 }
 
 export async function removePendingPayment(id: string): Promise<void> {
@@ -162,8 +164,9 @@ export async function savePendingExpense(data: {
 
 export async function getPendingExpenses(): Promise<PendingExpense[]> {
   const db = await getDb()
-  const all = await db.getAll(STORE_EXPENSES)
-  return (all as PendingExpense[]).filter(r => !r.synced)
+  // @ts-ignore - IDBValidKey type mismatch with boolean in idb types
+  const all = await db.getAllFromIndex(STORE_EXPENSES, 'by-synced', false)
+  return all as PendingExpense[]
 }
 
 export async function removePendingExpense(id: string): Promise<void> {

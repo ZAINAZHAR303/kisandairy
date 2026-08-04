@@ -9,6 +9,8 @@ import BulkPriceUpdateModal from './BulkPriceUpdateModal'
 import { deleteMilkSaleEntry, deleteSeller, deleteSellerPayment } from '@/app/dashboard/milk-sales/actions'
 import { exportToExcel, exportToPDF, exportBuyerStatementExcel, exportBuyerStatementPDF } from '@/lib/exportUtils'
 import { formatNumericDate } from '@/lib/dateUtils'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface MilkSalesListProps {
   initialEntries: MilkSaleEntry[]
@@ -41,6 +43,14 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
   const [paymentTargetSellerId, setPaymentTargetSellerId] = useState<string | undefined>(undefined)
 
   const [isBulkPriceModalOpen, setIsBulkPriceModalOpen] = useState(false)
+
+  const { showToast } = useToast()
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: async () => {}
+  })
 
   // Helper date calculations
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
@@ -193,21 +203,45 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     setIsSellerModalOpen(true)
   }
 
-  const handleDeleteEntry = async (id: string) => {
-    if (confirm('Are you sure you want to delete this milk sale record?')) {
-      await deleteMilkSaleEntry(id)
-    }
+  const handleDeleteEntry = (id: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Milk Sale',
+      message: 'Are you sure you want to delete this milk sale record?',
+      onConfirm: async () => {
+        await deleteMilkSaleEntry(id)
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }))
+      }
+    })
   }
 
-  const handleDeleteSellerClick = async (sellerId: string) => {
-    if (confirm('Are you sure you want to delete this buyer? This will also delete their transaction history.')) {
-      const res = await deleteSeller(sellerId)
-      if (res?.error) {
-        alert(typeof res.error === 'string' ? res.error : (res.error as any)?.message || 'Failed to delete buyer')
-      } else {
-        setSelectedBuyer(null)
+  const handleDeleteSellerClick = (sellerId: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Buyer',
+      message: 'Are you sure you want to delete this buyer? This will also delete their transaction history.',
+      onConfirm: async () => {
+        const res = await deleteSeller(sellerId)
+        if (res?.error) {
+          showToast('error', 'Error', typeof res.error === 'string' ? res.error : (res.error as any)?.message || 'Failed to delete buyer')
+        } else {
+          setSelectedBuyer(null)
+        }
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }))
       }
-    }
+    })
+  }
+
+  const handleDeletePaymentClick = (id: string) => {
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Payment',
+      message: 'Are you sure you want to delete this payment record?',
+      onConfirm: async () => {
+        await deleteSellerPayment(id)
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }))
+      }
+    })
   }
 
   // Export handlers
@@ -437,7 +471,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
                           </>
                         )}
                         {tx.type === 'payment' && (
-                          <button onClick={() => deleteSellerPayment(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
+                          <button onClick={() => handleDeletePaymentClick(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
                         )}
                       </td>
                     </tr>
@@ -706,6 +740,14 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
       <BulkPriceUpdateModal
         isOpen={isBulkPriceModalOpen}
         onClose={() => setIsBulkPriceModalOpen(false)}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
       />
     </div>
   )

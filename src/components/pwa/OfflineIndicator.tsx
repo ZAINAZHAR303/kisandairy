@@ -1,10 +1,11 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useToast } from '@/components/ui/Toast'
 
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true)
-  const [showToast, setShowToast] = useState(false)
+  const { showToast } = useToast()
   const [pendingCount, setPendingCount] = useState(0)
 
   const checkPendingRecords = useCallback(async () => {
@@ -22,8 +23,7 @@ export default function OfflineIndicator() {
 
     const handleOnline = () => {
       setIsOnline(true)
-      setShowToast(true)
-      setTimeout(() => setShowToast(false), 4000)
+      showToast('success', 'Back Online — syncing data...', 'واپس آن لائن — ڈیٹا بھیجا جا رہا ہے')
       // Trigger sync when back online
       import('@/lib/syncManager').then(({ syncAllPendingRecords }) => {
         syncAllPendingRecords().then(() => checkPendingRecords())
@@ -32,8 +32,7 @@ export default function OfflineIndicator() {
 
     const handleOffline = () => {
       setIsOnline(false)
-      setShowToast(true)
-      setTimeout(() => setShowToast(false), 5000)
+      showToast('offline', 'You are offline', 'آف لائن — تبدیلیاں مقامی طور پر محفوظ ہیں')
     }
 
     window.addEventListener('online', handleOnline)
@@ -72,25 +71,7 @@ export default function OfflineIndicator() {
         )}
       </div>
 
-      {/* Toast Notification */}
-      {showToast && (
-        <div
-          className={`fixed top-4 left-1/2 -translate-x-1/2 z-[9999] px-5 py-3 rounded-xl shadow-2xl text-sm font-semibold flex items-center gap-2 animate-[slideDown_0.3s_ease-out] ${
-            isOnline
-              ? 'bg-emerald-600 text-white'
-              : 'bg-amber-500 text-white'
-          }`}
-        >
-          <span className="text-lg">{isOnline ? '🟢' : '🟡'}</span>
-          <div>
-            <p>{isOnline ? 'Back Online — syncing data...' : 'You are offline'}</p>
-            <p className="text-[10px] opacity-80 font-normal">
-              {isOnline ? 'واپس آن لائن — ڈیٹا بھیجا جا رہا ہے' : 'آف لائن — تبدیلیاں مقامی طور پر محفوظ ہیں'}
-            </p>
-          </div>
-          <button onClick={() => setShowToast(false)} className="ml-2 text-white/70 hover:text-white">✕</button>
-        </div>
-      )}
+      </div>
     </>
   )
 }

@@ -114,12 +114,15 @@ export default function AddEditAnimalModal({ isOpen, onClose, editAnimal }: AddE
         onClick={onClose}
       />
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="animal-modal-title"
         className="fixed inset-x-0 bottom-0 sm:bottom-auto sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[100] w-full sm:w-full sm:max-w-lg bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] sm:max-h-[92vh] flex flex-col shadow-2xl animate-slide-up"
       >
         {/* Header */}
         <div className="flex-none p-4 border-b border-gray-100 relative">
           <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-3 sm:hidden" />
-          <h2 className="text-xl font-bold text-gray-800 text-center">
+          <h2 id="animal-modal-title" className="text-xl font-bold text-gray-800 text-center">
             {editAnimal ? 'Edit Animal Details 🐮' : 'Add New Animal 🐮'}
           </h2>
           <button 

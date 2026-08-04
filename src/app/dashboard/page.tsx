@@ -99,19 +99,19 @@ export default async function DashboardPage() {
         {/* Total Animals Card */}
         <Link 
           href="/dashboard/animals"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-blue-900 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-blue-50/50 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-blue-600 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>🐮</span>
-                <span className="truncate">Animals</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-blue-100 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-blue-100/80 rounded-lg text-blue-700 shadow-sm">🐮</span>
+                <span className="truncate text-gray-800">Animals</span>
               </div>
-              <span className="text-[10px] text-gray-400">کل جانور</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">کل جانور</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <div className="text-2xl sm:text-3xl font-black text-blue-950 drop-shadow-sm relative z-10">
             {totalAnimals || 0}
           </div>
         </Link>
@@ -119,19 +119,19 @@ export default async function DashboardPage() {
         {/* Active Records Card */}
         <Link 
           href="/dashboard/insemination"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-teal-500 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-teal-50/50 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-teal-500 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>📋</span>
-                <span className="truncate">Breeding Records</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-teal-100 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-teal-100/80 rounded-lg text-teal-700 shadow-sm">📋</span>
+                <span className="truncate text-gray-800">Breeding</span>
               </div>
-              <span className="text-[10px] text-gray-400">ٹیکا ہسٹری</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">ٹیکا ہسٹری</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <div className="text-2xl sm:text-3xl font-black text-teal-950 drop-shadow-sm relative z-10">
             {totalRecords || 0}
           </div>
         </Link>
@@ -139,39 +139,39 @@ export default async function DashboardPage() {
         {/* Today's Milk (L) Card */}
         <Link 
           href="/dashboard/milk-sales"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-[#00BFA6] p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-emerald-50/50 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-500 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden lg:col-span-2"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>🥛</span>
-                <span className="truncate">Today&apos;s Milk</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 bg-emerald-100 rounded-full blur-3xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-emerald-100/80 rounded-lg text-emerald-700 shadow-sm">🥛</span>
+                <span className="truncate text-gray-800">Today&apos;s Milk</span>
               </div>
-              <span className="text-[10px] text-gray-400">آج کا دودھ</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">آج کا دودھ</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">
-            {todayMilkTotal.toFixed(1)} <span className="text-xs font-normal text-gray-500">L</span>
+          <div className="text-3xl sm:text-4xl font-black text-emerald-950 drop-shadow-sm relative z-10">
+            {todayMilkTotal.toFixed(1)} <span className="text-base sm:text-lg font-bold text-gray-500">L</span>
           </div>
         </Link>
 
         {/* This Month Revenue Card */}
         <Link 
           href="/dashboard/milk-sales"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-emerald-600 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-emerald-50/30 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-emerald-600 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>💰</span>
-                <span className="truncate">Month Revenue</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-emerald-100 rounded-full blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-emerald-50 rounded-lg text-emerald-600 border border-emerald-100 shadow-sm">💰</span>
+                <span className="truncate text-gray-800">Revenue</span>
               </div>
-              <span className="text-[10px] text-gray-400">دودھ کی آمدنی</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">دودھ کی آمدنی</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-gray-900 truncate">
+          <div className="text-xl sm:text-2xl font-black text-gray-900 truncate relative z-10 tracking-tight">
             Rs. {thisMonthRevenue.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
           </div>
         </Link>
@@ -179,19 +179,19 @@ export default async function DashboardPage() {
         {/* This Month Expenses Card */}
         <Link 
           href="/dashboard/expenses"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-orange-600 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-orange-50/30 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-orange-500 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>🧾</span>
-                <span className="truncate">Month Expenses</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-orange-100 rounded-full blur-2xl opacity-40 group-hover:opacity-60 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-orange-50 rounded-lg text-orange-600 border border-orange-100 shadow-sm">🧾</span>
+                <span className="truncate text-gray-800">Expenses</span>
               </div>
-              <span className="text-[10px] text-gray-400">کل خرچہ</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">کل خرچہ</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-xl sm:text-2xl font-extrabold text-orange-600 truncate">
+          <div className="text-xl sm:text-2xl font-black text-orange-700 truncate relative z-10 tracking-tight">
             Rs. {thisMonthExpenses.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
           </div>
         </Link>
@@ -199,19 +199,19 @@ export default async function DashboardPage() {
         {/* Net Profit Card */}
         <Link 
           href="/dashboard/reports/financials"
-          className={`bg-white rounded-2xl shadow-sm border-l-4 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group ${isProfitable ? 'border-l-green-600' : 'border-l-red-600'}`}
+          className={`bg-gradient-to-br from-white to-gray-50 rounded-2xl shadow-sm border border-gray-100 border-l-4 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden lg:col-span-2 ${isProfitable ? 'border-l-green-500' : 'border-l-red-500'}`}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>📈</span>
-                <span className="truncate">Net Profit</span>
+          <div className={`absolute top-0 right-0 -mt-2 -mr-2 w-24 h-24 rounded-full blur-3xl opacity-30 group-hover:opacity-50 transition-opacity ${isProfitable ? 'bg-green-200' : 'bg-red-200'}`}></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className={`p-1.5 rounded-lg border shadow-sm ${isProfitable ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100'}`}>📈</span>
+                <span className="truncate text-gray-800">Net Profit</span>
               </div>
-              <span className="text-[10px] text-gray-400">خالص منافع / نقصان</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">خالص منافع / نقصان</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className={`text-xl sm:text-2xl font-extrabold truncate ${isProfitable ? 'text-green-600' : 'text-red-600'}`}>
+          <div className={`text-3xl sm:text-4xl font-black truncate relative z-10 tracking-tight ${isProfitable ? 'text-green-700' : 'text-red-700'}`}>
             Rs. {Math.abs(thisMonthNetProfit).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
           </div>
         </Link>
@@ -219,19 +219,19 @@ export default async function DashboardPage() {
         {/* Overdue Vaccines Card */}
         <Link 
           href="/dashboard/vaccinations?tab=overdue"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-red-600 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-red-50/50 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-red-500 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>🚨</span>
-                <span className="truncate">Overdue Vaccines</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-red-100 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-red-100/80 rounded-lg text-red-700 shadow-sm">🚨</span>
+                <span className="truncate text-gray-800">Vaccines</span>
               </div>
-              <span className="text-[10px] text-gray-400">بیماری کے ٹیکے</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">بیماری کے ٹیکے</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-red-600">
+          <div className="text-2xl sm:text-3xl font-black text-red-700 drop-shadow-sm relative z-10">
             {overdueVaccinesCount}
           </div>
         </Link>
@@ -239,19 +239,19 @@ export default async function DashboardPage() {
         {/* Confirmed Pregnancies Card */}
         <Link 
           href="/dashboard/insemination?status=Confirmed"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-green-500 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-green-50/50 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-green-500 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>✅</span>
-                <span className="truncate">Pregnant Cows</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-green-100 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-green-100/80 rounded-lg text-green-700 shadow-sm">✅</span>
+                <span className="truncate text-gray-800">Pregnant</span>
               </div>
-              <span className="text-[10px] text-gray-400">گابھن جانور</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">گابھن جانور</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <div className="text-2xl sm:text-3xl font-black text-green-900 drop-shadow-sm relative z-10">
             {confirmedPregnancies || 0}
           </div>
         </Link>
@@ -259,19 +259,19 @@ export default async function DashboardPage() {
         {/* Upcoming Calvings Card */}
         <Link 
           href="/dashboard/insemination?status=Confirmed"
-          className="bg-white rounded-2xl shadow-sm border-l-4 border-l-orange-500 p-3.5 sm:p-5 flex flex-col justify-between gap-2 hover:shadow-md transition-all cursor-pointer group"
+          className="bg-gradient-to-br from-white to-amber-50/50 rounded-2xl shadow-sm border border-gray-100 border-l-4 border-l-amber-500 p-4 sm:p-5 flex flex-col justify-between gap-3 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 cursor-pointer group relative overflow-hidden"
         >
-          <div className="flex items-center justify-between">
-            <div className="flex flex-col text-gray-500 text-xs sm:text-sm font-medium">
-              <div className="flex items-center gap-1">
-                <span>📅</span>
-                <span className="truncate">Due Calvings</span>
+          <div className="absolute top-0 right-0 -mt-2 -mr-2 w-16 h-16 bg-amber-100 rounded-full blur-2xl opacity-50 group-hover:opacity-70 transition-opacity"></div>
+          <div className="flex items-center justify-between relative z-10">
+            <div className="flex flex-col text-gray-600 text-xs sm:text-sm font-bold">
+              <div className="flex items-center gap-2">
+                <span className="p-1.5 bg-amber-100/80 rounded-lg text-amber-700 shadow-sm">📅</span>
+                <span className="truncate text-gray-800">Due Calvings</span>
               </div>
-              <span className="text-[10px] text-gray-400">بچہ دینے والی</span>
+              <span className="text-[10px] text-gray-400 mt-1 font-medium">بچہ دینے والی</span>
             </div>
-            <span className="text-[10px] sm:text-xs text-gray-400 group-hover:text-[#00BFA6] transition-colors font-semibold">View &rarr;</span>
           </div>
-          <div className="text-2xl sm:text-3xl font-extrabold text-gray-900">
+          <div className="text-2xl sm:text-3xl font-black text-amber-900 drop-shadow-sm relative z-10">
             {upcomingCalvings || 0}
           </div>
         </Link>

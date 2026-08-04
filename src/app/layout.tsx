@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
+import { ToastProvider } from '@/components/ui/Toast'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -69,9 +70,11 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-title" content="Kisan Dairy" />
       </head>
       <body className="font-sans antialiased">
-        {children}
-        <ServiceWorkerRegistration />
-        <Analytics />
+        <ToastProvider>
+          {children}
+          <ServiceWorkerRegistration />
+          <Analytics />
+        </ToastProvider>
       </body>
     </html>
   )

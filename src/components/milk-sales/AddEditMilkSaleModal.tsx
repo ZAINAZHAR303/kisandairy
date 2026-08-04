@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { MilkSaleEntry, Seller } from '@/lib/types'
 import { addMilkSaleEntry, updateMilkSaleEntry, addSeller } from '@/app/dashboard/milk-sales/actions'
 import { savePendingMilkSale } from '@/lib/offlineDb'
+import { useToast } from '@/components/ui/Toast'
 
 interface AddEditMilkSaleModalProps {
   isOpen: boolean
@@ -13,6 +14,7 @@ interface AddEditMilkSaleModalProps {
 }
 
 export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEntry }: AddEditMilkSaleModalProps) {
+  const { showToast } = useToast()
   const [localSellers, setLocalSellers] = useState<Seller[]>(sellers)
 
   const [selectedSellerId, setSelectedSellerId] = useState<string>('')
@@ -148,7 +150,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
           notes: '',
         })
         onClose()
-        alert('✅ Saved offline! یہ ریکارڈ انٹرنیٹ آنے پر خود بخود Supabase میں بھیجا جائے گا۔')
+        showToast('offline', 'Saved offline!', 'یہ ریکارڈ انٹرنیٹ آنے پر خود بخود Supabase میں بھیجا جائے گا۔')
         return
       }
 
@@ -185,7 +187,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
             notes: '',
           })
           onClose()
-          alert('✅ Saved offline! انٹرنیٹ آنے پر خود بخود sync ہو گا۔')
+          showToast('offline', 'Saved offline!', 'انٹرنیٹ آنے پر خود بخود sync ہو گا۔')
           return
         } catch {
           setError('Could not save offline. Please try again.')
@@ -207,12 +209,15 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
         onClick={onClose}
       />
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="modal-title"
         className="fixed inset-x-0 bottom-0 sm:bottom-auto sm:inset-x-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-[100] w-full sm:w-full sm:max-w-md bg-white rounded-t-2xl sm:rounded-2xl max-h-[85vh] sm:max-h-[90vh] flex flex-col shadow-2xl animate-slide-up"
       >
         {/* Header */}
         <div className="flex-none p-4 border-b border-gray-100 relative">
           <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-3 sm:hidden" />
-          <h2 className="text-xl font-bold text-gray-800 text-center">
+          <h2 id="modal-title" className="text-xl font-bold text-gray-800 text-center">
             {editEntry ? 'Edit Milk Sale Entry 🥛' : 'Log Milk Sale Entry 🥛'}
           </h2>
           <button 

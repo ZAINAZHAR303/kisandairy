@@ -50,21 +50,25 @@ export default function InstallPrompt() {
   if (!showBanner || isInstalled) return null
 
   return (
-    <div className="mx-4 mb-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 p-3.5 shadow-lg animate-[slideDown_0.4s_ease-out]">
-      <div className="flex items-center justify-between gap-3">
+    <div className="mx-4 mb-4 rounded-2xl bg-white/70 backdrop-blur-xl border border-white/50 shadow-[0_8px_32px_0_rgba(34,197,94,0.15)] p-4 animate-[slideDown_0.5s_ease-out] relative overflow-hidden">
+      {/* Subtle shine effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+      <div className="flex items-center justify-between gap-3 relative z-10">
         <div className="flex items-center gap-3 min-w-0">
-          <span className="text-2xl flex-shrink-0">📲</span>
+          <div className="w-12 h-12 bg-gradient-to-br from-emerald-100 to-teal-50 rounded-xl shadow-sm border border-emerald-100 flex items-center justify-center flex-shrink-0">
+            <span className="text-2xl">📲</span>
+          </div>
           <div className="min-w-0">
-            <p className="text-white font-bold text-sm">Install Kisan Dairy App</p>
-            <p className="text-emerald-100 text-xs">Works offline in the shed — no internet needed!</p>
-            <p className="text-emerald-200/80 text-[10px]">بغیر انٹرنیٹ چلے گا — ایپ انسٹال کریں</p>
+            <p className="text-gray-900 font-extrabold text-sm sm:text-base leading-tight">Install Kisan Dairy</p>
+            <p className="text-gray-600 text-xs mt-0.5 font-medium">Works offline in the shed!</p>
+            <p className="text-emerald-600 font-bold text-[10px] mt-0.5">بغیر انٹرنیٹ چلے گا — ایپ انسٹال کریں</p>
           </div>
         </div>
         <div className="flex-shrink-0">
           <button
             onClick={handleInstall}
             disabled={isInstalling}
-            className="bg-white text-emerald-700 font-bold text-xs px-5 py-2.5 rounded-lg hover:bg-emerald-50 active:scale-95 transition-all shadow-md disabled:opacity-70"
+            className="bg-emerald-600 text-white font-bold text-xs px-5 py-2.5 rounded-xl hover:bg-emerald-700 active:scale-95 transition-all shadow-md shadow-emerald-600/20 disabled:opacity-70 flex items-center gap-1.5"
           >
             {isInstalling ? 'Installing...' : '⬇️ Install'}
           </button>

@@ -3,242 +3,196 @@
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 import { Animal } from '@/lib/types'
-
-export async function getAnimals() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { data: null, error: new Error('Unauthorized') }
-  }
-
-  const { data, error } = await supabase
-    .from('animals')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at', { ascending: false })
-
-  return { data, error }
-}
-
-export async function addAnimal(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    return { data: null, error: new Error('Unauthorized') }
-  }
-
-  const name = formData.get('name') as string
-  const tag_number = formData.get('tag_number') as string | null
-  const type = (formData.get('type') as 'cow' | 'buffalo') || 'cow'
-  const breed = formData.get('breed') as string | null
-  const date_of_birth = formData.get('date_of_birth') as string | null
-  const gender = (formData.get('gender') as 'female' | 'male') || 'female'
-  const status = (formData.get('status') as string) || 'Lactating'
-  const dam_info = formData.get('dam_info') as string | null
-  const weight_kg = formData.get('weight_kg') ? Number(formData.get('weight_kg')) : null
-  const notes = formData.get('notes') as string | null
-
-  if (!name || !name.trim()) {
-    return { data: null, error: new Error('Name is required') }
-  }
-
-  const insertData: any = {
-    name: name.trim(),
-    tag_number: tag_number?.trim() || null,
-    type,
-    breed: breed?.trim() || null,
-    user_id: user.id
-  }
-
-  if (date_of_birth) insertData.date_of_birth = date_of_birth
-  if (gender) insertData.gender = gender
-  if (status) insertData.status = status
-  if (dam_info) insertData.dam_info = dam_info.trim()
-  if (weight_kg && !isNaN(weight_kg)) insertData.weight_kg = weight_kg
-  if (notes) insertData.notes = notes.trim()
-
-  const { data, error } = await supabase
-    .from('animals')
-    .insert(insertData)
-    .select()
-    .single()
-
-  if (!error) {
-    revalidatePath('/dashboard/insemination')
-    revalidatePath('/dashboard/animals')
-    revalidatePath('/dashboard')
-  }
-
-  return { data, error }
-}
+import { getAnimalsList } from '@/app/dashboard/animals/actions'
 
 export async function getInseminationRecords() {
   const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { data: null, error: 'Unauthorized' }
 
-  const { data, error } = await supabase
-    .from('insemination_records')
-    .select('*, animals(*)')
-    .order('ai_date', { ascending: false })
+    const { data, error } = await supabase
+      .from('insemination_records')
+      .select('*, animals(*)')
+      .eq('user_id', user.id)
+      .order('ai_date', { ascending: false })
 
-  return { data, error }
+    if (error) return { data: null, error: error.message }
+    return { data, error: null }
+  } catch (err: any) {
+    return { data: null, error: err.message || 'An unexpected error occurred' }
+  }
 }
 
 export async function addInseminationRecord(formData: FormData) {
   const supabase = await createClient()
-  
-  const animal_id = formData.get('animal_id') as string
-  const ai_date = formData.get('ai_date') as string
-  const method = formData.get('method') as 'AI' | 'Natural'
-  const semen_company = formData.get('semen_company') as string | null
-  const bull_name = formData.get('bull_name') as string | null
-  const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
-  const pregnancy_status = formData.get('pregnancy_status') as string | null
-  const calving_date = formData.get('calving_date') as string | null
-  const notes = formData.get('notes') as string | null
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { data: null, error: 'Unauthorized' }
+    
+    const animal_id = formData.get('animal_id') as string
+    const ai_date = formData.get('ai_date') as string
+    const method = formData.get('method') as 'AI' | 'Natural'
+    const semen_company = formData.get('semen_company') as string | null
+    const bull_name = formData.get('bull_name') as string | null
+    const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
+    const pregnancy_status = formData.get('pregnancy_status') as string | null
+    const calving_date = formData.get('calving_date') as string | null
+    const notes = formData.get('notes') as string | null
 
-  // calculate expected_calving_date
-  let expected_calving_date = null
+    let expected_calving_date = null
 
-  if (animal_id && ai_date) {
-    const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).single()
-    if (animal) {
-      const aiDateObj = new Date(ai_date)
-      const daysToAdd = animal.type === 'buffalo' ? 310 : 283
-      aiDateObj.setDate(aiDateObj.getDate() + daysToAdd)
-      expected_calving_date = aiDateObj.toISOString().split('T')[0]
+    if (animal_id && ai_date) {
+      const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).eq('user_id', user.id).single()
+      if (animal) {
+        const aiDateObj = new Date(ai_date)
+        const daysToAdd = animal.type === 'buffalo' ? 310 : 283
+        aiDateObj.setDate(aiDateObj.getDate() + daysToAdd)
+        expected_calving_date = aiDateObj.toISOString().split('T')[0]
+      }
     }
-  }
 
-  const recordPayload: any = {
-    animal_id,
-    ai_date,
-    method,
-    semen_company: semen_company?.trim() || null,
-    bull_name: bull_name?.trim() || null,
-    lactation_no,
-    pregnancy_status,
-    expected_calving_date
-  }
+    const recordPayload: any = {
+      animal_id,
+      ai_date,
+      method,
+      semen_company: semen_company?.trim() || null,
+      bull_name: bull_name?.trim() || null,
+      lactation_no,
+      pregnancy_status,
+      expected_calving_date,
+      user_id: user.id
+    }
 
-  if (pregnancy_status?.toLowerCase() === 'calved') {
-    recordPayload.calving_date = calving_date || new Date().toISOString().split('T')[0]
-  }
-  if (notes?.trim()) {
-    recordPayload.notes = notes.trim()
-  }
+    if (pregnancy_status?.toLowerCase() === 'calved') {
+      recordPayload.calving_date = calving_date || new Date().toISOString().split('T')[0]
+    }
+    if (notes?.trim()) {
+      recordPayload.notes = notes.trim()
+    }
 
-  let { data, error } = await supabase
-    .from('insemination_records')
-    .insert(recordPayload)
-    .select()
-    .single()
-
-  // Fallback: If new columns aren't in Supabase SQL schema yet, retry without new columns
-  if (error && error.message?.includes('schema cache')) {
-    delete recordPayload.calving_date
-    delete recordPayload.notes
-    const retry = await supabase
+    let { data, error } = await supabase
       .from('insemination_records')
       .insert(recordPayload)
       .select()
       .single()
-    data = retry.data
-    error = retry.error
-  }
 
-  if (!error) {
+    if (error && error.message?.includes('schema cache')) {
+      delete recordPayload.calving_date
+      delete recordPayload.notes
+      const retry = await supabase
+        .from('insemination_records')
+        .insert(recordPayload)
+        .select()
+        .single()
+      data = retry.data
+      error = retry.error
+    }
+
+    if (error) return { data: null, error: error.message }
+
     revalidatePath('/dashboard/insemination')
+    return { data, error: null }
+  } catch (err: any) {
+    return { data: null, error: err.message || 'An unexpected error occurred' }
   }
-
-  return { data, error }
 }
 
 export async function updateInseminationRecord(formData: FormData) {
   const supabase = await createClient()
-  
-  const id = formData.get('id') as string
-  const animal_id = formData.get('animal_id') as string
-  const ai_date = formData.get('ai_date') as string
-  const method = formData.get('method') as 'AI' | 'Natural'
-  const semen_company = formData.get('semen_company') as string | null
-  const bull_name = formData.get('bull_name') as string | null
-  const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
-  const pregnancy_status = formData.get('pregnancy_status') as string | null
-  const calving_date = formData.get('calving_date') as string | null
-  const notes = formData.get('notes') as string | null
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { data: null, error: 'Unauthorized' }
+    
+    const id = formData.get('id') as string
+    const animal_id = formData.get('animal_id') as string
+    const ai_date = formData.get('ai_date') as string
+    const method = formData.get('method') as 'AI' | 'Natural'
+    const semen_company = formData.get('semen_company') as string | null
+    const bull_name = formData.get('bull_name') as string | null
+    const lactation_no = formData.get('lactation_no') ? Number(formData.get('lactation_no')) : null
+    const pregnancy_status = formData.get('pregnancy_status') as string | null
+    const calving_date = formData.get('calving_date') as string | null
+    const notes = formData.get('notes') as string | null
 
-  // calculate expected_calving_date
-  let expected_calving_date = null
+    let expected_calving_date = null
 
-  if (animal_id && ai_date) {
-    const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).single()
-    if (animal) {
-      const aiDateObj = new Date(ai_date)
-      const daysToAdd = animal.type === 'buffalo' ? 310 : 283
-      aiDateObj.setDate(aiDateObj.getDate() + daysToAdd)
-      expected_calving_date = aiDateObj.toISOString().split('T')[0]
+    if (animal_id && ai_date) {
+      const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).eq('user_id', user.id).single()
+      if (animal) {
+        const aiDateObj = new Date(ai_date)
+        const daysToAdd = animal.type === 'buffalo' ? 310 : 283
+        aiDateObj.setDate(aiDateObj.getDate() + daysToAdd)
+        expected_calving_date = aiDateObj.toISOString().split('T')[0]
+      }
     }
-  }
 
-  const recordPayload: any = {
-    animal_id,
-    ai_date,
-    method,
-    semen_company: semen_company?.trim() || null,
-    bull_name: bull_name?.trim() || null,
-    lactation_no,
-    pregnancy_status,
-    expected_calving_date
-  }
+    const recordPayload: any = {
+      animal_id,
+      ai_date,
+      method,
+      semen_company: semen_company?.trim() || null,
+      bull_name: bull_name?.trim() || null,
+      lactation_no,
+      pregnancy_status,
+      expected_calving_date
+    }
 
-  if (pregnancy_status?.toLowerCase() === 'calved') {
-    recordPayload.calving_date = calving_date || new Date().toISOString().split('T')[0]
-  }
-  if (notes?.trim()) {
-    recordPayload.notes = notes.trim()
-  }
+    if (pregnancy_status?.toLowerCase() === 'calved') {
+      recordPayload.calving_date = calving_date || new Date().toISOString().split('T')[0]
+    }
+    if (notes?.trim()) {
+      recordPayload.notes = notes.trim()
+    }
 
-  let { data, error } = await supabase
-    .from('insemination_records')
-    .update(recordPayload)
-    .eq('id', id)
-    .select()
-    .single()
-
-  // Fallback: If new columns aren't in Supabase SQL schema yet, retry without new columns
-  if (error && error.message?.includes('schema cache')) {
-    delete recordPayload.calving_date
-    delete recordPayload.notes
-    const retry = await supabase
+    let { data, error } = await supabase
       .from('insemination_records')
       .update(recordPayload)
       .eq('id', id)
+      .eq('user_id', user.id)
       .select()
       .single()
-    data = retry.data
-    error = retry.error
-  }
 
-  if (!error) {
+    if (error && error.message?.includes('schema cache')) {
+      delete recordPayload.calving_date
+      delete recordPayload.notes
+      const retry = await supabase
+        .from('insemination_records')
+        .update(recordPayload)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single()
+      data = retry.data
+      error = retry.error
+    }
+
+    if (error) return { data: null, error: error.message }
+
     revalidatePath('/dashboard/insemination')
+    return { data, error: null }
+  } catch (err: any) {
+    return { data: null, error: err.message || 'An unexpected error occurred' }
   }
-
-  return { data, error }
 }
 
 export async function deleteInseminationRecord(id: string) {
   const supabase = await createClient()
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return { error: 'Unauthorized' }
 
-  const { error } = await supabase
-    .from('insemination_records')
-    .delete()
-    .eq('id', id)
+    const { error } = await supabase
+      .from('insemination_records')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', user.id)
 
-  if (!error) {
+    if (error) return { error: error.message }
+
     revalidatePath('/dashboard/insemination')
+    return { error: null }
+  } catch (err: any) {
+    return { error: err.message || 'An unexpected error occurred' }
   }
-
-  return { error }
 }
