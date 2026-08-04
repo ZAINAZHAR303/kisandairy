@@ -41,18 +41,18 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
   ]
 
   return (
-    <div className="min-h-screen bg-[#f0f2f5] font-sans antialiased text-gray-900 selection:bg-[#00BFA6]/20">
-      {/* Top Header Bar (Navy Blue) */}
-      <header className="fixed top-0 left-0 right-0 h-14 bg-[#1a2f5e] text-white z-50 shadow-md">
+    <div className="min-h-screen bg-[var(--color-bg)] font-sans antialiased text-gray-900 selection:bg-blue-500/20">
+      {/* Top Header Bar (Clean White) */}
+      <header className="fixed top-0 left-0 right-0 h-14 bg-white text-gray-900 z-50 shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto h-full px-3 sm:px-6 flex items-center justify-between">
           {/* Logo & Brand Name */}
           <Link href="/dashboard" className="flex items-center space-x-2 sm:space-x-2.5 group flex-shrink-0">
             <img 
               src="/logo.png" 
               alt="Kisan Dairy Logo" 
-              className="w-7 h-7 sm:w-8 sm:h-8 object-contain bg-white/10 rounded-lg p-0.5" 
+              className="w-7 h-7 sm:w-8 sm:h-8 object-contain" 
             />
-            <span className="text-lg sm:text-xl font-extrabold tracking-wide text-white group-hover:text-teal-300 transition-colors">
+            <span className="text-lg sm:text-xl font-extrabold tracking-wide text-gray-900 group-hover:text-[var(--color-blue)] transition-colors">
               Kisan Dairy
             </span>
             <OfflineIndicator />
@@ -68,13 +68,13 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
                   href={item.href}
                   className={`px-3 py-1.5 rounded-xl font-bold text-xs flex items-center space-x-1.5 transition-all ${
                     isActive 
-                      ? 'bg-[#00BFA6] text-white shadow-sm' 
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                      ? 'bg-blue-50 text-[var(--color-blue)] shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                   }`}
                 >
                   <span className="text-sm">{item.icon}</span>
                   <span>{item.name}</span>
-                  <span className="text-[10px] opacity-75 font-normal">({item.sub})</span>
+                  <span className={`text-[10px] font-normal ${isActive ? 'opacity-80' : 'opacity-60'}`}>({item.sub})</span>
                 </Link>
               )
             })}
@@ -83,7 +83,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
           {/* Right User Avatar & Logout */}
           <div className="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
             <div 
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#00BFA6] flex items-center justify-center text-xs sm:text-sm font-bold text-white shadow-sm ring-2 ring-white/20"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[var(--color-blue)] flex items-center justify-center text-xs sm:text-sm font-bold text-white shadow-sm ring-2 ring-blue-100"
               title={user?.email || user?.phone || 'User'}
             >
               {getInitial()}
@@ -91,7 +91,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="px-2.5 py-1.5 rounded-lg hover:bg-white/10 transition-colors duration-200 text-xs sm:text-sm font-semibold text-white/90 flex items-center space-x-1 border border-white/10 active:scale-95"
+              className="px-2.5 py-1.5 rounded-lg hover:bg-gray-100 transition-colors duration-200 text-xs sm:text-sm font-semibold text-gray-700 flex items-center space-x-1 border border-gray-200 active:scale-95"
               title="Logout"
             >
               {isLoggingOut ? <span>...</span> : <span>Logout</span>}
@@ -111,21 +111,21 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
                   key={item.name}
                   href={item.href}
                   className={`flex flex-col items-center justify-center min-w-[56px] h-full px-1.5 py-1 transition-all duration-200 relative ${
-                    isActive ? 'text-[#00BFA6]' : 'text-gray-500 hover:text-gray-700 active:scale-95'
+                    isActive ? 'text-[var(--color-blue)]' : 'text-gray-500 hover:text-gray-700 active:scale-95'
                   }`}
                 >
                   {/* Bottom Active Line Indicator */}
                   {isActive && (
-                    <span className="absolute bottom-0 inset-x-2 h-0.5 bg-[#00BFA6] rounded-full animate-fade-in" />
+                    <span className="absolute bottom-0 inset-x-2 h-0.5 bg-[var(--color-blue)] rounded-full animate-fade-in" />
                   )}
                   
                   <span className={`text-base transition-transform duration-200 ${isActive ? 'scale-110' : ''}`}>
                     {item.icon}
                   </span>
-                  <span className={`text-[10px] tracking-tight font-bold leading-tight ${isActive ? 'text-[#00BFA6]' : 'text-gray-700'}`}>
+                  <span className={`text-[10px] tracking-tight font-bold leading-tight ${isActive ? 'text-[var(--color-blue)]' : 'text-gray-700'}`}>
                     {item.name}
                   </span>
-                  <span className={`text-[9px] leading-none ${isActive ? 'text-[#00BFA6] font-bold' : 'text-gray-400'}`}>
+                  <span className={`text-[9px] leading-none ${isActive ? 'text-[var(--color-blue)] font-bold opacity-80' : 'text-gray-400'}`}>
                     {item.sub}
                   </span>
                 </Link>
