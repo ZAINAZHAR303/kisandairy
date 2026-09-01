@@ -14,7 +14,12 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
   
   const targetMonth = searchParams.month ? parseInt(searchParams.month as string) : today.getMonth();
   const targetYear = searchParams.year ? parseInt(searchParams.year as string) : today.getFullYear();
-  const currentMonthPrefix = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}`;
+  
+  const startDate = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-01`;
+  
+  const nextMonth = targetMonth === 11 ? 0 : targetMonth + 1;
+  const nextMonthYear = targetMonth === 11 ? targetYear + 1 : targetYear;
+  const endDate = `${nextMonthYear}-${String(nextMonth + 1).padStart(2, '0')}-01`;
 
   // Fetch counts
   // 1. Total Animals
@@ -54,18 +59,20 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
   const todayMilkTotal = (todayMilkData || []).reduce((sum, item) => sum + Number(item.total_liters || 0), 0);
 
   // 6. Selected Month Revenue (Rs.)
-  const { data: monthMilkData } = await supabase
+  const { data: monthMilkData, error: milkError } = await supabase
     .from('milk_sale_entries')
     .select('total_amount, date')
-    .like('date', `${currentMonthPrefix}%`);
+    .gte('date', startDate)
+    .lt('date', endDate);
 
   const thisMonthRevenue = (monthMilkData || []).reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
 
   // 7. Selected Month Expenses (Rs.)
-  const { data: monthExpenseData } = await supabase
+  const { data: monthExpenseData, error: expenseError } = await supabase
     .from('expenses')
     .select('amount, date')
-    .like('date', `${currentMonthPrefix}%`);
+    .gte('date', startDate)
+    .lt('date', endDate);
 
   const thisMonthExpenses = (monthExpenseData || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
