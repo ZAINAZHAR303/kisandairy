@@ -1,11 +1,20 @@
 import { createClient, getAuthUser } from '@/lib/supabase/server';
 import Link from 'next/link';
+import DashboardMonthFilter from '@/components/dashboard/DashboardMonthFilter';
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: { searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const supabase = await createClient();
 
   // Get current user (cached across request lifecycle)
   const user = await getAuthUser();
+
+  // Parse searchParams for month filtering
+  const searchParams = props.searchParams ? await props.searchParams : {};
+  const today = new Date();
+  
+  const targetMonth = searchParams.month ? parseInt(searchParams.month as string) : today.getMonth();
+  const targetYear = searchParams.year ? parseInt(searchParams.year as string) : today.getFullYear();
+  const currentMonthPrefix = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}`;
 
   // Fetch counts
   // 1. Total Animals
@@ -25,7 +34,6 @@ export default async function DashboardPage() {
     .eq('pregnancy_status', 'Confirmed');
 
   // 4. Upcoming Calvings (next 30 days)
-  const today = new Date();
   const todayStr = today.toISOString().split('T')[0];
 
   const thirtyDaysFromNow = new Date();
@@ -45,24 +53,23 @@ export default async function DashboardPage() {
 
   const todayMilkTotal = (todayMilkData || []).reduce((sum, item) => sum + Number(item.total_liters || 0), 0);
 
-  // 6. This Month Revenue (Rs.)
-  const currentMonthPrefix = todayStr.substring(0, 7); // e.g. "2026-07"
+  // 6. Selected Month Revenue (Rs.)
   const { data: monthMilkData } = await supabase
     .from('milk_sale_entries')
     .select('total_amount, date')
-    .gte('date', `${currentMonthPrefix}-01`);
+    .like('date', `${currentMonthPrefix}%`);
 
   const thisMonthRevenue = (monthMilkData || []).reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
 
-  // 7. This Month Expenses (Rs.)
+  // 7. Selected Month Expenses (Rs.)
   const { data: monthExpenseData } = await supabase
     .from('expenses')
     .select('amount, date')
-    .gte('date', `${currentMonthPrefix}-01`);
+    .like('date', `${currentMonthPrefix}%`);
 
   const thisMonthExpenses = (monthExpenseData || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-  // 8. This Month Net Profit (Rs.)
+  // 8. Selected Month Net Profit (Rs.)
   const thisMonthNetProfit = thisMonthRevenue - thisMonthExpenses;
   const isProfitable = thisMonthNetProfit >= 0;
 
@@ -78,21 +85,25 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Welcome back! 🐄</h1>
-        <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
-          {user?.email || user?.phone || 'Farmer'}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Welcome back! 🐄</h1>
+          <p className="text-xs sm:text-sm text-gray-500 mt-0.5">
+            {user?.email || user?.phone || 'Farmer'}
+          </p>
 
-        {/* Warning Banner for Overdue Vaccines */}
-        {overdueVaccinesCount > 0 && (
-          <Link
-            href="/dashboard/vaccinations?tab=overdue"
-            className="mt-3 inline-flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-sm transition-all animate-pulse w-full sm:w-auto"
-          >
-            <span>⚠️ {overdueVaccinesCount} vaccination(s) are overdue — tap to view &rarr;</span>
-          </Link>
-        )}
+          {/* Warning Banner for Overdue Vaccines */}
+          {overdueVaccinesCount > 0 && (
+            <Link
+              href="/dashboard/vaccinations?tab=overdue"
+              className="mt-3 inline-flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-sm transition-all animate-pulse w-full sm:w-auto"
+            >
+              <span>⚠️ {overdueVaccinesCount} vaccination(s) are overdue — tap to view &rarr;</span>
+            </Link>
+          )}
+        </div>
+
+        <DashboardMonthFilter />
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

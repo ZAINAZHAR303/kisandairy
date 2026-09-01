@@ -23,9 +23,14 @@ interface MonthlyFinancialSummary {
   marginPercent: number
 }
 
+import MonthPicker, { MONTH_NAMES } from '@/components/ui/MonthPicker'
+
 export default function FinancialsList({ milkEntries, expenses }: FinancialsListProps) {
   const { showToast } = useToast()
-  const [selectedYear, setSelectedYear] = useState<string>('all')
+  
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [viewMode, setViewMode] = useState<'monthly' | 'yearly'>('monthly')
 
   // Group data by Month (YYYY-MM)
   const monthlyData = useMemo(() => {
@@ -74,7 +79,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
     return list.sort((a, b) => b.monthKey.localeCompare(a.monthKey))
   }, [milkEntries, expenses])
 
-  // Extract available years for dropdown
+  // Extract available years for dropdown (for yearly mode)
   const availableYears = useMemo(() => {
     const yearsSet = new Set<string>()
     monthlyData.forEach(item => {
@@ -84,11 +89,15 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
     return Array.from(yearsSet).sort().reverse()
   }, [monthlyData])
 
-  // Filtered by selected year
+  // Filtered by selected month or year based on view mode
   const filteredMonthlyData = useMemo(() => {
-    if (selectedYear === 'all') return monthlyData
-    return monthlyData.filter(item => item.monthKey.startsWith(selectedYear))
-  }, [monthlyData, selectedYear])
+    if (viewMode === 'yearly') {
+       return monthlyData.filter(item => item.monthKey.startsWith(String(selectedYear)))
+    } else {
+       const targetKey = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
+       return monthlyData.filter(item => item.monthKey === targetKey)
+    }
+  }, [monthlyData, selectedMonth, selectedYear, viewMode])
 
   // Overall Totals
   const totalRevenueAll = useMemo(() => {
@@ -139,7 +148,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
 
     const workbook = XLSX.utils.book_new()
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Monthly Financials')
-    XLSX.writeFile(workbook, `Kisan_Dairy_Financial_Report_${selectedYear}.xlsx`)
+    XLSX.writeFile(workbook, `Kisan_Dairy_Financial_Report_${viewMode === 'monthly' ? `${MONTH_NAMES[selectedMonth]}_` : ''}${selectedYear}.xlsx`)
   }
 
   const handleExportPDF = () => {
@@ -163,7 +172,8 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
     doc.setFontSize(10)
     doc.setFont('helvetica', 'normal')
     const todayStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-    doc.text(`Filter Year: ${selectedYear === 'all' ? 'All Time' : selectedYear}  |  Generated on: ${todayStr}`, 14, 33)
+    const filterText = viewMode === 'monthly' ? `${MONTH_NAMES[selectedMonth]} ${selectedYear}` : `${selectedYear}`
+    doc.text(`Filter: ${filterText}  |  Generated on: ${todayStr}`, 14, 33)
 
     const head = [['Month', 'Liters Sold', 'Revenue (Rs)', 'Expenses (Rs)', 'Net Profit/Loss (Rs)', 'Margin']]
     const body = filteredMonthlyData.map(item => [
@@ -196,7 +206,7 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
       margin: { left: 14, right: 14 },
     })
 
-    doc.save(`Kisan_Dairy_Financial_Report_${selectedYear}.pdf`)
+    doc.save(`Kisan_Dairy_Financial_Report_${viewMode === 'monthly' ? `${MONTH_NAMES[selectedMonth]}_` : ''}${selectedYear}.pdf`)
   }
 
   return (
@@ -263,23 +273,44 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
         </div>
       </div>
 
-      {/* Year Filter Bar */}
-      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex justify-between items-center">
-        <div className="text-sm font-bold text-gray-800">
-          Monthly Performance Records
-        </div>
-        <div className="flex items-center space-x-2">
-          <label className="text-xs font-semibold text-gray-500">Filter Year:</label>
-          <select
-            value={selectedYear}
-            onChange={e => setSelectedYear(e.target.value)}
-            className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-semibold bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
+      {/* Filter Bar */}
+      <div className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex items-center space-x-3 bg-gray-100 p-1 rounded-xl">
+          <button
+            onClick={() => setViewMode('monthly')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${viewMode === 'monthly' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
           >
-            <option value="all">All Years</option>
-            {availableYears.map(y => (
-              <option key={y} value={y}>{y}</option>
-            ))}
-          </select>
+            Monthly View
+          </button>
+          <button
+            onClick={() => setViewMode('yearly')}
+            className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${viewMode === 'yearly' ? 'bg-white shadow-sm text-gray-900' : 'text-gray-500 hover:text-gray-700'}`}
+          >
+            Yearly View
+          </button>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {viewMode === 'monthly' ? (
+            <MonthPicker
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              onChange={(m, y) => { setSelectedMonth(m); setSelectedYear(y); }}
+            />
+          ) : (
+            <>
+              <label className="text-xs font-semibold text-gray-500">Filter Year:</label>
+              <select
+                value={selectedYear}
+                onChange={e => setSelectedYear(Number(e.target.value))}
+                className="rounded-xl border border-gray-200 px-3 py-1.5 text-xs font-semibold bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)]"
+              >
+                {availableYears.map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
+              </select>
+            </>
+          )}
         </div>
       </div>
 
