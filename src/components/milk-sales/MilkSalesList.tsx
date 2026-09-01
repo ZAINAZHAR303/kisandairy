@@ -160,36 +160,51 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     })
   }, [initialPayments, salesBuyerFilter, selectedMonthPrefix])
 
-  // Combined Sales & Payments for Selected Buyer
+  // Combined Sales & Payments for Selected Buyer, filtered by selected calendar month
   const selectedBuyerTransactions = useMemo(() => {
     if (!selectedBuyer) return []
 
-    const sales = initialEntries.filter(e => e.seller_id === selectedBuyer.id).map(e => ({
-      id: e.id,
-      date: e.date,
-      type: 'sale' as const,
-      litres: e.total_liters,
-      rate: e.rate_per_liter,
-      total: e.total_amount,
-      paid: 0,
-      notes: e.sellers?.name || '',
-      raw: e
-    }))
+    const sales = initialEntries
+      .filter(e => e.seller_id === selectedBuyer.id && e.date?.startsWith(selectedMonthPrefix))
+      .map(e => ({
+        id: e.id,
+        date: e.date,
+        type: 'sale' as const,
+        litres: e.total_liters,
+        rate: e.rate_per_liter,
+        total: e.total_amount,
+        paid: 0,
+        notes: e.sellers?.name || '',
+        raw: e
+      }))
 
-    const payments = initialPayments.filter(p => p.seller_id === selectedBuyer.id).map(p => ({
-      id: p.id,
-      date: p.date,
-      type: 'payment' as const,
-      litres: 0,
-      rate: 0,
-      total: 0,
-      paid: p.amount_paid,
-      notes: p.notes || 'Payment Received',
-      raw: p
-    }))
+    const payments = initialPayments
+      .filter(p => p.seller_id === selectedBuyer.id && p.date?.startsWith(selectedMonthPrefix))
+      .map(p => ({
+        id: p.id,
+        date: p.date,
+        type: 'payment' as const,
+        litres: 0,
+        rate: 0,
+        total: 0,
+        paid: p.amount_paid,
+        notes: p.notes || 'Payment Received',
+        raw: p
+      }))
 
     return [...sales, ...payments].sort((a, b) => b.date.localeCompare(a.date))
-  }, [selectedBuyer, initialEntries, initialPayments])
+  }, [selectedBuyer, initialEntries, initialPayments, selectedMonthPrefix])
+
+  // Calculate stats for the selected buyer and selected month
+  const selectedBuyerMonthStats = useMemo(() => {
+    let sales = 0
+    let paid = 0
+    selectedBuyerTransactions.forEach(t => {
+      if (t.type === 'sale') sales += (t.total || 0)
+      if (t.type === 'payment') paid += (t.paid || 0)
+    })
+    return { sales, paid, outstanding: sales - paid }
+  }, [selectedBuyerTransactions])
 
   // Total metrics for Sales & Payments view — now correctly scoped to selected month
   const overallRevenue = useMemo(() => dateRangeFilteredEntries.reduce((sum, e) => sum + Number(e.total_amount || 0), 0), [dateRangeFilteredEntries])
@@ -275,6 +290,110 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     }
   }
 
+  const renderMonthPicker = () => (
+    <div className="relative">
+      <div className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
+        {/* Left arrow */}
+        <button
+          onClick={goToPrevMonth}
+          className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
+          title="Previous Month"
+        >
+          <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        {/* Center: Month/Year display — clickable to open month grid */}
+        <button
+          onClick={() => setShowMonthPicker(!showMonthPicker)}
+          className="flex items-center space-x-2 px-4 py-1.5 rounded-xl hover:bg-white transition-colors border border-transparent hover:border-gray-200"
+        >
+          <span className="text-lg">📅</span>
+          <span className="text-sm font-extrabold text-gray-900">
+            {MONTH_NAMES[selectedMonth]} {selectedYear}
+          </span>
+          <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showMonthPicker ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {/* Right arrow */}
+        <div className="flex items-center space-x-2">
+          {!isCurrentMonth && (
+            <button
+              onClick={goToCurrentMonth}
+              className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
+            >
+              Today
+            </button>
+          )}
+          <button
+            onClick={goToNextMonth}
+            className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
+            title="Next Month"
+          >
+            <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Month Grid Popup */}
+      {showMonthPicker && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-4 z-50 animate-fade-in">
+          {/* Year Selector */}
+          <div className="flex items-center justify-between mb-3">
+            <button
+              onClick={() => setSelectedYear(prev => prev - 1)}
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <span className="text-sm font-extrabold text-gray-900">{selectedYear}</span>
+            <button
+              onClick={() => setSelectedYear(prev => prev + 1)}
+              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Month Grid */}
+          <div className="grid grid-cols-3 gap-2">
+            {MONTH_NAMES_SHORT.map((name, idx) => {
+              const isSelected = idx === selectedMonth && selectedYear === selectedYear
+              const isCurrent = idx === now.getMonth() && selectedYear === now.getFullYear()
+              return (
+                <button
+                  key={name}
+                  onClick={() => {
+                    setSelectedMonth(idx)
+                    setShowMonthPicker(false)
+                  }}
+                  className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    isSelected
+                      ? 'bg-emerald-600 text-white shadow-sm'
+                      : isCurrent
+                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
+                  }`}
+                >
+                  {name}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <div className="space-y-6 pb-24 font-[Inter] text-gray-900 selection:bg-emerald-100">
       {/* Top Header Navigation Tabs */}
@@ -307,13 +426,18 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
       {/* VIEW 1: BUYER DETAIL VIEW (When clicking on a buyer card) */}
       {selectedBuyer ? (
         <div className="space-y-6 animate-fade-in">
-          {/* Back Navigation Bar */}
-          <button
-            onClick={() => setSelectedBuyer(null)}
-            className="inline-flex items-center space-x-2 text-xs font-bold text-gray-600 hover:text-gray-900 bg-white px-3.5 py-2 rounded-xl border border-gray-200 shadow-sm transition-all"
-          >
-            <span>← Back to Buyers</span>
-          </button>
+          {/* Back Navigation Bar & Month Picker */}
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 bg-white p-4 rounded-3xl border border-gray-100 shadow-sm">
+            <button
+              onClick={() => setSelectedBuyer(null)}
+              className="inline-flex items-center space-x-2 text-xs font-bold text-gray-600 hover:text-gray-900 bg-gray-50 hover:bg-gray-100 px-3.5 py-2.5 rounded-xl border border-gray-200 shadow-sm transition-all"
+            >
+              <span>← Back to Buyers</span>
+            </button>
+            <div className="w-full sm:w-72">
+              {renderMonthPicker()}
+            </div>
+          </div>
 
           {/* Buyer Header Card */}
           <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 space-y-6">
@@ -334,7 +458,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
               </div>
 
               <div className="text-left sm:text-right">
-                <div className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Outstanding (بقایا / ادھار)</div>
+                <div className="text-xs text-gray-400 font-semibold uppercase tracking-wider">Total Outstanding (کل بقایا)</div>
                 <div className={`text-2xl sm:text-3xl font-black ${
                   (buyerLedgers.get(selectedBuyer.id)?.outstanding || 0) > 0 ? 'text-red-600' : 'text-emerald-600'
                 }`}>
@@ -343,26 +467,26 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
               </div>
             </div>
 
-            {/* Metrics Summary */}
+            {/* Metrics Summary (Month Specific) */}
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100 text-center">
               <div>
-                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Sales (کل سیل)</div>
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Month Sales (کل سیل)</div>
                 <div className="text-base sm:text-lg font-extrabold text-gray-900">
-                  PKR {(buyerLedgers.get(selectedBuyer.id)?.totalSales || 0).toLocaleString()}
+                  PKR {selectedBuyerMonthStats.sales.toLocaleString()}
                 </div>
               </div>
 
               <div>
-                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total Paid (وصولی / کیش)</div>
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Month Paid (وصولی / کیش)</div>
                 <div className="text-base sm:text-lg font-extrabold text-emerald-600">
-                  PKR {(buyerLedgers.get(selectedBuyer.id)?.totalPaid || 0).toLocaleString()}
+                  PKR {selectedBuyerMonthStats.paid.toLocaleString()}
                 </div>
               </div>
 
               <div>
-                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Default Price (ریٹ)</div>
-                <div className="text-base sm:text-lg font-extrabold text-gray-900">
-                  PKR {selectedBuyer.rate_per_liter}/L
+                <div className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Month Outstanding</div>
+                <div className="text-base sm:text-lg font-extrabold text-red-600">
+                  PKR {selectedBuyerMonthStats.outstanding.toLocaleString()}
                 </div>
               </div>
             </div>
@@ -466,30 +590,38 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
-                  {selectedBuyerTransactions.map((tx) => (
-                    <tr key={tx.id} className="hover:bg-gray-50/80 transition-colors">
-                      <td className="py-3.5 px-3 font-semibold text-gray-800">{formatNumericDate(tx.date)}</td>
-                      <td className="py-3.5 px-3 font-bold text-blue-600">{tx.litres ? `${tx.litres}L` : '—'}</td>
-                      <td className="py-3.5 px-3 font-medium text-gray-600">{tx.rate ? `PKR ${tx.rate}` : '—'}</td>
-                      <td className="py-3.5 px-3 font-extrabold text-gray-900">{tx.total ? `PKR ${tx.total.toLocaleString()}` : '—'}</td>
-                      <td className="py-3.5 px-3 font-bold text-emerald-600">{tx.paid ? `PKR ${tx.paid.toLocaleString()}` : 'PKR 0'}</td>
-                      <td className="py-3.5 px-3 font-bold text-red-600">
-                        {tx.total ? `PKR ${(tx.total - tx.paid).toLocaleString()}` : '—'}
-                      </td>
-                      <td className="py-3.5 px-3 text-gray-500 italic">{tx.notes || '—'}</td>
-                      <td className="py-3.5 px-3 text-right space-x-2">
-                        {tx.type === 'sale' && (
-                          <>
-                            <button onClick={() => handleOpenEditSale(tx.raw)} className="text-blue-600 hover:underline font-bold">Edit</button>
-                            <button onClick={() => handleDeleteEntry(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
-                          </>
-                        )}
-                        {tx.type === 'payment' && (
-                          <button onClick={() => handleDeletePaymentClick(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
-                        )}
+                  {selectedBuyerTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="py-8 text-center text-gray-500 font-medium text-sm">
+                        No transactions found for {MONTH_NAMES[selectedMonth]} {selectedYear}.
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    selectedBuyerTransactions.map((tx) => (
+                      <tr key={tx.id} className="hover:bg-gray-50/80 transition-colors">
+                        <td className="py-3.5 px-3 font-semibold text-gray-800">{formatNumericDate(tx.date)}</td>
+                        <td className="py-3.5 px-3 font-bold text-blue-600">{tx.litres ? `${tx.litres}L` : '—'}</td>
+                        <td className="py-3.5 px-3 font-medium text-gray-600">{tx.rate ? `PKR ${tx.rate}` : '—'}</td>
+                        <td className="py-3.5 px-3 font-extrabold text-gray-900">{tx.total ? `PKR ${tx.total.toLocaleString()}` : '—'}</td>
+                        <td className="py-3.5 px-3 font-bold text-emerald-600">{tx.paid ? `PKR ${tx.paid.toLocaleString()}` : 'PKR 0'}</td>
+                        <td className="py-3.5 px-3 font-bold text-red-600">
+                          {tx.total ? `PKR ${(tx.total - tx.paid).toLocaleString()}` : '—'}
+                        </td>
+                        <td className="py-3.5 px-3 text-gray-500 italic">{tx.notes || '—'}</td>
+                        <td className="py-3.5 px-3 text-right space-x-2">
+                          {tx.type === 'sale' && (
+                            <>
+                              <button onClick={() => handleOpenEditSale(tx.raw)} className="text-blue-600 hover:underline font-bold">Edit</button>
+                              <button onClick={() => handleDeleteEntry(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
+                            </>
+                          )}
+                          {tx.type === 'payment' && (
+                            <button onClick={() => handleDeletePaymentClick(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
+                          )}
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
@@ -660,106 +792,8 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
             </div>
 
             {/* Month Calendar Picker */}
-            <div className="relative">
-              <div className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
-                {/* Left arrow */}
-                <button
-                  onClick={goToPrevMonth}
-                  className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
-                  title="Previous Month"
-                >
-                  <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-
-                {/* Center: Month/Year display — clickable to open month grid */}
-                <button
-                  onClick={() => setShowMonthPicker(!showMonthPicker)}
-                  className="flex items-center space-x-2 px-4 py-1.5 rounded-xl hover:bg-white transition-colors border border-transparent hover:border-gray-200"
-                >
-                  <span className="text-lg">📅</span>
-                  <span className="text-sm font-extrabold text-gray-900">
-                    {MONTH_NAMES[selectedMonth]} {selectedYear}
-                  </span>
-                  <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showMonthPicker ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Right arrow */}
-                <div className="flex items-center space-x-2">
-                  {!isCurrentMonth && (
-                    <button
-                      onClick={goToCurrentMonth}
-                      className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
-                    >
-                      Today
-                    </button>
-                  )}
-                  <button
-                    onClick={goToNextMonth}
-                    className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
-                    title="Next Month"
-                  >
-                    <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              {/* Month Grid Popup */}
-              {showMonthPicker && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-4 z-50 animate-fade-in">
-                  {/* Year Selector */}
-                  <div className="flex items-center justify-between mb-3">
-                    <button
-                      onClick={() => setSelectedYear(prev => prev - 1)}
-                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                      </svg>
-                    </button>
-                    <span className="text-sm font-extrabold text-gray-900">{selectedYear}</span>
-                    <button
-                      onClick={() => setSelectedYear(prev => prev + 1)}
-                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </button>
-                  </div>
-
-                  {/* Month Grid */}
-                  <div className="grid grid-cols-3 gap-2">
-                    {MONTH_NAMES_SHORT.map((name, idx) => {
-                      const isSelected = idx === selectedMonth && selectedYear === selectedYear
-                      const isCurrent = idx === now.getMonth() && selectedYear === now.getFullYear()
-                      return (
-                        <button
-                          key={name}
-                          onClick={() => {
-                            setSelectedMonth(idx)
-                            setShowMonthPicker(false)
-                          }}
-                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                            isSelected
-                              ? 'bg-emerald-600 text-white shadow-sm'
-                              : isCurrent
-                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                              : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
-                          }`}
-                        >
-                          {name}
-                        </button>
-                      )
-                    })}
-                  </div>
-                </div>
-              )}
+            <div className="w-full">
+              {renderMonthPicker()}
             </div>
 
             {/* Buyer Filter Dropdown */}
