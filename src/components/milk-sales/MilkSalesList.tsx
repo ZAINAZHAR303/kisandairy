@@ -19,7 +19,10 @@ interface MilkSalesListProps {
 }
 
 type MainTab = 'buyers' | 'sales_payments'
-type DateFilterOption = 'Today' | 'Yesterday' | '7 Days' | '30 Days' | '3 Months' | 'This Month' | 'Last Month' | 'This Year' | 'All'
+
+// Month names for display
+const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export default function MilkSalesList({ initialEntries, sellers, initialPayments = [] }: MilkSalesListProps) {
   // Navigation State
@@ -29,8 +32,41 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
   // Filters State
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'outstanding' | 'name'>('outstanding')
-  const [dateFilter, setDateFilter] = useState<DateFilterOption>('This Month')
   const [salesBuyerFilter, setSalesBuyerFilter] = useState<string>('all')
+
+  // Month/Year calendar picker state (defaults to current month)
+  const now = new Date()
+  const [selectedMonth, setSelectedMonth] = useState(now.getMonth()) // 0-11
+  const [selectedYear, setSelectedYear] = useState(now.getFullYear())
+  const [showMonthPicker, setShowMonthPicker] = useState(false)
+
+  // Month navigation helpers
+  const goToPrevMonth = () => {
+    if (selectedMonth === 0) {
+      setSelectedMonth(11)
+      setSelectedYear(prev => prev - 1)
+    } else {
+      setSelectedMonth(prev => prev - 1)
+    }
+  }
+
+  const goToNextMonth = () => {
+    if (selectedMonth === 11) {
+      setSelectedMonth(0)
+      setSelectedYear(prev => prev + 1)
+    } else {
+      setSelectedMonth(prev => prev + 1)
+    }
+  }
+
+  const goToCurrentMonth = () => {
+    setSelectedMonth(now.getMonth())
+    setSelectedYear(now.getFullYear())
+  }
+
+  // Compute the start and end dates for the selected month (inclusive)
+  const selectedMonthPrefix = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
+  const isCurrentMonth = selectedMonth === now.getMonth() && selectedYear === now.getFullYear()
 
   // Modals State
   const [isSaleModalOpen, setIsSaleModalOpen] = useState(false)
@@ -52,8 +88,8 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     onConfirm: async () => {}
   })
 
-  // Helper date calculations
-  const todayStr = useMemo(() => new Date().toISOString().split('T')[0], [])
+  // Selected month label for exports
+  const selectedMonthLabel = `${MONTH_NAMES[selectedMonth]} ${selectedYear}`
 
   // Calculate Buyer Ledgers (Sales, Payments, Outstanding)
   const buyerLedgers = useMemo(() => {
@@ -105,46 +141,24 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     })
   }, [sellers, searchQuery, sortBy, buyerLedgers])
 
-  // Date Filter Logic for Sales & Payments Tab
+  // Date Filter Logic for Sales & Payments Tab — filtered by selected calendar month
   const dateRangeFilteredEntries = useMemo(() => {
-    const now = new Date()
-
     return initialEntries.filter(entry => {
       if (salesBuyerFilter !== 'all' && entry.seller_id !== salesBuyerFilter) return false
       if (!entry.date) return true
-
-      const entryDate = new Date(entry.date)
-      if (isNaN(entryDate.getTime())) return true
-
-      if (dateFilter === 'Today') {
-        return entry.date === todayStr
-      } else if (dateFilter === 'Yesterday') {
-        const yest = new Date()
-        yest.setDate(now.getDate() - 1)
-        return entry.date === yest.toISOString().split('T')[0]
-      } else if (dateFilter === '7 Days') {
-        const diffTime = now.getTime() - entryDate.getTime()
-        return diffTime <= 7 * 24 * 60 * 60 * 1000
-      } else if (dateFilter === '30 Days') {
-        const diffTime = now.getTime() - entryDate.getTime()
-        return diffTime <= 30 * 24 * 60 * 60 * 1000
-      } else if (dateFilter === '3 Months') {
-        const diffTime = now.getTime() - entryDate.getTime()
-        return diffTime <= 90 * 24 * 60 * 60 * 1000
-      } else if (dateFilter === 'This Month') {
-        const currentMonthPrefix = todayStr.substring(0, 7)
-        return entry.date.startsWith(currentMonthPrefix)
-      } else if (dateFilter === 'Last Month') {
-        const lm = new Date(now.getFullYear(), now.getMonth() - 1, 1)
-        const lmPrefix = lm.toISOString().split('T')[0].substring(0, 7)
-        return entry.date.startsWith(lmPrefix)
-      } else if (dateFilter === 'This Year') {
-        const currentYear = now.getFullYear().toString()
-        return entry.date.startsWith(currentYear)
-      }
-      return true
+      // Filter by selected month prefix (e.g. "2026-08")
+      return entry.date.startsWith(selectedMonthPrefix)
     })
-  }, [initialEntries, salesBuyerFilter, dateFilter, todayStr])
+  }, [initialEntries, salesBuyerFilter, selectedMonthPrefix])
+
+  // Filter payments by selected calendar month too
+  const dateRangeFilteredPayments = useMemo(() => {
+    return initialPayments.filter(pay => {
+      if (salesBuyerFilter !== 'all' && pay.seller_id !== salesBuyerFilter) return false
+      if (!pay.date) return true
+      return pay.date.startsWith(selectedMonthPrefix)
+    })
+  }, [initialPayments, salesBuyerFilter, selectedMonthPrefix])
 
   // Combined Sales & Payments for Selected Buyer
   const selectedBuyerTransactions = useMemo(() => {
@@ -177,9 +191,9 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     return [...sales, ...payments].sort((a, b) => b.date.localeCompare(a.date))
   }, [selectedBuyer, initialEntries, initialPayments])
 
-  // Total metrics for Sales & Payments view
+  // Total metrics for Sales & Payments view — now correctly scoped to selected month
   const overallRevenue = useMemo(() => dateRangeFilteredEntries.reduce((sum, e) => sum + Number(e.total_amount || 0), 0), [dateRangeFilteredEntries])
-  const overallPaid = useMemo(() => initialPayments.reduce((sum, p) => sum + Number(p.amount_paid || 0), 0), [initialPayments])
+  const overallPaid = useMemo(() => dateRangeFilteredPayments.reduce((sum, p) => sum + Number(p.amount_paid || 0), 0), [dateRangeFilteredPayments])
   const overallOutstanding = overallRevenue - overallPaid
 
   // Action Triggers
@@ -249,7 +263,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     if (selectedBuyer) {
       exportBuyerStatementExcel(selectedBuyer.name, selectedBuyerTransactions)
     } else {
-      exportToExcel(dateRangeFilteredEntries, dateFilter, 'Buyers Report')
+      exportToExcel(dateRangeFilteredEntries, selectedMonthLabel, 'Buyers Report')
     }
   }
 
@@ -257,7 +271,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     if (selectedBuyer) {
       exportBuyerStatementPDF(selectedBuyer.name, selectedBuyerTransactions)
     } else {
-      exportToPDF(dateRangeFilteredEntries, dateFilter, 'Buyers Report')
+      exportToPDF(dateRangeFilteredEntries, selectedMonthLabel, 'Buyers Report')
     }
   }
 
@@ -621,7 +635,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
           <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
             <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
               <div>
-                <h3 className="text-sm font-extrabold text-gray-900">Filters & Export</h3>
+                <h3 className="text-sm font-extrabold text-gray-900">Monthly Report</h3>
                 <div className="text-xs text-gray-500 font-medium mt-0.5">
                   Revenue: <strong className="text-gray-800">PKR {overallRevenue.toLocaleString()}</strong> · Paid: <strong className="text-emerald-600">PKR {overallPaid.toLocaleString()}</strong> · Outstanding: <strong className="text-red-600">PKR {overallOutstanding.toLocaleString()}</strong>
                 </div>
@@ -645,21 +659,107 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
               </div>
             </div>
 
-            {/* Quick Date Chips */}
-            <div className="flex items-center space-x-2 overflow-x-auto no-scrollbar py-1">
-              {(['Today', 'Yesterday', '7 Days', '30 Days', '3 Months', 'This Month', 'Last Month', 'This Year', 'All'] as DateFilterOption[]).map((opt) => (
+            {/* Month Calendar Picker */}
+            <div className="relative">
+              <div className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
+                {/* Left arrow */}
                 <button
-                  key={opt}
-                  onClick={() => setDateFilter(opt)}
-                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
-                    dateFilter === opt
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                  onClick={goToPrevMonth}
+                  className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
+                  title="Previous Month"
                 >
-                  {opt}
+                  <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
                 </button>
-              ))}
+
+                {/* Center: Month/Year display — clickable to open month grid */}
+                <button
+                  onClick={() => setShowMonthPicker(!showMonthPicker)}
+                  className="flex items-center space-x-2 px-4 py-1.5 rounded-xl hover:bg-white transition-colors border border-transparent hover:border-gray-200"
+                >
+                  <span className="text-lg">📅</span>
+                  <span className="text-sm font-extrabold text-gray-900">
+                    {MONTH_NAMES[selectedMonth]} {selectedYear}
+                  </span>
+                  <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showMonthPicker ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Right arrow */}
+                <div className="flex items-center space-x-2">
+                  {!isCurrentMonth && (
+                    <button
+                      onClick={goToCurrentMonth}
+                      className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
+                    >
+                      Today
+                    </button>
+                  )}
+                  <button
+                    onClick={goToNextMonth}
+                    className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
+                    title="Next Month"
+                  >
+                    <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              {/* Month Grid Popup */}
+              {showMonthPicker && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-4 z-50 animate-fade-in">
+                  {/* Year Selector */}
+                  <div className="flex items-center justify-between mb-3">
+                    <button
+                      onClick={() => setSelectedYear(prev => prev - 1)}
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span className="text-sm font-extrabold text-gray-900">{selectedYear}</span>
+                    <button
+                      onClick={() => setSelectedYear(prev => prev + 1)}
+                      className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Month Grid */}
+                  <div className="grid grid-cols-3 gap-2">
+                    {MONTH_NAMES_SHORT.map((name, idx) => {
+                      const isSelected = idx === selectedMonth && selectedYear === selectedYear
+                      const isCurrent = idx === now.getMonth() && selectedYear === now.getFullYear()
+                      return (
+                        <button
+                          key={name}
+                          onClick={() => {
+                            setSelectedMonth(idx)
+                            setShowMonthPicker(false)
+                          }}
+                          className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                            isSelected
+                              ? 'bg-emerald-600 text-white shadow-sm'
+                              : isCurrent
+                              ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                              : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
+                          }`}
+                        >
+                          {name}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Buyer Filter Dropdown */}
