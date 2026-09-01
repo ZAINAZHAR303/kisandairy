@@ -6,6 +6,7 @@ import Link from 'next/link'
 import * as XLSX from 'xlsx'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
+import { useToast } from '@/components/ui/Toast'
 
 interface FinancialsListProps {
   milkEntries: MilkSaleEntry[]
@@ -23,6 +24,7 @@ interface MonthlyFinancialSummary {
 }
 
 export default function FinancialsList({ milkEntries, expenses }: FinancialsListProps) {
+  const { showToast } = useToast()
   const [selectedYear, setSelectedYear] = useState<string>('all')
 
   // Group data by Month (YYYY-MM)
@@ -102,7 +104,10 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
 
   // Export handlers
   const handleExportExcel = () => {
-    if (filteredMonthlyData.length === 0) return alert('No data to export')
+    if (filteredMonthlyData.length === 0) {
+      showToast('error', 'Export Failed', 'No data to export')
+      return
+    }
 
     const rows = filteredMonthlyData.map(item => ({
       'Month': item.monthLabel,
@@ -138,7 +143,10 @@ export default function FinancialsList({ milkEntries, expenses }: FinancialsList
   }
 
   const handleExportPDF = () => {
-    if (filteredMonthlyData.length === 0) return alert('No data to export')
+    if (filteredMonthlyData.length === 0) {
+      showToast('error', 'Export Failed', 'No data to export')
+      return
+    }
 
     const doc = new jsPDF()
 

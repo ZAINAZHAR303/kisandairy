@@ -5,6 +5,9 @@ import { Expense, ExpenseCategory, MilkSaleEntry } from '@/lib/types'
 import ExpenseCard from './ExpenseCard'
 import AddEditExpenseModal from './AddEditExpenseModal'
 import { deleteExpense } from '@/app/dashboard/expenses/actions'
+import MonthPicker, { MONTH_NAMES } from '@/components/ui/MonthPicker'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface ExpensesListProps {
   initialExpenses: Expense[]
@@ -12,25 +15,29 @@ interface ExpensesListProps {
 }
 
 export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesListProps) {
-  // Current month string YYYY-MM
-  const currentMonthStr = useMemo(() => {
-    const now = new Date()
-    const y = now.getFullYear()
-    const m = String(now.getMonth() + 1).padStart(2, '0')
-    return `${y}-${m}`
-  }, [])
-
+  const now = new Date()
   const [selectedCategory, setSelectedCategory] = useState<string>('all')
-  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthStr)
+  const [selectedMonth, setSelectedMonth] = useState<number>(now.getMonth())
+  const [selectedYear, setSelectedYear] = useState<number>(now.getFullYear())
+
+  const selectedMonthStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editExpense, setEditExpense] = useState<Expense | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
+  const { showToast } = useToast()
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: async () => {}
+  })
+
   // This Month Expenses (for current selected month)
   const monthExpenses = useMemo(() => {
-    return initialExpenses.filter(e => e.date && e.date.startsWith(selectedMonth))
-  }, [initialExpenses, selectedMonth])
+    return initialExpenses.filter(e => e.date && e.date.startsWith(selectedMonthStr))
+  }, [initialExpenses, selectedMonthStr])
 
   // Summary Card 1: This Month Total (Rs.)
   const thisMonthTotal = useMemo(() => {
@@ -63,11 +70,11 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
     return initialExpenses
       .filter(entry => {
         const matchesCategory = selectedCategory === 'all' || entry.category === selectedCategory
-        const matchesMonth = !selectedMonth || (entry.date && entry.date.startsWith(selectedMonth))
+        const matchesMonth = !selectedMonthStr || (entry.date && entry.date.startsWith(selectedMonthStr))
         return matchesCategory && matchesMonth
       })
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-  }, [initialExpenses, selectedCategory, selectedMonth])
+  }, [initialExpenses, selectedCategory, selectedMonthStr])
 
   // Monthly Total for pinned row (respects active category + month filters)
   const filteredMonthlyTotal = useMemo(() => {
@@ -77,9 +84,9 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
   // Profit Summary Block (Selected Month Total Milk Revenue vs Total Month Expenses)
   const monthMilkRevenue = useMemo(() => {
     return milkEntries
-      .filter(m => m.date && m.date.startsWith(selectedMonth))
+      .filter(m => m.date && m.date.startsWith(selectedMonthStr))
       .reduce((sum, m) => sum + Number(m.total_amount || 0), 0)
-  }, [milkEntries, selectedMonth])
+  }, [milkEntries, selectedMonthStr])
 
   const netProfitLoss = monthMilkRevenue - thisMonthTotal
   const isProfitable = netProfitLoss >= 0
@@ -95,16 +102,23 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
   }
 
   const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this expense record?')) {
-      setDeletingId(id)
-      try {
-        await deleteExpense(id)
-      } catch (err) {
-        alert('Failed to delete expense')
-      } finally {
-        setDeletingId(null)
+    setConfirmDialog({
+      isOpen: true,
+      title: 'Delete Expense',
+      message: 'Are you sure you want to delete this expense record?',
+      onConfirm: async () => {
+        setConfirmDialog(prev => ({ ...prev, isOpen: false }))
+        setDeletingId(id)
+        try {
+          await deleteExpense(id)
+          showToast('success', 'Success', 'Expense deleted successfully')
+        } catch (err) {
+          showToast('error', 'Error', 'Failed to delete expense')
+        } finally {
+          setDeletingId(null)
+        }
       }
-    }
+    })
   }
 
   return (
@@ -195,19 +209,18 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
           {/* Month Picker */}
           <div>
             <label className="block text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-1">Select Month</label>
-            <input
-              type="month"
-              value={selectedMonth}
-              onChange={e => setSelectedMonth(e.target.value)}
-              className="w-full rounded-xl border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-gray-50 font-medium"
+            <MonthPicker
+              selectedMonth={selectedMonth}
+              selectedYear={selectedYear}
+              onChange={(m, y) => { setSelectedMonth(m); setSelectedYear(y); }}
             />
           </div>
         </div>
 
         {/* Reset button */}
-        {(selectedCategory !== 'all' || selectedMonth !== currentMonthStr) && (
+        {(selectedCategory !== 'all' || selectedMonth !== now.getMonth() || selectedYear !== now.getFullYear()) && (
           <button
-            onClick={() => { setSelectedCategory('all'); setSelectedMonth(currentMonthStr); }}
+            onClick={() => { setSelectedCategory('all'); setSelectedMonth(now.getMonth()); setSelectedYear(now.getFullYear()); }}
             className="text-xs text-blue-600 hover:text-blue-800 font-semibold self-end sm:self-center px-2.5 py-1.5 bg-blue-50 rounded-lg border border-blue-100"
           >
             Reset Filters
@@ -235,7 +248,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
               <span className="text-xl">🧾</span>
               <div>
                 <div className="text-xs text-blue-300 font-semibold uppercase tracking-wider">
-                  Total Filtered Expenses ({selectedMonth})
+                  Total Filtered Expenses ({MONTH_NAMES[selectedMonth]} {selectedYear})
                 </div>
                 <div className="text-xs text-white/70">
                   {selectedCategory === 'all' ? 'All expense categories' : `Category: ${selectedCategory}`}
@@ -256,7 +269,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
           <div className="text-5xl">🧾</div>
           <h3 className="text-lg font-bold text-gray-800">No Expenses Logged</h3>
           <p className="text-sm text-gray-500 max-w-xs mx-auto">
-            {selectedCategory !== 'all' || selectedMonth !== currentMonthStr
+            {selectedCategory !== 'all' || selectedMonth !== now.getMonth() || selectedYear !== now.getFullYear()
               ? 'No expense records found for the selected category or month.'
               : 'Tap the + button to log your first farm expense.'}
           </p>
@@ -276,7 +289,7 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
             <span className="text-xl">📈</span>
             <div>
               <h3 className="font-bold text-gray-900 text-base">Monthly Financial Summary</h3>
-              <p className="text-xs text-gray-500">Real-time bottom line calculation for {selectedMonth}</p>
+              <p className="text-xs text-gray-500">Real-time bottom line calculation for {MONTH_NAMES[selectedMonth]} {selectedYear}</p>
             </div>
           </div>
           <span className={`text-xs font-extrabold px-3 py-1 rounded-full ${isProfitable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -327,6 +340,14 @@ export default function ExpensesList({ initialExpenses, milkEntries }: ExpensesL
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         editExpense={editExpense}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, isOpen: false }))}
       />
     </div>
   )

@@ -5,6 +5,8 @@ import { Animal } from '@/lib/types'
 import AnimalCard from './AnimalCard'
 import AddEditAnimalModal from './AddEditAnimalModal'
 import { deleteAnimal } from '@/app/dashboard/animals/actions'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface AnimalsListProps {
   initialAnimals: Animal[]
@@ -19,7 +21,9 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editAnimal, setEditAnimal] = useState<Animal | null>(null)
-  const [isDeleting, setIsDeleting] = useState<string | null>(null)
+  
+  const [deleteDialogAnimal, setDeleteDialogAnimal] = useState<{id: string, name: string} | null>(null)
+  const { showToast } = useToast()
 
   // Counts for filter chips
   const countAll = initialAnimals.length
@@ -52,16 +56,19 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete ${name}? This will also delete all insemination records associated with this animal.`)) {
-      setIsDeleting(id)
-      try {
-        await deleteAnimal(id)
-      } catch (err) {
-        alert('Failed to delete animal')
-      } finally {
-        setIsDeleting(null)
-      }
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteDialogAnimal({ id, name })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteDialogAnimal) return
+    try {
+      await deleteAnimal(deleteDialogAnimal.id)
+      showToast('success', 'Animal deleted successfully')
+    } catch (err) {
+      showToast('error', 'Failed to delete animal')
+    } finally {
+      setDeleteDialogAnimal(null)
     }
   }
 
@@ -155,7 +162,7 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
               key={animal.id}
               animal={animal}
               onEdit={handleOpenEdit}
-              onDelete={handleDelete}
+              onDelete={handleDeleteClick}
             />
           ))}
         </div>
@@ -191,6 +198,19 @@ export default function AnimalsList({ initialAnimals }: AnimalsListProps) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         editAnimal={editAnimal}
+      />
+
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={!!deleteDialogAnimal}
+        title="Delete Animal"
+        message={`Are you sure you want to delete ${deleteDialogAnimal?.name}?`}
+        subtitle="This will also delete all insemination records associated with this animal."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteDialogAnimal(null)}
       />
     </div>
   )

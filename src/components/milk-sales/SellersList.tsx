@@ -5,6 +5,8 @@ import { Seller } from '@/lib/types'
 import Link from 'next/link'
 import AddEditSellerModal from './AddEditSellerModal'
 import { deleteSeller } from '@/app/dashboard/milk-sales/actions'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface SellersListProps {
   initialSellers: Seller[]
@@ -14,7 +16,8 @@ export default function SellersList({ initialSellers }: SellersListProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editSeller, setEditSeller] = useState<Seller | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
-  const [error, setError] = useState<string | null>(null)
+  
+  const { showToast } = useToast()
 
   const handleOpenAdd = () => {
     setEditSeller(null)
@@ -26,20 +29,23 @@ export default function SellersList({ initialSellers }: SellersListProps) {
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string, name: string) => {
-    if (confirm(`Are you sure you want to delete ${name}?`)) {
-      setDeletingId(id)
-      setError(null)
-      try {
-        const res = await deleteSeller(id)
-        if (res?.error) {
-          setError(typeof res.error === 'string' ? res.error : (res.error as Error)?.message || 'Failed to delete seller')
-        }
-      } catch (err) {
-        setError('An error occurred while deleting')
-      } finally {
-        setDeletingId(null)
+  const handleDelete = (id: string) => {
+    setDeletingId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingId) return
+    try {
+      const res = await deleteSeller(deletingId)
+      if (res?.error) {
+        showToast('error', 'Failed to delete seller', typeof res.error === 'string' ? res.error : (res.error as Error)?.message || 'Failed to delete seller')
+      } else {
+        showToast('success', 'Seller deleted successfully')
       }
+    } catch (err: any) {
+      showToast('error', 'An error occurred while deleting', err.message || 'Unknown error')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -68,12 +74,6 @@ export default function SellersList({ initialSellers }: SellersListProps) {
         </button>
       </div>
 
-      {error && (
-        <div className="p-4 bg-red-50 text-red-700 text-sm rounded-xl border border-red-200">
-          {error}
-        </div>
-      )}
-
       {/* Sellers List */}
       {initialSellers.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -99,7 +99,7 @@ export default function SellersList({ initialSellers }: SellersListProps) {
                   Edit
                 </button>
                 <button
-                  onClick={() => handleDelete(seller.id, seller.name)}
+                  onClick={() => handleDelete(seller.id)}
                   disabled={deletingId === seller.id}
                   className="px-3 py-1.5 text-red-600 border border-red-600 rounded-lg text-xs font-semibold hover:bg-red-50 transition-colors disabled:opacity-50"
                 >
@@ -130,6 +130,16 @@ export default function SellersList({ initialSellers }: SellersListProps) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         editSeller={editSeller}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deletingId}
+        title="Delete Seller"
+        message="Are you sure you want to delete this seller? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingId(null)}
       />
     </div>
   )

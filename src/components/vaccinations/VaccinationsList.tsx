@@ -6,6 +6,9 @@ import VaccinationCard from './VaccinationCard'
 import AddEditVaccinationModal from './AddEditVaccinationModal'
 import { deleteVaccinationRecord } from '@/app/dashboard/vaccinations/actions'
 import { computeVaccineStatus } from '@/lib/dateUtils'
+import MonthPicker from '@/components/ui/MonthPicker'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface VaccinationsListProps {
   initialRecords: VaccinationRecord[]
@@ -27,10 +30,14 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
   const [activeTab, setActiveTab] = useState<'all' | 'overdue'>(initialTab)
   const [selectedAnimalId, setSelectedAnimalId] = useState<string>('all')
   const [selectedVaccine, setSelectedVaccine] = useState<string>('All Vaccines')
+  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth())
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<VaccinationRecord | null>(null)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  
+  const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null)
+  const { showToast } = useToast()
 
   // Compute status dynamically for all records based on today's date
   const processedRecords = useMemo(() => {
@@ -40,27 +47,37 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
     }))
   }, [initialRecords])
 
-  // Summary counts
-  const totalCount = processedRecords.length
-  const overdueCount = useMemo(() => processedRecords.filter(r => r.status === 'Overdue').length, [processedRecords])
-  const upcomingCount = useMemo(() => processedRecords.filter(r => r.status === 'Upcoming').length, [processedRecords])
-  const upToDateCount = useMemo(() => processedRecords.filter(r => r.status === 'Given').length, [processedRecords])
+  // Month filtering string e.g. "2026-09"
+  const monthFilterPrefix = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
+
+  // Apply month filter to processedRecords first so counts update
+  const monthlyFilteredRecords = useMemo(() => {
+    return processedRecords.filter(record => 
+      record.date_given?.startsWith(monthFilterPrefix)
+    )
+  }, [processedRecords, monthFilterPrefix])
+
+  // Summary counts (based on monthlyFilteredRecords)
+  const totalCount = monthlyFilteredRecords.length
+  const overdueCount = useMemo(() => monthlyFilteredRecords.filter(r => r.status === 'Overdue').length, [monthlyFilteredRecords])
+  const upcomingCount = useMemo(() => monthlyFilteredRecords.filter(r => r.status === 'Upcoming').length, [monthlyFilteredRecords])
+  const upToDateCount = useMemo(() => monthlyFilteredRecords.filter(r => r.status === 'Given').length, [monthlyFilteredRecords])
 
   // Tab 1: Filtered All Records
   const tab1FilteredRecords = useMemo(() => {
-    return processedRecords.filter(record => {
+    return monthlyFilteredRecords.filter(record => {
       const matchesAnimal = selectedAnimalId === 'all' || record.animal_id === selectedAnimalId
       const matchesVaccine = selectedVaccine === 'All Vaccines' || record.vaccine_name.toLowerCase().includes(selectedVaccine.toLowerCase().split(' ')[0])
       return matchesAnimal && matchesVaccine
     })
-  }, [processedRecords, selectedAnimalId, selectedVaccine])
+  }, [monthlyFilteredRecords, selectedAnimalId, selectedVaccine])
 
   // Tab 2: Urgent Overdue & Upcoming Records (sorted by next_due_date ascending)
   const urgentRecords = useMemo(() => {
-    return processedRecords
+    return monthlyFilteredRecords
       .filter(record => record.status === 'Overdue' || record.status === 'Upcoming')
       .sort((a, b) => new Date(a.next_due_date).getTime() - new Date(b.next_due_date).getTime())
-  }, [processedRecords])
+  }, [monthlyFilteredRecords])
 
   const handleOpenAdd = () => {
     setEditRecord(null)
@@ -72,16 +89,19 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this vaccination record?')) {
-      setDeletingId(id)
-      try {
-        await deleteVaccinationRecord(id)
-      } catch (err) {
-        alert('Failed to delete record')
-      } finally {
-        setDeletingId(null)
-      }
+  const handleDeleteClick = (id: string) => {
+    setDeleteDialogId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteDialogId) return
+    try {
+      await deleteVaccinationRecord(deleteDialogId)
+      showToast('success', 'Vaccination record deleted successfully')
+    } catch (err) {
+      showToast('error', 'Failed to delete record')
+    } finally {
+      setDeleteDialogId(null)
     }
   }
 
@@ -101,6 +121,15 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
           <span>+ Log Vaccination</span>
         </button>
       </div>
+
+      <MonthPicker
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        onChange={(month, year) => {
+          setSelectedMonth(month)
+          setSelectedYear(year)
+        }}
+      />
 
       {/* Summary Cards Grid (4 stat cards) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -164,7 +193,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
         >
           <span>📋 All Records</span>
           <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-[10px]">
-            {processedRecords.length}
+            {monthlyFilteredRecords.length}
           </span>
         </button>
 
@@ -224,7 +253,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
                   key={record.id}
                   record={record}
                   onEdit={handleOpenEdit}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteClick}
                 />
               ))}
             </div>
@@ -258,7 +287,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
                   key={record.id}
                   record={record}
                   onEdit={handleOpenEdit}
-                  onDelete={handleDelete}
+                  onDelete={handleDeleteClick}
                   isUrgentView={true}
                 />
               ))}
@@ -290,6 +319,18 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
         onClose={() => setIsModalOpen(false)}
         animals={animals}
         editRecord={editRecord}
+      />
+      
+      {/* Confirm Delete Dialog */}
+      <ConfirmDialog
+        isOpen={!!deleteDialogId}
+        title="Delete Vaccination Record"
+        message="Are you sure you want to delete this vaccination record?"
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeleteDialogId(null)}
       />
     </div>
   )

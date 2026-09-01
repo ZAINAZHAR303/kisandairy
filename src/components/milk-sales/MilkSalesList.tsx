@@ -11,6 +11,7 @@ import { exportToExcel, exportToPDF, exportBuyerStatementExcel, exportBuyerState
 import { formatNumericDate } from '@/lib/dateUtils'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/Toast'
+import MonthPicker, { MONTH_NAMES } from '@/components/ui/MonthPicker'
 
 interface MilkSalesListProps {
   initialEntries: MilkSaleEntry[]
@@ -20,9 +21,6 @@ interface MilkSalesListProps {
 
 type MainTab = 'buyers' | 'sales_payments'
 
-// Month names for display
-const MONTH_NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const MONTH_NAMES_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
 export default function MilkSalesList({ initialEntries, sellers, initialPayments = [] }: MilkSalesListProps) {
   // Navigation State
@@ -38,31 +36,6 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
   const now = new Date()
   const [selectedMonth, setSelectedMonth] = useState(now.getMonth()) // 0-11
   const [selectedYear, setSelectedYear] = useState(now.getFullYear())
-  const [showMonthPicker, setShowMonthPicker] = useState(false)
-
-  // Month navigation helpers
-  const goToPrevMonth = () => {
-    if (selectedMonth === 0) {
-      setSelectedMonth(11)
-      setSelectedYear(prev => prev - 1)
-    } else {
-      setSelectedMonth(prev => prev - 1)
-    }
-  }
-
-  const goToNextMonth = () => {
-    if (selectedMonth === 11) {
-      setSelectedMonth(0)
-      setSelectedYear(prev => prev + 1)
-    } else {
-      setSelectedMonth(prev => prev + 1)
-    }
-  }
-
-  const goToCurrentMonth = () => {
-    setSelectedMonth(now.getMonth())
-    setSelectedYear(now.getFullYear())
-  }
 
   // Compute the start and end dates for the selected month (inclusive)
   const selectedMonthPrefix = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
@@ -290,109 +263,6 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     }
   }
 
-  const renderMonthPicker = () => (
-    <div className="relative">
-      <div className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100">
-        {/* Left arrow */}
-        <button
-          onClick={goToPrevMonth}
-          className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
-          title="Previous Month"
-        >
-          <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-          </svg>
-        </button>
-
-        {/* Center: Month/Year display — clickable to open month grid */}
-        <button
-          onClick={() => setShowMonthPicker(!showMonthPicker)}
-          className="flex items-center space-x-2 px-4 py-1.5 rounded-xl hover:bg-white transition-colors border border-transparent hover:border-gray-200"
-        >
-          <span className="text-lg">📅</span>
-          <span className="text-sm font-extrabold text-gray-900">
-            {MONTH_NAMES[selectedMonth]} {selectedYear}
-          </span>
-          <svg className={`w-3.5 h-3.5 text-gray-400 transition-transform ${showMonthPicker ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-          </svg>
-        </button>
-
-        {/* Right arrow */}
-        <div className="flex items-center space-x-2">
-          {!isCurrentMonth && (
-            <button
-              onClick={goToCurrentMonth}
-              className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 hover:bg-emerald-100 transition-colors"
-            >
-              Today
-            </button>
-          )}
-          <button
-            onClick={goToNextMonth}
-            className="p-2 hover:bg-white rounded-xl transition-colors border border-transparent hover:border-gray-200"
-            title="Next Month"
-          >
-            <svg className="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      {/* Month Grid Popup */}
-      {showMonthPicker && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-lg border border-gray-200 p-4 z-50 animate-fade-in">
-          {/* Year Selector */}
-          <div className="flex items-center justify-between mb-3">
-            <button
-              onClick={() => setSelectedYear(prev => prev - 1)}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <span className="text-sm font-extrabold text-gray-900">{selectedYear}</span>
-            <button
-              onClick={() => setSelectedYear(prev => prev + 1)}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <svg className="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Month Grid */}
-          <div className="grid grid-cols-3 gap-2">
-            {MONTH_NAMES_SHORT.map((name, idx) => {
-              const isSelected = idx === selectedMonth && selectedYear === selectedYear
-              const isCurrent = idx === now.getMonth() && selectedYear === now.getFullYear()
-              return (
-                <button
-                  key={name}
-                  onClick={() => {
-                    setSelectedMonth(idx)
-                    setShowMonthPicker(false)
-                  }}
-                  className={`px-3 py-2.5 rounded-xl text-xs font-bold transition-all ${
-                    isSelected
-                      ? 'bg-emerald-600 text-white shadow-sm'
-                      : isCurrent
-                      ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                      : 'bg-gray-50 text-gray-700 hover:bg-gray-100 border border-transparent'
-                  }`}
-                >
-                  {name}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  )
 
   return (
     <div className="space-y-6 pb-24 font-[Inter] text-gray-900 selection:bg-emerald-100">
@@ -435,7 +305,11 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
               <span>← Back to Buyers</span>
             </button>
             <div className="w-full sm:w-72">
-              {renderMonthPicker()}
+              <MonthPicker 
+                selectedMonth={selectedMonth} 
+                selectedYear={selectedYear} 
+                onChange={(m, y) => { setSelectedMonth(m); setSelectedYear(y); }} 
+              />
             </div>
           </div>
 
@@ -793,7 +667,11 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
 
             {/* Month Calendar Picker */}
             <div className="w-full">
-              {renderMonthPicker()}
+              <MonthPicker 
+                selectedMonth={selectedMonth} 
+                selectedYear={selectedYear} 
+                onChange={(m, y) => { setSelectedMonth(m); setSelectedYear(y); }} 
+              />
             </div>
 
             {/* Buyer Filter Dropdown */}

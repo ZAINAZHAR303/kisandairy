@@ -5,6 +5,9 @@ import { InseminationRecord, Animal, PregnancyFilter } from '@/lib/types'
 import InseminationCard from './InseminationCard'
 import AddRecordModal from './AddRecordModal'
 import { deleteInseminationRecord } from '@/app/dashboard/insemination/actions'
+import MonthPicker from '@/components/ui/MonthPicker'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import { useToast } from '@/components/ui/Toast'
 
 interface InseminationListProps {
   initialRecords: InseminationRecord[]
@@ -20,8 +23,20 @@ export default function InseminationList({ initialRecords, animals, initialFilte
   const [showSearch, setShowSearch] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<InseminationRecord | null>(null)
+  
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+  
+  const { showToast } = useToast()
 
-  const filteredRecords = initialRecords.filter((record) => {
+  const monthFilteredRecords = initialRecords.filter(record => {
+    if (!record.ai_date) return true
+    const recordMonthStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
+    return record.ai_date.startsWith(recordMonthStr)
+  })
+
+  const filteredRecords = monthFilteredRecords.filter((record) => {
     const matchesFilter = filter === 'All' || record.pregnancy_status === filter
     const matchesSearch =
       !searchQuery ||
@@ -31,8 +46,8 @@ export default function InseminationList({ initialRecords, animals, initialFilte
   })
 
   const getFilterCount = (f: PregnancyFilter) => {
-    if (f === 'All') return initialRecords.length
-    return initialRecords.filter((r) => r.pregnancy_status === f).length
+    if (f === 'All') return monthFilteredRecords.length
+    return monthFilteredRecords.filter((r) => r.pregnancy_status === f).length
   }
 
   const handleEdit = (record: InseminationRecord) => {
@@ -40,9 +55,23 @@ export default function InseminationList({ initialRecords, animals, initialFilte
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this record?')) {
-      await deleteInseminationRecord(id)
+  const handleDelete = (id: string) => {
+    setDeletingId(id)
+  }
+
+  const confirmDelete = async () => {
+    if (!deletingId) return
+    try {
+      const res = await deleteInseminationRecord(deletingId)
+      if (res?.error) {
+        showToast('error', 'Failed to delete record', typeof res.error === 'string' ? res.error : 'Unknown error')
+      } else {
+        showToast('success', 'Record deleted successfully')
+      }
+    } catch (err: any) {
+      showToast('error', 'An error occurred', err.message || 'Failed to delete')
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -113,9 +142,20 @@ export default function InseminationList({ initialRecords, animals, initialFilte
           ))}
         </div>
       </div>
+      
+      <div className="px-4 py-3">
+        <MonthPicker
+          selectedMonth={selectedMonth}
+          selectedYear={selectedYear}
+          onChange={(month, year) => {
+            setSelectedMonth(month)
+            setSelectedYear(year)
+          }}
+        />
+      </div>
 
       {/* Records List */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
         {filteredRecords.length > 0 ? (
           filteredRecords.map((record) => (
             <InseminationCard
@@ -130,7 +170,7 @@ export default function InseminationList({ initialRecords, animals, initialFilte
             <span className="text-6xl mb-4">🐄</span>
             <h3 className="text-lg font-semibold text-gray-800">No Records Yet</h3>
             <p className="text-gray-500 mt-2 max-w-xs">
-              Tap the + button to add your first insemination record
+              No insemination records for the selected month.
             </p>
           </div>
         )}
@@ -151,6 +191,16 @@ export default function InseminationList({ initialRecords, animals, initialFilte
         onClose={() => setIsModalOpen(false)}
         animals={animals}
         editRecord={editRecord}
+      />
+
+      <ConfirmDialog
+        isOpen={!!deletingId}
+        title="Delete Record"
+        message="Are you sure you want to delete this insemination record? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingId(null)}
       />
     </div>
   )
