@@ -6,7 +6,6 @@ import VaccinationCard from './VaccinationCard'
 import AddEditVaccinationModal from './AddEditVaccinationModal'
 import { deleteVaccinationRecord } from '@/app/dashboard/vaccinations/actions'
 import { computeVaccineStatus } from '@/lib/dateUtils'
-import MonthPicker from '@/components/ui/MonthPicker'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/Toast'
 
@@ -30,8 +29,6 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
   const [activeTab, setActiveTab] = useState<'all' | 'overdue'>(initialTab)
   const [selectedAnimalId, setSelectedAnimalId] = useState<string>('all')
   const [selectedVaccine, setSelectedVaccine] = useState<string>('All Vaccines')
-  const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth())
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<VaccinationRecord | null>(null)
@@ -47,37 +44,27 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
     }))
   }, [initialRecords])
 
-  // Month filtering string e.g. "2026-09"
-  const monthFilterPrefix = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
-
-  // Apply month filter to processedRecords first so counts update
-  const monthlyFilteredRecords = useMemo(() => {
-    return processedRecords.filter(record => 
-      record.date_given?.startsWith(monthFilterPrefix)
-    )
-  }, [processedRecords, monthFilterPrefix])
-
-  // Summary counts (based on monthlyFilteredRecords)
-  const totalCount = monthlyFilteredRecords.length
-  const overdueCount = useMemo(() => monthlyFilteredRecords.filter(r => r.status === 'Overdue').length, [monthlyFilteredRecords])
-  const upcomingCount = useMemo(() => monthlyFilteredRecords.filter(r => r.status === 'Upcoming').length, [monthlyFilteredRecords])
-  const upToDateCount = useMemo(() => monthlyFilteredRecords.filter(r => r.status === 'Given').length, [monthlyFilteredRecords])
+  // Summary counts
+  const totalCount = processedRecords.length
+  const overdueCount = useMemo(() => processedRecords.filter(r => r.status === 'Overdue').length, [processedRecords])
+  const upcomingCount = useMemo(() => processedRecords.filter(r => r.status === 'Upcoming').length, [processedRecords])
+  const upToDateCount = useMemo(() => processedRecords.filter(r => r.status === 'Given').length, [processedRecords])
 
   // Tab 1: Filtered All Records
   const tab1FilteredRecords = useMemo(() => {
-    return monthlyFilteredRecords.filter(record => {
+    return processedRecords.filter(record => {
       const matchesAnimal = selectedAnimalId === 'all' || record.animal_id === selectedAnimalId
       const matchesVaccine = selectedVaccine === 'All Vaccines' || record.vaccine_name.toLowerCase().includes(selectedVaccine.toLowerCase().split(' ')[0])
       return matchesAnimal && matchesVaccine
     })
-  }, [monthlyFilteredRecords, selectedAnimalId, selectedVaccine])
+  }, [processedRecords, selectedAnimalId, selectedVaccine])
 
   // Tab 2: Urgent Overdue & Upcoming Records (sorted by next_due_date ascending)
   const urgentRecords = useMemo(() => {
-    return monthlyFilteredRecords
+    return processedRecords
       .filter(record => record.status === 'Overdue' || record.status === 'Upcoming')
       .sort((a, b) => new Date(a.next_due_date).getTime() - new Date(b.next_due_date).getTime())
-  }, [monthlyFilteredRecords])
+  }, [processedRecords])
 
   const handleOpenAdd = () => {
     setEditRecord(null)
@@ -121,15 +108,6 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
           <span>+ Log Vaccination</span>
         </button>
       </div>
-
-      <MonthPicker
-        selectedMonth={selectedMonth}
-        selectedYear={selectedYear}
-        onChange={(month, year) => {
-          setSelectedMonth(month)
-          setSelectedYear(year)
-        }}
-      />
 
       {/* Summary Cards Grid (4 stat cards) */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -193,7 +171,7 @@ export default function VaccinationsList({ initialRecords, animals, initialTab =
         >
           <span>📋 All Records</span>
           <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-full text-[10px]">
-            {monthlyFilteredRecords.length}
+            {processedRecords.length}
           </span>
         </button>
 

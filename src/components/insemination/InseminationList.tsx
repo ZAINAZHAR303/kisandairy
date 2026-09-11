@@ -5,7 +5,6 @@ import { InseminationRecord, Animal, PregnancyFilter } from '@/lib/types'
 import InseminationCard from './InseminationCard'
 import AddRecordModal from './AddRecordModal'
 import { deleteInseminationRecord } from '@/app/dashboard/insemination/actions'
-import MonthPicker from '@/components/ui/MonthPicker'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
 import { useToast } from '@/components/ui/Toast'
 
@@ -23,20 +22,11 @@ export default function InseminationList({ initialRecords, animals, initialFilte
   const [showSearch, setShowSearch] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editRecord, setEditRecord] = useState<InseminationRecord | null>(null)
-  
-  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear())
   const [deletingId, setDeletingId] = useState<string | null>(null)
   
   const { showToast } = useToast()
 
-  const monthFilteredRecords = initialRecords.filter(record => {
-    if (!record.ai_date) return true
-    const recordMonthStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}`
-    return record.ai_date.startsWith(recordMonthStr)
-  })
-
-  const filteredRecords = monthFilteredRecords.filter((record) => {
+  const filteredRecords = initialRecords.filter((record) => {
     const matchesFilter = filter === 'All' || record.pregnancy_status === filter
     const matchesSearch =
       !searchQuery ||
@@ -46,8 +36,8 @@ export default function InseminationList({ initialRecords, animals, initialFilte
   })
 
   const getFilterCount = (f: PregnancyFilter) => {
-    if (f === 'All') return monthFilteredRecords.length
-    return monthFilteredRecords.filter((r) => r.pregnancy_status === f).length
+    if (f === 'All') return initialRecords.length
+    return initialRecords.filter((r) => r.pregnancy_status === f).length
   }
 
   const handleEdit = (record: InseminationRecord) => {
@@ -142,17 +132,6 @@ export default function InseminationList({ initialRecords, animals, initialFilte
           ))}
         </div>
       </div>
-      
-      <div className="px-4 py-3">
-        <MonthPicker
-          selectedMonth={selectedMonth}
-          selectedYear={selectedYear}
-          onChange={(month, year) => {
-            setSelectedMonth(month)
-            setSelectedYear(year)
-          }}
-        />
-      </div>
 
       {/* Records List */}
       <div className="flex-1 overflow-y-auto px-4 pb-4 space-y-4">
@@ -170,7 +149,7 @@ export default function InseminationList({ initialRecords, animals, initialFilte
             <span className="text-6xl mb-4">🐄</span>
             <h3 className="text-lg font-semibold text-gray-800">No Records Yet</h3>
             <p className="text-gray-500 mt-2 max-w-xs">
-              No insemination records for the selected month.
+              No insemination records found. Tap + to add one.
             </p>
           </div>
         )}
