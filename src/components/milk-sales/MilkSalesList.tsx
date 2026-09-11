@@ -121,7 +121,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
       if (!entry.date) return true
       // Filter by selected month prefix (e.g. "2026-08")
       return entry.date.startsWith(selectedMonthPrefix)
-    })
+    }).sort((a, b) => a.date.localeCompare(b.date))
   }, [initialEntries, salesBuyerFilter, selectedMonthPrefix])
 
   // Filter payments by selected calendar month too
@@ -165,7 +165,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
         raw: p
       }))
 
-    return [...sales, ...payments].sort((a, b) => b.date.localeCompare(a.date))
+    return [...sales, ...payments].sort((a, b) => a.date.localeCompare(b.date))
   }, [selectedBuyer, initialEntries, initialPayments, selectedMonthPrefix])
 
   // Calculate stats for the selected buyer and selected month
