@@ -14,7 +14,6 @@ export async function getInseminationRecords() {
     const { data, error } = await supabase
       .from('insemination_records')
       .select('*, animals(*)')
-      .eq('user_id', user.id)
       .order('ai_date', { ascending: false })
 
     if (error) return { data: null, error: error.message }
@@ -43,7 +42,7 @@ export async function addInseminationRecord(formData: FormData) {
     let expected_calving_date = null
 
     if (animal_id && ai_date) {
-      const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).eq('user_id', user.id).single()
+      const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).single()
       if (animal) {
         const aiDateObj = new Date(ai_date)
         const daysToAdd = animal.type === 'buffalo' ? 310 : 283
@@ -60,8 +59,7 @@ export async function addInseminationRecord(formData: FormData) {
       bull_name: bull_name?.trim() || null,
       lactation_no,
       pregnancy_status,
-      expected_calving_date,
-      user_id: user.id
+      expected_calving_date
     }
 
     if (pregnancy_status?.toLowerCase() === 'calved') {
@@ -118,7 +116,7 @@ export async function updateInseminationRecord(formData: FormData) {
     let expected_calving_date = null
 
     if (animal_id && ai_date) {
-      const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).eq('user_id', user.id).single()
+      const { data: animal } = await supabase.from('animals').select('type').eq('id', animal_id).single()
       if (animal) {
         const aiDateObj = new Date(ai_date)
         const daysToAdd = animal.type === 'buffalo' ? 310 : 283
@@ -149,7 +147,6 @@ export async function updateInseminationRecord(formData: FormData) {
       .from('insemination_records')
       .update(recordPayload)
       .eq('id', id)
-      .eq('user_id', user.id)
       .select()
       .single()
 
@@ -160,7 +157,6 @@ export async function updateInseminationRecord(formData: FormData) {
         .from('insemination_records')
         .update(recordPayload)
         .eq('id', id)
-        .eq('user_id', user.id)
         .select()
         .single()
       data = retry.data
@@ -186,7 +182,6 @@ export async function deleteInseminationRecord(id: string) {
       .from('insemination_records')
       .delete()
       .eq('id', id)
-      .eq('user_id', user.id)
 
     if (error) return { error: error.message }
 
