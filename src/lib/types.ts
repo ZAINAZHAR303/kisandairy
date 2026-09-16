@@ -26,6 +26,7 @@ export type PregnancyStatus =
 
 export interface InseminationRecord {
   id: string
+  user_id: string
   animal_id: string
   ai_date: string
   method: 'AI' | 'Natural'
