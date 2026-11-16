@@ -1,7 +1,7 @@
 'use client'
 
 import { InseminationRecord } from '@/lib/types'
-import { formatNumericDate } from '@/lib/dateUtils'
+import { formatNumericDate, todayDateString } from '@/lib/dateUtils'
 
 interface InseminationCardProps {
   record: InseminationRecord
@@ -26,7 +26,9 @@ export default function InseminationCard({ record, onEdit, onDelete }: Inseminat
 
   // Pregnancy Days
   const aiDate = record.ai_date ? new Date(record.ai_date) : null
-  const today = new Date()
+  // Midnight (UTC) of the device's local calendar date. Record dates parse the
+  // same way, so the differences below are whole calendar days in local time.
+  const today = new Date(todayDateString())
   let pregnancyDaysDisplay = 'N/A'
   
   if (aiDate && !isNaN(aiDate.getTime())) {

@@ -27,7 +27,7 @@ export default function BulkPriceUpdateModal({ isOpen, onClose }: BulkPriceUpdat
     try {
       const result = await bulkUpdateSellerRates(Number(newRate))
       if (result?.error) {
-        setError((result.error as Error)?.message || 'Failed to bulk update price')
+        setError(result.error || 'Failed to bulk update price')
       } else {
         onClose()
       }

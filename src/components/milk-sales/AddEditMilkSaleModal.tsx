@@ -5,6 +5,7 @@ import { MilkSaleEntry, Seller } from '@/lib/types'
 import { addMilkSaleEntry, updateMilkSaleEntry, addSeller } from '@/app/dashboard/milk-sales/actions'
 import { savePendingMilkSale } from '@/lib/offlineDb'
 import { useToast } from '@/components/ui/Toast'
+import { todayDateString } from '@/lib/dateUtils'
 
 interface AddEditMilkSaleModalProps {
   isOpen: boolean
@@ -48,7 +49,7 @@ export default function AddEditMilkSaleModal({ isOpen, onClose, sellers, editEnt
         setRatePerLiter(editEntry.rate_per_liter ?? 0)
       } else {
         setSelectedSellerId('')
-        setDate(new Date().toISOString().split('T')[0])
+        setDate(todayDateString())
         setMorningLiters('')
         setEveningLiters('')
         setRatePerLiter('')

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Analytics } from '@vercel/analytics/next'
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration'
 import { ToastProvider } from '@/components/ui/Toast'
@@ -37,12 +37,17 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://kisandairy.tech',
   },
-  icons: {
-    icon: '/icon.svg',
-    shortcut: '/icon.svg',
-    apple: '/icon-192.png',
-  },
+  // The favicon and app icons come from src/app/favicon.ico, icon.png and
+  // apple-icon.png, which Next.js links automatically.
   manifest: '/manifest.json',
+}
+
+// Pinch-zoom is intentionally left enabled so farmers with weak eyesight can
+// enlarge the page. Do not add maximumScale / userScalable: false here.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#ffffff',
 }
 
 export default function RootLayout({
@@ -53,17 +58,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-        <link rel="alternate icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/icon-192.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
           href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
           rel="stylesheet"
         />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
-        <meta name="theme-color" content="#ffffff" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />

@@ -1,135 +1,84 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { VaccinationRecord } from '@/lib/types'
 import { calculateNextDueDate, computeVaccineStatus } from '@/lib/dateUtils'
+import { dataAction, statusAction, fail, FormReader } from '@/lib/actions'
 
-export async function getVaccinationRecords() {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+// Returns the validated fields, or a message describing what is wrong.
+function readVaccinationFields(form: FormReader) {
+  const animal_id = form.raw('animal_id')
+  const vaccine_name = form.text('vaccine_name')
+  const date_given = form.raw('date_given')
 
-    const { data, error } = await supabase
-      .from('vaccination_records')
-      .select('*, animals(*)')
-      .eq('user_id', user.id)
-      .order('next_due_date', { ascending: true })
+  if (!animal_id) return { error: 'Please select an animal' } as const
+  if (!vaccine_name) return { error: 'Vaccine name is required' } as const
+  if (!date_given) return { error: 'Date given is required' } as const
 
-    if (error) return { data: null, error: error.message }
-    return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  const next_due_date = form.raw('next_due_date') || calculateNextDueDate(vaccine_name, date_given)
+
+  return {
+    error: null,
+    fields: {
+      animal_id,
+      vaccine_name,
+      date_given,
+      given_by: form.optionalText('given_by'),
+      notes: form.optionalText('notes'),
+      next_due_date,
+      status: computeVaccineStatus(next_due_date),
+    },
+  } as const
 }
 
 export async function addVaccinationRecord(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
-
-    const animal_id = formData.get('animal_id') as string
-    const vaccine_name = formData.get('vaccine_name') as string
-    const date_given = formData.get('date_given') as string
-    const given_by = formData.get('given_by') as string | null
-    const notes = formData.get('notes') as string | null
-    let next_due_date = formData.get('next_due_date') as string | null
-
-    if (!animal_id) return { data: null, error: 'Please select an animal' }
-    if (!vaccine_name || !vaccine_name.trim()) return { data: null, error: 'Vaccine name is required' }
-    if (!date_given) return { data: null, error: 'Date given is required' }
-
-    if (!next_due_date) {
-      next_due_date = calculateNextDueDate(vaccine_name, date_given)
-    }
-
-    const status = computeVaccineStatus(next_due_date)
+  return dataAction<VaccinationRecord>(async ({ supabase, user }) => {
+    const parsed = readVaccinationFields(new FormReader(formData))
+    if (parsed.error !== null) return fail(parsed.error)
 
     const { data, error } = await supabase
       .from('vaccination_records')
-      .insert({
-        animal_id,
-        vaccine_name: vaccine_name.trim(),
-        date_given,
-        given_by: given_by?.trim() || null,
-        notes: notes?.trim() || null,
-        next_due_date,
-        status,
-        user_id: user.id
-      })
+      .insert({ ...parsed.fields, user_id: user.id })
       .select('*, animals(*)')
       .single()
 
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message)
 
     revalidatePath('/dashboard/vaccinations')
     revalidatePath('/dashboard')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function updateVaccinationRecord(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<VaccinationRecord>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const id = form.raw('id')
+    if (!id) return fail('Record ID is required')
 
-    const id = formData.get('id') as string
-    const animal_id = formData.get('animal_id') as string
-    const vaccine_name = formData.get('vaccine_name') as string
-    const date_given = formData.get('date_given') as string
-    const given_by = formData.get('given_by') as string | null
-    const notes = formData.get('notes') as string | null
-    let next_due_date = formData.get('next_due_date') as string | null
-
-    if (!id) return { data: null, error: 'Record ID is required' }
-    if (!animal_id) return { data: null, error: 'Please select an animal' }
-    if (!vaccine_name || !vaccine_name.trim()) return { data: null, error: 'Vaccine name is required' }
-    if (!date_given) return { data: null, error: 'Date given is required' }
-
-    if (!next_due_date) {
-      next_due_date = calculateNextDueDate(vaccine_name, date_given)
-    }
-
-    const status = computeVaccineStatus(next_due_date)
+    const parsed = readVaccinationFields(form)
+    if (parsed.error !== null) return fail(parsed.error)
 
     const { data, error } = await supabase
       .from('vaccination_records')
-      .update({
-        animal_id,
-        vaccine_name: vaccine_name.trim(),
-        date_given,
-        given_by: given_by?.trim() || null,
-        notes: notes?.trim() || null,
-        next_due_date,
-        status,
-      })
+      .update(parsed.fields)
       .eq('id', id)
       .eq('user_id', user.id)
       .select('*, animals(*)')
       .single()
 
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message)
 
     revalidatePath('/dashboard/vaccinations')
     revalidatePath('/dashboard')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function deleteVaccinationRecord(id: string) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
-
+  return statusAction(async ({ supabase, user }) => {
     const { error } = await supabase
       .from('vaccination_records')
       .delete()
@@ -142,7 +91,5 @@ export async function deleteVaccinationRecord(id: string) {
     revalidatePath('/dashboard')
 
     return { error: null }
-  } catch (err: any) {
-    return { error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
