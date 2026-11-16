@@ -239,6 +239,38 @@ export async function addSellerPayment(formData: FormData) {
   })
 }
 
+// Corrects the date, amount or note of a payment. The buyer it belongs to is
+// deliberately not changeable here: moving money between buyers should be a
+// delete and a new payment, so each buyer's history stays easy to follow.
+export async function updateSellerPayment(formData: FormData) {
+  return dataAction<SellerPayment>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const id = form.raw('id')
+    const date = form.raw('date')
+    const amount_paid = form.number('amount_paid')
+
+    if (!id) return fail('Payment ID is required')
+    if (!date || !Number.isFinite(amount_paid) || amount_paid <= 0) {
+      return fail('Valid date and payment amount are required')
+    }
+
+    const { data, error } = await supabase
+      .from('seller_payments')
+      .update({ date, amount_paid, notes: form.optionalText('notes') })
+      .eq('id', id)
+      .eq('user_id', user.id)
+      .select()
+      .maybeSingle()
+
+    if (error) return fail(error.message || 'Failed to update payment')
+    // No row comes back when the payment is gone or the database refused the change.
+    if (!data) return fail('This payment could not be updated. It may have been deleted, or editing is not allowed.')
+
+    revalidatePath('/dashboard/milk-sales')
+    return { data, error: null }
+  })
+}
+
 export async function deleteSellerPayment(id: string) {
   return statusAction(async ({ supabase, user }) => {
     const { error } = await supabase

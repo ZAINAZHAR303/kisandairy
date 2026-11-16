@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Seller } from '@/lib/types'
-import { addSellerPayment } from '@/app/dashboard/milk-sales/actions'
+import { Seller, SellerPayment } from '@/lib/types'
+import { addSellerPayment, updateSellerPayment } from '@/app/dashboard/milk-sales/actions'
 import { savePendingPayment } from '@/lib/offlineDb'
 import { useToast } from '@/components/ui/Toast'
 import { todayDateString } from '@/lib/dateUtils'
@@ -12,9 +12,11 @@ interface RecordPaymentModalProps {
   onClose: () => void
   sellers: Seller[]
   defaultSellerId?: string
+  /** When set, the modal corrects this payment instead of recording a new one. */
+  editPayment?: SellerPayment | null
 }
 
-export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSellerId }: RecordPaymentModalProps) {
+export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSellerId, editPayment = null }: RecordPaymentModalProps) {
   const { showToast } = useToast()
   const [sellerId, setSellerId] = useState<string>('')
   const [date, setDate] = useState<string>('')
@@ -24,14 +26,20 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (isOpen) {
+    if (!isOpen) return
+    if (editPayment) {
+      setSellerId(editPayment.seller_id)
+      setDate(editPayment.date)
+      setAmountPaid(Number(editPayment.amount_paid))
+      setNotes(editPayment.notes || '')
+    } else {
       setSellerId(defaultSellerId || (sellers[0]?.id || ''))
       setDate(todayDateString())
       setAmountPaid('')
       setNotes('')
-      setError(null)
     }
-  }, [isOpen, defaultSellerId, sellers])
+    setError(null)
+  }, [isOpen, defaultSellerId, sellers, editPayment])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -50,6 +58,28 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
     setError(null)
 
     try {
+      // ── EDITING: needs a connection, there is no offline queue for edits ──
+      if (editPayment) {
+        if (!navigator.onLine) {
+          setError('You are offline. Payments can only be edited with an internet connection.')
+          return
+        }
+        const formData = new FormData()
+        formData.append('id', editPayment.id)
+        formData.append('date', date)
+        formData.append('amount_paid', amountPaid.toString())
+        formData.append('notes', notes)
+
+        const result = await updateSellerPayment(formData)
+        if (result.error) {
+          setError(result.error)
+        } else {
+          onClose()
+          showToast('success', 'Payment updated')
+        }
+        return
+      }
+
       // ── OFFLINE MODE: save to IndexedDB ──
       if (!navigator.onLine) {
         await savePendingPayment({
@@ -78,8 +108,10 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
         onClose()
       }
     } catch (err: any) {
-      // Network failed mid-request — fallback to offline
-      if (!navigator.onLine) {
+      // Network failed mid-request — fallback to offline (new payments only)
+      if (editPayment) {
+        setError('Could not update the payment. Please check your connection and try again.')
+      } else if (!navigator.onLine) {
         try {
           await savePendingPayment({
             seller_id: sellerId,
@@ -118,7 +150,7 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
         <div className="flex-none p-4 border-b border-gray-100 relative">
           <div className="w-12 h-1.5 bg-gray-200 rounded-full mx-auto mb-3 sm:hidden" />
           <h2 id="payment-modal-title" className="text-xl font-bold text-gray-800 text-center">
-            Record Buyer Payment 💰
+            {editPayment ? 'Edit Payment ✏️' : 'Record Buyer Payment 💰'}
           </h2>
           <button 
             onClick={onClose}
@@ -147,7 +179,8 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
                 value={sellerId}
                 onChange={e => setSellerId(e.target.value)}
                 required
-                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-white font-medium"
+                disabled={!!editPayment}
+                className="w-full rounded-xl border border-gray-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-blue)] bg-white font-medium disabled:bg-gray-50 disabled:text-gray-500"
               >
                 <option value="">-- Select Buyer --</option>
                 {sellers.map(s => (
@@ -207,7 +240,9 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
             disabled={isSubmitting}
             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-4 rounded-xl transition-all disabled:opacity-70 flex items-center justify-center shadow-md text-sm"
           >
-            {isSubmitting ? 'Recording Payment...' : '💰 Record Payment'}
+            {editPayment
+              ? (isSubmitting ? 'Saving...' : 'Save Changes')
+              : (isSubmitting ? 'Recording Payment...' : '💰 Record Payment')}
           </button>
         </div>
       </div>

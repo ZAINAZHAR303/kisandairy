@@ -1,9 +1,10 @@
 'use client'
 
-import { MilkSaleEntry, Seller } from '@/lib/types'
+import { MilkSaleEntry, Seller, SellerPayment } from '@/lib/types'
 import { formatNumericDate } from '@/lib/dateUtils'
 import MonthPicker, { MONTH_NAMES } from '@/components/ui/MonthPicker'
 import { BuyerLedger, BuyerTransaction, getDueLabel } from './milkSalesShared'
+import BuyerPaymentHistory from './BuyerPaymentHistory'
 
 interface BuyerDetailViewProps {
   selectedBuyer: Seller
@@ -15,6 +16,9 @@ interface BuyerDetailViewProps {
   buyerLedgers: Map<string, BuyerLedger>
   selectedBuyerMonthStats: { sales: number; paid: number; outstanding: number }
   selectedBuyerTransactions: BuyerTransaction[]
+  selectedBuyerEntries: MilkSaleEntry[]
+  selectedBuyerPayments: SellerPayment[]
+  handleOpenEditPayment: (payment: SellerPayment) => void
   handleOpenAddPayment: (sellerId?: string) => void
   handleOpenAddSale: (sellerId?: string) => void
   handleOpenEditSeller: (seller: Seller) => void
@@ -37,6 +41,9 @@ export default function BuyerDetailView({
   buyerLedgers,
   selectedBuyerMonthStats,
   selectedBuyerTransactions,
+  selectedBuyerEntries,
+  selectedBuyerPayments,
+  handleOpenEditPayment,
   handleOpenAddPayment,
   handleOpenAddSale,
   handleOpenEditSeller,
@@ -176,6 +183,18 @@ export default function BuyerDetailView({
         </button>
       </div>
 
+      {/* Month-by-month payment history (all time) */}
+      <BuyerPaymentHistory
+        entries={selectedBuyerEntries}
+        payments={selectedBuyerPayments}
+        selectedMonth={selectedMonth}
+        selectedYear={selectedYear}
+        onViewMonth={(m, y) => { setSelectedMonth(m); setSelectedYear(y); }}
+        onAddPayment={() => handleOpenAddPayment(selectedBuyer.id)}
+        onEditPayment={handleOpenEditPayment}
+        onDeletePayment={handleDeletePaymentClick}
+      />
+
       {/* Transaction History Table */}
       <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 space-y-4">
         <div className="flex justify-between items-center">
@@ -241,6 +260,9 @@ export default function BuyerDetailView({
                           <button onClick={() => handleOpenEditSale(tx.raw)} className="text-blue-600 hover:underline font-bold">Edit</button>
                           <button onClick={() => handleDeleteEntry(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>
                         </>
+                      )}
+                      {tx.type === 'payment' && (
+                        <button onClick={() => handleOpenEditPayment(tx.raw)} className="text-blue-600 hover:underline font-bold">Edit</button>
                       )}
                       {tx.type === 'payment' && (
                         <button onClick={() => handleDeletePaymentClick(tx.id)} className="text-red-500 hover:underline font-bold">Delete</button>

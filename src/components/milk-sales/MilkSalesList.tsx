@@ -53,6 +53,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
 
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false)
   const [paymentTargetSellerId, setPaymentTargetSellerId] = useState<string | undefined>(undefined)
+  const [editPayment, setEditPayment] = useState<SellerPayment | null>(null)
 
   const [isBulkPriceModalOpen, setIsBulkPriceModalOpen] = useState(false)
 
@@ -171,6 +172,17 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
     return [...sales, ...payments].sort((a, b) => a.date.localeCompare(b.date))
   }, [selectedBuyer, initialEntries, initialPayments, selectedMonthPrefix])
 
+  // Everything the selected buyer ever bought and paid, for the payment history
+  const selectedBuyerId = selectedBuyer?.id
+  const selectedBuyerEntries = useMemo(
+    () => (selectedBuyerId ? initialEntries.filter(e => e.seller_id === selectedBuyerId) : []),
+    [selectedBuyerId, initialEntries]
+  )
+  const selectedBuyerPayments = useMemo(
+    () => (selectedBuyerId ? initialPayments.filter(p => p.seller_id === selectedBuyerId) : []),
+    [selectedBuyerId, initialPayments]
+  )
+
   // Calculate stats for the selected buyer and selected month
   const selectedBuyerMonthStats = useMemo(() => {
     let sales = 0
@@ -199,7 +211,14 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
   }
 
   const handleOpenAddPayment = (sellerId?: string) => {
+    setEditPayment(null)
     setPaymentTargetSellerId(sellerId)
+    setIsPaymentModalOpen(true)
+  }
+
+  const handleOpenEditPayment = (payment: SellerPayment) => {
+    setEditPayment(payment)
+    setPaymentTargetSellerId(payment.seller_id)
     setIsPaymentModalOpen(true)
   }
 
@@ -322,6 +341,9 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
           buyerLedgers={buyerLedgers}
           selectedBuyerMonthStats={selectedBuyerMonthStats}
           selectedBuyerTransactions={selectedBuyerTransactions}
+          selectedBuyerEntries={selectedBuyerEntries}
+          selectedBuyerPayments={selectedBuyerPayments}
+          handleOpenEditPayment={handleOpenEditPayment}
           handleOpenAddPayment={handleOpenAddPayment}
           handleOpenAddSale={handleOpenAddSale}
           handleOpenEditSeller={handleOpenEditSeller}
@@ -387,6 +409,7 @@ export default function MilkSalesList({ initialEntries, sellers, initialPayments
         onClose={() => setIsPaymentModalOpen(false)}
         sellers={sellers}
         defaultSellerId={paymentTargetSellerId}
+        editPayment={editPayment}
       />
 
       <BulkPriceUpdateModal
