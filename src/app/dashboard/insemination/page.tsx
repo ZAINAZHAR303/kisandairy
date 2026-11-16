@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { fetchAllRows } from '@/lib/supabase/fetchAll'
 import InseminationList from '@/components/insemination/InseminationList'
 import { InseminationRecord, Animal, PregnancyFilter } from '@/lib/types'
 
@@ -16,22 +17,31 @@ export default async function InseminationPage({
   const initialStatus = (params?.status as PregnancyFilter) || 'All'
   const supabase = await createClient()
 
-  // Fetch insemination records with joined animal data
-  const { data: records } = await supabase
-    .from('insemination_records')
-    .select('*, animals(*)')
-    .order('ai_date', { ascending: false })
-
-  // Fetch user's animals for the add form dropdown
-  const { data: animals } = await supabase
-    .from('animals')
-    .select('*')
-    .order('name', { ascending: true })
+  const [records, animals] = await Promise.all([
+    // Insemination records with joined animal data
+    fetchAllRows<InseminationRecord>('breeding records', (from, to) =>
+      supabase
+        .from('insemination_records')
+        .select('*, animals(*)', { count: 'exact' })
+        .order('ai_date', { ascending: false })
+        .order('id')
+        .range(from, to)
+    ),
+    // User's animals for the add form dropdown
+    fetchAllRows<Animal>('animals', (from, to) =>
+      supabase
+        .from('animals')
+        .select('*', { count: 'exact' })
+        .order('name', { ascending: true })
+        .order('id')
+        .range(from, to)
+    ),
+  ])
 
   return (
     <InseminationList
-      initialRecords={(records as InseminationRecord[]) || []}
-      animals={(animals as Animal[]) || []}
+      initialRecords={records}
+      animals={animals}
       initialFilter={initialStatus}
     />
   )

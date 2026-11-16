@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'
 import { InseminationRecord, Animal } from '@/lib/types'
 import { addInseminationRecord, updateInseminationRecord } from '@/app/dashboard/insemination/actions'
 import { addAnimal } from '@/app/dashboard/animals/actions'
+import { todayDateString, daysBetweenDateStrings } from '@/lib/dateUtils'
 
 interface AddRecordModalProps {
   isOpen: boolean
@@ -53,17 +54,17 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
         setBullName(editRecord.bull_name || '')
         setLactationNo(editRecord.lactation_no || 1)
         setPregnancyStatus(editRecord.pregnancy_status || (editRecord.method || 'AI'))
-        setCalvingDate(editRecord.calving_date ? new Date(editRecord.calving_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0])
+        setCalvingDate(editRecord.calving_date ? new Date(editRecord.calving_date).toISOString().split('T')[0] : todayDateString())
         setNotes(editRecord.notes || '')
       } else {
         setSelectedAnimalId('')
-        setAiDate(new Date().toISOString().split('T')[0])
+        setAiDate(todayDateString())
         setMethod('AI')
         setSemenCompany('')
         setBullName('')
         setLactationNo(1)
         setPregnancyStatus('Inseminated')
-        setCalvingDate(new Date().toISOString().split('T')[0])
+        setCalvingDate(todayDateString())
         setNotes('')
       }
       setShowAddAnimal(false)
@@ -403,7 +404,7 @@ export default function AddRecordModal({ isOpen, onClose, animals, editRecord }:
                   <div className="text-xs text-emerald-800 font-medium bg-white/80 rounded-lg p-2.5 border border-emerald-100 flex items-center justify-between">
                     <span>Days Since Calving (DIM):</span>
                     <span className="font-extrabold text-emerald-900 text-sm">
-                      {Math.max(0, Math.floor((new Date().getTime() - new Date(calvingDate).getTime()) / (1000 * 60 * 60 * 24)))} Days
+                      {Math.max(0, daysBetweenDateStrings(calvingDate, todayDateString()))} Days
                     </span>
                   </div>
                 )}

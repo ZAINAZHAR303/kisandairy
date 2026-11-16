@@ -1,3 +1,43 @@
+/** The farm's wall-clock time zone. Servers run in UTC, so "today" must be computed explicitly. */
+export const FARM_TIME_ZONE = 'Asia/Karachi'
+
+/**
+ * Formats a Date as YYYY-MM-DD in the given time zone.
+ * Without a time zone it uses the device's local time (correct in the browser).
+ * Never use toISOString() for this: it returns the UTC date, which is
+ * yesterday in Pakistan between midnight and 5am.
+ */
+export function toDateString(d: Date, timeZone?: string): string {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(d)
+  const get = (type: string) => parts.find(p => p.type === type)?.value ?? ''
+  return `${get('year')}-${get('month')}-${get('day')}`
+}
+
+/** Today's date as YYYY-MM-DD. Pass FARM_TIME_ZONE on the server; omit in the browser. */
+export function todayDateString(timeZone?: string): string {
+  return toDateString(new Date(), timeZone)
+}
+
+/** Adds days to a YYYY-MM-DD string using pure calendar maths (no time zone involved). */
+export function addDaysToDateString(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split('T')[0].split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().split('T')[0]
+}
+
+/** Whole calendar days from one YYYY-MM-DD string to another (negative if `to` is earlier). */
+export function daysBetweenDateStrings(from: string, to: string): number {
+  const toUtc = (s: string) => {
+    const [y, m, d] = s.split('T')[0].split('-').map(Number)
+    return Date.UTC(y, m - 1, d)
+  }
+  return Math.round((toUtc(to) - toUtc(from)) / 86_400_000)
+}
+
 export function calculateAge(dobStr: string | null | undefined): string {
   if (!dobStr) return 'Age Unknown'
   
@@ -81,24 +121,15 @@ export function calculateNextDueDate(vaccineName: string, dateGivenStr: string):
 
 export function computeVaccineStatus(nextDueDateStr: string): 'Overdue' | 'Upcoming' | 'Given' {
   if (!nextDueDateStr) return 'Given'
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
 
-  const dueDate = new Date(nextDueDateStr)
-  dueDate.setHours(0, 0, 0, 0)
+  const dueDate = nextDueDateStr.split('T')[0]
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dueDate)) return 'Given'
 
-  if (isNaN(dueDate.getTime())) return 'Given'
+  // This runs both in server actions (UTC machines) and in the browser.
+  const today = todayDateString(typeof window === 'undefined' ? FARM_TIME_ZONE : undefined)
+  const diffDays = daysBetweenDateStrings(today, dueDate)
 
-  if (dueDate < today) {
-    return 'Overdue'
-  }
-
-  const diffMs = dueDate.getTime() - today.getTime()
-  const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24))
-
-  if (diffDays <= 14) {
-    return 'Upcoming'
-  }
-
+  if (diffDays < 0) return 'Overdue'
+  if (diffDays <= 14) return 'Upcoming'
   return 'Given'
 }

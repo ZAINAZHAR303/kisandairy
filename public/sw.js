@@ -145,12 +145,24 @@ self.addEventListener('message', (event) => {
 // BACKGROUND SYNC LOGIC
 // ==========================================
 
+// Must match SYNC_LOCK_NAME in src/lib/syncManager.ts. The page and the
+// service worker both sync the same queue; this lock stops them from sending
+// the same record at the same time (which would create duplicates).
+const SYNC_LOCK_NAME = 'kisan-dairy-offline-sync'
+
 // Helper to interact with IndexedDB directly
 function openIDB() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('kisan-dairy-offline', 1)
+    // No version number: open whatever version the app created. Asking for a
+    // fixed version fails with VersionError as soon as the app upgrades the DB.
+    const request = indexedDB.open('kisan-dairy-offline')
     request.onerror = () => reject(request.error)
-    request.onsuccess = () => resolve(request.result)
+    request.onsuccess = () => {
+      const db = request.result
+      // Never block the app from upgrading the database.
+      db.onversionchange = () => db.close()
+      resolve(db)
+    }
   })
 }
 
@@ -183,24 +195,35 @@ function deleteStoreData(db, storeName, id) {
 self.addEventListener('sync', (event) => {
   if (event.tag === 'sync-offline-records') {
     console.log('[SW] Background sync triggered')
-    event.waitUntil(syncOfflineData())
+    event.waitUntil(syncOfflineDataLocked())
   }
 })
 
+function syncOfflineDataLocked() {
+  if (self.navigator && self.navigator.locks) {
+    return self.navigator.locks.request(SYNC_LOCK_NAME, () => syncOfflineData())
+  }
+  return syncOfflineData()
+}
+
 async function syncOfflineData() {
+  let db
   try {
-    const db = await openIDB()
-    
+    db = await openIDB()
+
+    // Read the queue only after the lock is held, so records the page has
+    // already synced (and removed) are not sent again.
     const milkSales = await getStoreData(db, 'pendingMilkSales')
     const payments = await getStoreData(db, 'pendingPayments')
     const expenses = await getStoreData(db, 'pendingExpenses')
 
-    if (milkSales.length === 0 && payments.length === 0 && expenses.length === 0) {
+    const total = milkSales.length + payments.length + expenses.length
+    if (total === 0) {
       console.log('[SW] No offline data to sync.')
       return
     }
 
-    console.log('[SW] Syncing data to server...', { milkSales, payments, expenses })
+    console.log('[SW] Syncing ' + total + ' offline record(s) to server...')
 
     const response = await fetch('/api/sync', {
       method: 'POST',
@@ -213,21 +236,32 @@ async function syncOfflineData() {
     }
 
     const result = await response.json()
-    console.log('[SW] Sync successful:', result)
+    console.log('[SW] Sync result:', result)
 
-    // Delete synced records
-    for (const sale of milkSales) await deleteStoreData(db, 'pendingMilkSales', sale.id)
-    for (const payment of payments) await deleteStoreData(db, 'pendingPayments', payment.id)
-    for (const expense of expenses) await deleteStoreData(db, 'pendingExpenses', expense.id)
+    // Delete ONLY the records the server confirmed it saved. Anything that
+    // failed stays on the device and is retried later.
+    const syncedIds = (result && result.syncedIds) || {}
+    for (const id of syncedIds.milkSales || []) await deleteStoreData(db, 'pendingMilkSales', id)
+    for (const id of syncedIds.payments || []) await deleteStoreData(db, 'pendingPayments', id)
+    for (const id of syncedIds.expenses || []) await deleteStoreData(db, 'pendingExpenses', id)
+
+    const synced =
+      (syncedIds.milkSales || []).length +
+      (syncedIds.payments || []).length +
+      (syncedIds.expenses || []).length
+    const failed = total - synced
 
     // Notify clients to update UI
-    self.clients.matchAll().then(clients => {
-      clients.forEach(client => client.postMessage({ type: 'SYNC_COMPLETE' }))
-    })
+    const clients = await self.clients.matchAll()
+    clients.forEach(client => client.postMessage({ type: 'SYNC_COMPLETE', synced, failed }))
 
+    if (failed > 0) {
+      throw new Error(failed + ' offline record(s) could not be synced')
+    }
   } catch (error) {
     console.error('[SW] Background sync failed:', error)
     throw error // Re-throw so the browser can retry later
+  } finally {
+    if (db) db.close()
   }
 }
-

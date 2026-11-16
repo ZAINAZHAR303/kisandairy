@@ -1,113 +1,78 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
-import { ExpenseCategory } from '@/lib/types'
+import { Expense } from '@/lib/types'
+import { dataAction, statusAction, fail, FormReader } from '@/lib/actions'
 
-export async function getExpenses() {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+// Returns the validated fields, or a message describing what is wrong.
+function readExpenseFields(form: FormReader) {
+  const date = form.raw('date')
+  const category = form.raw('category')
+  const amount = form.number('amount')
 
-    const { data, error } = await supabase
-      .from('expenses')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
+  if (!date) return { error: 'Date is required' } as const
+  if (!category) return { error: 'Category is required' } as const
+  if (amount <= 0) return { error: 'Please enter a valid amount' } as const
 
-    if (error) return { data: null, error: error.message }
-    return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  return {
+    error: null,
+    fields: {
+      date,
+      category,
+      description: form.optionalText('description'),
+      amount,
+    },
+  } as const
 }
 
 export async function addExpense(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
-
-    const date = formData.get('date') as string
-    const category = formData.get('category') as ExpenseCategory
-    const description = formData.get('description') as string | null
-    const amount = formData.get('amount') ? Number(formData.get('amount')) : 0
-
-    if (!date) return { data: null, error: 'Date is required' }
-    if (!category) return { data: null, error: 'Category is required' }
-    if (isNaN(amount) || amount <= 0) return { data: null, error: 'Please enter a valid amount' }
+  return dataAction<Expense>(async ({ supabase, user }) => {
+    const parsed = readExpenseFields(new FormReader(formData))
+    if (parsed.error !== null) return fail(parsed.error)
 
     const { data, error } = await supabase
       .from('expenses')
-      .insert({
-        date,
-        category,
-        description: description?.trim() || null,
-        amount,
-        user_id: user.id
-      })
+      .insert({ ...parsed.fields, user_id: user.id })
       .select()
       .single()
 
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message)
 
     revalidatePath('/dashboard/expenses')
     revalidatePath('/dashboard')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function updateExpense(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<Expense>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const id = form.raw('id')
+    if (!id) return fail('Expense ID is required')
 
-    const id = formData.get('id') as string
-    const date = formData.get('date') as string
-    const category = formData.get('category') as ExpenseCategory
-    const description = formData.get('description') as string | null
-    const amount = formData.get('amount') ? Number(formData.get('amount')) : 0
-
-    if (!id) return { data: null, error: 'Expense ID is required' }
-    if (!date) return { data: null, error: 'Date is required' }
-    if (!category) return { data: null, error: 'Category is required' }
-    if (isNaN(amount) || amount <= 0) return { data: null, error: 'Please enter a valid amount' }
+    const parsed = readExpenseFields(form)
+    if (parsed.error !== null) return fail(parsed.error)
 
     const { data, error } = await supabase
       .from('expenses')
-      .update({
-        date,
-        category,
-        description: description?.trim() || null,
-        amount,
-      })
+      .update(parsed.fields)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
       .single()
 
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message)
 
     revalidatePath('/dashboard/expenses')
     revalidatePath('/dashboard')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function deleteExpense(id: string) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
-
+  return statusAction(async ({ supabase, user }) => {
     const { error } = await supabase
       .from('expenses')
       .delete()
@@ -120,7 +85,5 @@ export async function deleteExpense(id: string) {
     revalidatePath('/dashboard')
 
     return { error: null }
-  } catch (err: any) {
-    return { error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }

@@ -1,22 +1,49 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
+import { useRouter } from 'next/navigation'
 import { useToast } from '@/components/ui/Toast'
 
 export default function OfflineIndicator() {
   const [isOnline, setIsOnline] = useState(true)
   const { showToast } = useToast()
+  const router = useRouter()
   const [pendingCount, setPendingCount] = useState(0)
 
-  const checkPendingRecords = useCallback(async () => {
+  const checkPendingRecords = useCallback(async (): Promise<number> => {
     try {
       const { getPendingCount } = await import('@/lib/offlineDb')
       const count = await getPendingCount()
       setPendingCount(count)
+      return count
     } catch {
       setPendingCount(0)
+      return 0
     }
   }, [])
+
+  // Sends queued offline records to the server and reports the outcome.
+  const syncPending = useCallback(async () => {
+    try {
+      const { syncAllPendingRecords } = await import('@/lib/syncManager')
+      const { synced, failed } = await syncAllPendingRecords()
+      if (synced > 0) {
+        showToast('success', `Synced ${synced} offline record${synced > 1 ? 's' : ''}`, 'آف لائن ریکارڈ محفوظ ہو گئے')
+        router.refresh()
+      }
+      if (failed > 0) {
+        showToast(
+          'warning',
+          `${failed} offline record${failed > 1 ? 's' : ''} not synced yet`,
+          'کچھ ریکارڈ ابھی نہیں بھیجے جا سکے — آپ کے فون میں محفوظ ہیں'
+        )
+      }
+    } catch (err) {
+      console.error('[OfflineIndicator] Sync failed:', err)
+    } finally {
+      await checkPendingRecords()
+    }
+  }, [checkPendingRecords, router, showToast])
 
   useEffect(() => {
     setIsOnline(navigator.onLine)
@@ -25,9 +52,7 @@ export default function OfflineIndicator() {
       setIsOnline(true)
       showToast('success', 'Back Online — syncing data...', 'واپس آن لائن — ڈیٹا بھیجا جا رہا ہے')
       // Trigger sync when back online
-      import('@/lib/syncManager').then(({ syncAllPendingRecords }) => {
-        syncAllPendingRecords().then(() => checkPendingRecords())
-      })
+      syncPending()
     }
 
     const handleOffline = () => {
@@ -38,8 +63,11 @@ export default function OfflineIndicator() {
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // Check pending records on mount
-    checkPendingRecords()
+    // On mount: if records were saved offline in an earlier session and we are
+    // online now, sync them. The 'online' event never fires in that case.
+    checkPendingRecords().then((count) => {
+      if (count > 0 && navigator.onLine) syncPending()
+    })
 
     // Listen for custom sync events
     const handleSyncUpdate = () => checkPendingRecords()
@@ -48,7 +76,10 @@ export default function OfflineIndicator() {
     // Listen for Background Sync messages from Service Worker
     const handleSWMessage = (event: MessageEvent) => {
       if (event.data && event.data.type === 'SYNC_COMPLETE') {
-        showToast('success', 'Background Sync Complete', 'بیک گراؤنڈ میں ڈیٹا بھیج دیا گیا')
+        if (event.data.synced === undefined || event.data.synced > 0) {
+          showToast('success', 'Background Sync Complete', 'بیک گراؤنڈ میں ڈیٹا بھیج دیا گیا')
+          router.refresh()
+        }
         checkPendingRecords()
       }
     }
@@ -64,7 +95,7 @@ export default function OfflineIndicator() {
         navigator.serviceWorker.removeEventListener('message', handleSWMessage)
       }
     }
-  }, [checkPendingRecords])
+  }, [checkPendingRecords, syncPending, router, showToast])
 
   return (
     <>

@@ -12,14 +12,39 @@ import {
 } from '@/app/dashboard/milk-sales/actions'
 import { addExpense } from '@/app/dashboard/expenses/actions'
 
+// Must match SYNC_LOCK_NAME in public/sw.js. The page and the service worker
+// both sync the same queue; this lock stops them from sending the same record
+// at the same time (which would create duplicate sales or payments).
+const SYNC_LOCK_NAME = 'kisan-dairy-offline-sync'
+
+type SyncResult = { synced: number; failed: number }
+
+let inFlightSync: Promise<SyncResult> | null = null
+
 /**
  * Sync all pending offline records to Supabase.
- * Called automatically when the app comes back online.
+ * Called when the app opens with queued records and when it comes back online.
+ * Safe to call repeatedly: overlapping calls share one run.
  */
-export async function syncAllPendingRecords(): Promise<{
-  synced: number
-  failed: number
-}> {
+export function syncAllPendingRecords(): Promise<SyncResult> {
+  if (inFlightSync) return inFlightSync
+
+  const run = async (): Promise<SyncResult> => {
+    if (typeof navigator !== 'undefined' && navigator.locks) {
+      return navigator.locks.request(SYNC_LOCK_NAME, () => syncPendingRecordsUnlocked())
+    }
+    return syncPendingRecordsUnlocked()
+  }
+
+  inFlightSync = run().finally(() => {
+    inFlightSync = null
+  })
+  return inFlightSync
+}
+
+// The queue is read only after the lock is held, so records the service
+// worker has already synced (and removed) are not sent again.
+async function syncPendingRecordsUnlocked(): Promise<SyncResult> {
   let synced = 0
   let failed = 0
 

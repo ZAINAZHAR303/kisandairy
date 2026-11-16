@@ -72,7 +72,7 @@ export default function LoginPage() {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: 'https://kisandairy.tech/auth/reset-password',
+        redirectTo: window.location.origin + '/auth/reset-password',
       });
       if (error) throw error;
       setSuccess('Password reset link sent! Check your email.');

@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import { fetchAllRows } from '@/lib/supabase/fetchAll'
 import VaccinationsList from '@/components/vaccinations/VaccinationsList'
 import { VaccinationRecord, Animal } from '@/lib/types'
 
@@ -17,22 +18,31 @@ export default async function VaccinationsPage({
 
   const supabase = await createClient()
 
-  // Fetch vaccination records
-  const { data: records } = await supabase
-    .from('vaccination_records')
-    .select('*, animals(*)')
-    .order('next_due_date', { ascending: true })
-
-  // Fetch animals
-  const { data: animals } = await supabase
-    .from('animals')
-    .select('*')
-    .order('name', { ascending: true })
+  const [records, animals] = await Promise.all([
+    // Vaccination records
+    fetchAllRows<VaccinationRecord>('vaccination records', (from, to) =>
+      supabase
+        .from('vaccination_records')
+        .select('*, animals(*)', { count: 'exact' })
+        .order('next_due_date', { ascending: true })
+        .order('id')
+        .range(from, to)
+    ),
+    // Animals
+    fetchAllRows<Animal>('animals', (from, to) =>
+      supabase
+        .from('animals')
+        .select('*', { count: 'exact' })
+        .order('name', { ascending: true })
+        .order('id')
+        .range(from, to)
+    ),
+  ])
 
   return (
     <VaccinationsList
-      initialRecords={(records as VaccinationRecord[]) || []}
-      animals={(animals as Animal[]) || []}
+      initialRecords={records}
+      animals={animals}
       initialTab={initialTab}
     />
   )

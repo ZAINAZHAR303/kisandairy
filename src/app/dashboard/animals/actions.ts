@@ -1,157 +1,98 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { Animal } from '@/lib/types'
+import { dataAction, statusAction, fail, FormReader, writeWithOptionalColumns } from '@/lib/actions'
 
-export async function getAnimalsList() {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
-
-    const { data, error } = await supabase
-      .from('animals')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('created_at', { ascending: false })
-
-    if (error) return { data: null, error: error.message }
-    return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+function revalidateAnimalPages() {
+  revalidatePath('/dashboard/animals')
+  revalidatePath('/dashboard/insemination')
+  revalidatePath('/dashboard')
 }
 
 export async function addAnimal(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<Animal>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const name = form.text('name')
+    if (!name) return fail('Name is required')
 
-    const name = formData.get('name') as string
-    const tag_number = formData.get('tag_number') as string | null
-    const type = (formData.get('type') as 'cow' | 'buffalo') || 'cow'
-    const breed = formData.get('breed') as string | null
-    const date_of_birth = formData.get('date_of_birth') as string | null
-    const gender = (formData.get('gender') as 'female' | 'male') || 'female'
-    const status = (formData.get('status') as string) || 'Lactating'
-    const dam_info = formData.get('dam_info') as string | null
-    const bull_name = formData.get('bull_name') as string | null
-    const weight_kg = formData.get('weight_kg') ? Number(formData.get('weight_kg')) : null
-    const notes = formData.get('notes') as string | null
-
-    if (!name || !name.trim()) return { data: null, error: 'Name is required' }
-
-    const insertData: any = {
-      name: name.trim(),
-      tag_number: tag_number?.trim() || null,
-      type,
-      breed: breed?.trim() || null,
-      user_id: user.id
+    // Optional fields are only sent when filled in, so database defaults apply.
+    const insertData: Record<string, unknown> = {
+      name,
+      tag_number: form.optionalText('tag_number'),
+      type: form.raw('type') || 'cow',
+      breed: form.optionalText('breed'),
+      gender: form.raw('gender') || 'female',
+      status: form.raw('status') || 'Lactating',
+      user_id: user.id,
     }
 
-    if (date_of_birth) insertData.date_of_birth = date_of_birth
-    if (gender) insertData.gender = gender
-    if (status) insertData.status = status
-    if (dam_info) insertData.dam_info = dam_info.trim()
-    if (bull_name) insertData.bull_name = bull_name.trim()
-    if (weight_kg && !isNaN(weight_kg)) insertData.weight_kg = weight_kg
+    const dateOfBirth = form.raw('date_of_birth')
+    const damInfo = form.raw('dam_info')
+    const bullName = form.raw('bull_name')
+    const weightKg = form.optionalNumber('weight_kg')
+    const notes = form.raw('notes')
+
+    if (dateOfBirth) insertData.date_of_birth = dateOfBirth
+    if (damInfo) insertData.dam_info = damInfo.trim()
+    if (bullName) insertData.bull_name = bullName.trim()
+    if (weightKg) insertData.weight_kg = weightKg
     if (notes) insertData.notes = notes.trim()
 
-    let { data, error } = await supabase
-      .from('animals')
-      .insert(insertData)
-      .select()
-      .single()
+    const { data, error } = await writeWithOptionalColumns<Animal>(
+      insertData,
+      ['bull_name'],
+      (payload) => supabase.from('animals').insert(payload).select().single()
+    )
 
-    if (error && error.message?.includes('schema cache')) {
-      delete insertData.bull_name
-      const retry = await supabase.from('animals').insert(insertData).select().single()
-      data = retry.data
-      error = retry.error
-    }
+    if (error) return fail(error.message || 'Failed to save animal')
 
-    if (error) return { data: null, error: error.message }
+    revalidateAnimalPages()
 
-    revalidatePath('/dashboard/animals')
-    revalidatePath('/dashboard/insemination')
-    revalidatePath('/dashboard')
-    
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function updateAnimal(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<Animal>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const id = form.raw('id')
+    const name = form.text('name')
 
-    const id = formData.get('id') as string
-    const name = formData.get('name') as string
-    const tag_number = formData.get('tag_number') as string | null
-    const type = (formData.get('type') as 'cow' | 'buffalo') || 'cow'
-    const breed = formData.get('breed') as string | null
-    const date_of_birth = formData.get('date_of_birth') as string | null
-    const gender = (formData.get('gender') as 'female' | 'male') || 'female'
-    const status = (formData.get('status') as string) || 'Lactating'
-    const dam_info = formData.get('dam_info') as string | null
-    const bull_name = formData.get('bull_name') as string | null
-    const weight_kg = formData.get('weight_kg') ? Number(formData.get('weight_kg')) : null
-    const notes = formData.get('notes') as string | null
+    if (!id) return fail('Animal ID is required')
+    if (!name) return fail('Name is required')
 
-    if (!id) return { data: null, error: 'Animal ID is required' }
-    if (!name || !name.trim()) return { data: null, error: 'Name is required' }
-
-    const updateData: any = {
-      name: name.trim(),
-      tag_number: tag_number?.trim() || null,
-      type,
-      breed: breed?.trim() || null,
-      date_of_birth: date_of_birth || null,
-      gender: gender || 'female',
-      status: status || 'Lactating',
-      dam_info: dam_info?.trim() || null,
-      bull_name: bull_name?.trim() || null,
-      weight_kg: weight_kg && !isNaN(weight_kg) ? weight_kg : null,
-      notes: notes?.trim() || null,
+    const updateData: Record<string, unknown> = {
+      name,
+      tag_number: form.optionalText('tag_number'),
+      type: form.raw('type') || 'cow',
+      breed: form.optionalText('breed'),
+      date_of_birth: form.raw('date_of_birth') || null,
+      gender: form.raw('gender') || 'female',
+      status: form.raw('status') || 'Lactating',
+      dam_info: form.optionalText('dam_info'),
+      bull_name: form.optionalText('bull_name'),
+      weight_kg: form.optionalNumber('weight_kg') || null,
+      notes: form.optionalText('notes'),
     }
 
-    let { data, error } = await supabase
-      .from('animals')
-      .update(updateData)
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .select()
-      .single()
+    const { data, error } = await writeWithOptionalColumns<Animal>(
+      updateData,
+      ['bull_name'],
+      (payload) =>
+        supabase.from('animals').update(payload).eq('id', id).eq('user_id', user.id).select().single()
+    )
 
-    if (error && error.message?.includes('schema cache')) {
-      delete updateData.bull_name
-      const retry = await supabase.from('animals').update(updateData).eq('id', id).eq('user_id', user.id).select().single()
-      data = retry.data
-      error = retry.error
-    }
+    if (error) return fail(error.message || 'Failed to save animal')
 
-    if (error) return { data: null, error: error.message }
-
-    revalidatePath('/dashboard/animals')
-    revalidatePath('/dashboard/insemination')
-    revalidatePath('/dashboard')
+    revalidateAnimalPages()
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function deleteAnimal(id: string) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
-
+  return statusAction(async ({ supabase, user }) => {
     const { error } = await supabase
       .from('animals')
       .delete()
@@ -160,12 +101,8 @@ export async function deleteAnimal(id: string) {
 
     if (error) return { error: error.message }
 
-    revalidatePath('/dashboard/animals')
-    revalidatePath('/dashboard/insemination')
-    revalidatePath('/dashboard')
+    revalidateAnimalPages()
 
     return { error: null }
-  } catch (err: any) {
-    return { error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { VaccinationRecord, Animal } from '@/lib/types'
 import { addVaccinationRecord, updateVaccinationRecord } from '@/app/dashboard/vaccinations/actions'
-import { calculateNextDueDate } from '@/lib/dateUtils'
+import { calculateNextDueDate, todayDateString } from '@/lib/dateUtils'
 
 interface AddEditVaccinationModalProps {
   isOpen: boolean
@@ -55,7 +55,7 @@ export default function AddEditVaccinationModal({ isOpen, onClose, animals, edit
         setSelectedAnimalId(animals[0]?.id || '')
         setVaccineSelect('FMD (Foot & Mouth Disease)')
         setCustomVaccineName('')
-        const todayStr = new Date().toISOString().split('T')[0]
+        const todayStr = todayDateString()
         setDateGiven(todayStr)
         setGivenBy('')
         setNextDueDate(calculateNextDueDate('FMD (Foot & Mouth Disease)', todayStr))

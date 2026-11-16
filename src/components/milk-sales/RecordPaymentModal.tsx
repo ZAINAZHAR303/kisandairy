@@ -5,6 +5,7 @@ import { Seller } from '@/lib/types'
 import { addSellerPayment } from '@/app/dashboard/milk-sales/actions'
 import { savePendingPayment } from '@/lib/offlineDb'
 import { useToast } from '@/components/ui/Toast'
+import { todayDateString } from '@/lib/dateUtils'
 
 interface RecordPaymentModalProps {
   isOpen: boolean
@@ -25,7 +26,7 @@ export default function RecordPaymentModal({ isOpen, onClose, sellers, defaultSe
   useEffect(() => {
     if (isOpen) {
       setSellerId(defaultSellerId || (sellers[0]?.id || ''))
-      setDate(new Date().toISOString().split('T')[0])
+      setDate(todayDateString())
       setAmountPaid('')
       setNotes('')
       setError(null)

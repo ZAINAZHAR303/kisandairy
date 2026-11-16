@@ -1,131 +1,85 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { MilkSaleEntry, Seller, SellerPayment } from '@/lib/types'
+import { dataAction, statusAction, fail, FormReader, writeWithOptionalColumns } from '@/lib/actions'
 
-export async function getSellers() {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+// Postgres "undefined_table" and PostgREST "table not found in schema cache"
+const MISSING_TABLE_CODES = ['42P01', 'PGRST205']
 
-    const { data, error } = await supabase
-      .from('sellers')
-      .select('*')
-      .eq('user_id', user.id)
-      .order('name', { ascending: true })
-
-    if (error) return { data: null, error: error.message }
-    return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
+function readSellerFields(form: FormReader) {
+  const fields: Record<string, unknown> = {
+    name: form.text('name'),
+    contact_number: form.optionalText('contact_number'),
+    rate_per_liter: form.number('rate_per_liter'),
   }
+  const paymentTerms = form.raw('payment_terms')
+  if (paymentTerms) fields.payment_terms = paymentTerms
+  return fields
+}
+
+function readMilkSaleFields(form: FormReader) {
+  const fields: Record<string, unknown> = {
+    seller_id: form.raw('seller_id'),
+    date: form.raw('date'),
+    morning_liters: form.number('morning_liters'),
+    evening_liters: form.number('evening_liters'),
+    rate_per_liter: form.number('rate_per_liter'),
+  }
+  const notes = form.raw('notes')
+  if (notes) fields.notes = notes.trim()
+  return fields
 }
 
 export async function addSeller(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<Seller>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    if (!form.text('name')) return fail('Seller name is required')
 
-    const name = formData.get('name') as string
-    const contact_number = formData.get('contact_number') as string | null
-    const rate_per_liter = formData.get('rate_per_liter') ? Number(formData.get('rate_per_liter')) : 0
-    const payment_terms = formData.get('payment_terms') as string | null
+    const { data, error } = await writeWithOptionalColumns<Seller>(
+      { ...readSellerFields(form), user_id: user.id },
+      ['payment_terms'],
+      (payload) => supabase.from('sellers').insert(payload).select().single()
+    )
 
-    if (!name || !name.trim()) return { data: null, error: 'Seller name is required' }
-
-    const insertData: any = {
-      name: name.trim(),
-      contact_number: contact_number?.trim() || null,
-      rate_per_liter: isNaN(rate_per_liter) ? 0 : rate_per_liter,
-      user_id: user.id
-    }
-
-    if (payment_terms) {
-      insertData.payment_terms = payment_terms
-    }
-
-    let { data, error } = await supabase
-      .from('sellers')
-      .insert(insertData)
-      .select()
-      .single()
-
-    if (error && error.message?.includes('schema cache')) {
-      delete insertData.payment_terms
-      const retry = await supabase.from('sellers').insert(insertData).select().single()
-      data = retry.data
-      error = retry.error
-    }
-
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message || 'Failed to save buyer')
 
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard/milk-sales/sellers')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function updateSeller(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<Seller>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const id = form.raw('id')
 
-    const id = formData.get('id') as string
-    const name = formData.get('name') as string
-    const contact_number = formData.get('contact_number') as string | null
-    const rate_per_liter = formData.get('rate_per_liter') ? Number(formData.get('rate_per_liter')) : 0
-    const payment_terms = formData.get('payment_terms') as string | null
+    if (!id) return fail('Seller ID is required')
+    if (!form.text('name')) return fail('Seller name is required')
 
-    if (!id) return { data: null, error: 'Seller ID is required' }
-    if (!name || !name.trim()) return { data: null, error: 'Seller name is required' }
+    const { data, error } = await writeWithOptionalColumns<Seller>(
+      readSellerFields(form),
+      ['payment_terms'],
+      (payload) =>
+        supabase.from('sellers').update(payload).eq('id', id).eq('user_id', user.id).select().single()
+    )
 
-    const updateData: any = {
-      name: name.trim(),
-      contact_number: contact_number?.trim() || null,
-      rate_per_liter: isNaN(rate_per_liter) ? 0 : rate_per_liter,
-    }
-
-    if (payment_terms) {
-      updateData.payment_terms = payment_terms
-    }
-
-    let { data, error } = await supabase
-      .from('sellers')
-      .update(updateData)
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (error && error.message?.includes('schema cache')) {
-      delete updateData.payment_terms
-      const retry = await supabase.from('sellers').update(updateData).eq('id', id).eq('user_id', user.id).select().single()
-      data = retry.data
-      error = retry.error
-    }
-
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message || 'Failed to save buyer')
 
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard/milk-sales/sellers')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function bulkUpdateSellerRates(ratePerLiter: number) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
+  return statusAction(async ({ supabase, user }) => {
+    if (typeof ratePerLiter !== 'number' || !Number.isFinite(ratePerLiter) || ratePerLiter < 0) {
+      return { error: 'Please enter a valid rate' }
+    }
 
     const { error } = await supabase
       .from('sellers')
@@ -136,30 +90,39 @@ export async function bulkUpdateSellerRates(ratePerLiter: number) {
 
     revalidatePath('/dashboard/milk-sales')
     return { error: null }
-  } catch (err: any) {
-    return { error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function deleteSeller(id: string) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
+  return statusAction(async ({ supabase, user }) => {
+    // These three deletes are not one database transaction, so every step is
+    // checked: if one fails we stop and report it instead of silently leaving
+    // a buyer with half of their history. Running the delete again finishes it.
 
     // Delete linked payments first (if any)
-    await supabase
+    const { error: paymentsError } = await supabase
       .from('seller_payments')
       .delete()
       .eq('seller_id', id)
       .eq('user_id', user.id)
 
+    // A missing payments table just means there is nothing to delete
+    if (paymentsError && !MISSING_TABLE_CODES.includes(paymentsError.code)) {
+      return { error: `Buyer was not deleted. Could not delete their payments: ${paymentsError.message}` }
+    }
+
     // Delete linked milk sale entries
-    await supabase
+    const { error: entriesError } = await supabase
       .from('milk_sale_entries')
       .delete()
       .eq('seller_id', id)
       .eq('user_id', user.id)
+
+    if (entriesError) {
+      revalidatePath('/dashboard/milk-sales')
+      revalidatePath('/dashboard')
+      return { error: `Buyer was only partly deleted (payments removed, sales remain). Please delete again. ${entriesError.message}` }
+    }
 
     // Delete the seller
     const { error } = await supabase
@@ -168,139 +131,69 @@ export async function deleteSeller(id: string) {
       .eq('id', id)
       .eq('user_id', user.id)
 
-    if (error) return { error: error.message || 'Failed to delete buyer' }
+    if (error) {
+      revalidatePath('/dashboard/milk-sales')
+      revalidatePath('/dashboard')
+      return { error: `Buyer's sales and payments were removed but the buyer could not be deleted. Please delete again. ${error.message || ''}`.trim() }
+    }
 
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard/milk-sales/sellers')
     revalidatePath('/dashboard')
 
     return { error: null }
-  } catch (err: any) {
-    return { error: err?.message || 'An unexpected error occurred while deleting buyer' }
-  }
+  })
 }
 
 export async function addMilkSaleEntry(formData: FormData) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  return dataAction<MilkSaleEntry>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
 
-  if (!user) {
-    return { data: null, error: 'Unauthorized' }
-  }
+    if (!form.raw('seller_id')) return fail('Please select a buyer')
+    if (!form.raw('date')) return fail('Date is required')
 
-  const seller_id = formData.get('seller_id') as string
-  const date = formData.get('date') as string
-  const morning_liters = formData.get('morning_liters') ? Number(formData.get('morning_liters')) : 0
-  const evening_liters = formData.get('evening_liters') ? Number(formData.get('evening_liters')) : 0
-  const rate_per_liter = formData.get('rate_per_liter') ? Number(formData.get('rate_per_liter')) : 0
-  const notes = formData.get('notes') as string | null
+    const { data, error } = await writeWithOptionalColumns<MilkSaleEntry>(
+      { ...readMilkSaleFields(form), user_id: user.id },
+      ['notes'],
+      (payload) => supabase.from('milk_sale_entries').insert(payload).select().single()
+    )
 
-  if (!seller_id) {
-    return { data: null, error: 'Please select a buyer' }
-  }
-
-  if (!date) {
-    return { data: null, error: 'Date is required' }
-  }
-
-  try {
-    const insertData: any = {
-      seller_id,
-      date,
-      morning_liters: isNaN(morning_liters) ? 0 : morning_liters,
-      evening_liters: isNaN(evening_liters) ? 0 : evening_liters,
-      rate_per_liter: isNaN(rate_per_liter) ? 0 : rate_per_liter,
-      user_id: user.id
-    }
-
-    if (notes) insertData.notes = notes.trim()
-
-    let { data, error } = await supabase
-      .from('milk_sale_entries')
-      .insert(insertData)
-      .select()
-      .single()
-
-    if (error && error.message?.includes('schema cache')) {
-      delete insertData.notes
-      const retry = await supabase.from('milk_sale_entries').insert(insertData).select().single()
-      data = retry.data
-      error = retry.error
-    }
-
-    if (error) {
-      return { data: null, error: error.message || 'Failed to save milk sale entry' }
-    }
+    if (error) return fail(error.message || 'Failed to save milk sale entry')
 
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err?.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function updateMilkSaleEntry(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<MilkSaleEntry>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const id = form.raw('id')
 
-    const id = formData.get('id') as string
-    const seller_id = formData.get('seller_id') as string
-    const date = formData.get('date') as string
-    const morning_liters = formData.get('morning_liters') ? Number(formData.get('morning_liters')) : 0
-    const evening_liters = formData.get('evening_liters') ? Number(formData.get('evening_liters')) : 0
-    const rate_per_liter = formData.get('rate_per_liter') ? Number(formData.get('rate_per_liter')) : 0
-    const notes = formData.get('notes') as string | null
+    if (!id) return fail('Entry ID is required')
+    if (!form.raw('seller_id')) return fail('Please select a buyer')
+    if (!form.raw('date')) return fail('Date is required')
 
-    if (!id) return { data: null, error: 'Entry ID is required' }
-    if (!seller_id) return { data: null, error: 'Please select a buyer' }
-    if (!date) return { data: null, error: 'Date is required' }
+    const { data, error } = await writeWithOptionalColumns<MilkSaleEntry>(
+      readMilkSaleFields(form),
+      ['notes'],
+      (payload) =>
+        supabase.from('milk_sale_entries').update(payload).eq('id', id).eq('user_id', user.id).select().single()
+    )
 
-    const updateData: any = {
-      seller_id,
-      date,
-      morning_liters: isNaN(morning_liters) ? 0 : morning_liters,
-      evening_liters: isNaN(evening_liters) ? 0 : evening_liters,
-      rate_per_liter: isNaN(rate_per_liter) ? 0 : rate_per_liter,
-    }
-
-    if (notes) updateData.notes = notes.trim()
-
-    let { data, error } = await supabase
-      .from('milk_sale_entries')
-      .update(updateData)
-      .eq('id', id)
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (error && error.message?.includes('schema cache')) {
-      delete updateData.notes
-      const retry = await supabase.from('milk_sale_entries').update(updateData).eq('id', id).eq('user_id', user.id).select().single()
-      data = retry.data
-      error = retry.error
-    }
-
-    if (error) return { data: null, error: error.message }
+    if (error) return fail(error.message || 'Failed to save milk sale entry')
 
     revalidatePath('/dashboard/milk-sales')
     revalidatePath('/dashboard')
 
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function deleteMilkSaleEntry(id: string) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
-
+  return statusAction(async ({ supabase, user }) => {
     const { error } = await supabase
       .from('milk_sale_entries')
       .delete()
@@ -313,74 +206,41 @@ export async function deleteMilkSaleEntry(id: string) {
     revalidatePath('/dashboard')
 
     return { error: null }
-  } catch (err: any) {
-    return { error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function addSellerPayment(formData: FormData) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
+  return dataAction<SellerPayment>(async ({ supabase, user }) => {
+    const form = new FormReader(formData)
+    const seller_id = form.raw('seller_id')
+    const date = form.raw('date')
+    const amount_paid = form.number('amount_paid')
 
-    const seller_id = formData.get('seller_id') as string
-    const date = formData.get('date') as string
-    const amount_paid = formData.get('amount_paid') ? Number(formData.get('amount_paid')) : 0
-    const notes = formData.get('notes') as string | null
-
-    if (!seller_id || !date || isNaN(amount_paid) || amount_paid <= 0) {
-      return { data: null, error: 'Valid seller, date and payment amount are required' }
-    }
-
-    const insertData = {
-      seller_id,
-      date,
-      amount_paid,
-      notes: notes?.trim() || null,
-      user_id: user.id
+    if (!seller_id || !date || amount_paid <= 0) {
+      return fail('Valid seller, date and payment amount are required')
     }
 
     const { data, error } = await supabase
       .from('seller_payments')
-      .insert(insertData)
+      .insert({
+        seller_id,
+        date,
+        amount_paid,
+        notes: form.optionalText('notes'),
+        user_id: user.id,
+      })
       .select()
       .single()
 
-    if (error) return { data: null, error: error.message || 'Failed to record payment' }
+    if (error) return fail(error.message || 'Failed to record payment')
 
     revalidatePath('/dashboard/milk-sales')
     return { data, error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
-}
-
-export async function getSellerPayments() {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { data: null, error: 'Unauthorized' }
-
-    const { data, error } = await supabase
-      .from('seller_payments')
-      .select('*, sellers(*)')
-      .eq('user_id', user.id)
-      .order('date', { ascending: false })
-
-    if (error) return { data: null, error: error.message }
-    return { data: data || [], error: null }
-  } catch (err: any) {
-    return { data: null, error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }
 
 export async function deleteSellerPayment(id: string) {
-  const supabase = await createClient()
-  try {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return { error: 'Unauthorized' }
-
+  return statusAction(async ({ supabase, user }) => {
     const { error } = await supabase
       .from('seller_payments')
       .delete()
@@ -391,7 +251,5 @@ export async function deleteSellerPayment(id: string) {
 
     revalidatePath('/dashboard/milk-sales')
     return { error: null }
-  } catch (err: any) {
-    return { error: err.message || 'An unexpected error occurred' }
-  }
+  })
 }

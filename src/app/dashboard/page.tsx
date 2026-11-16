@@ -1,6 +1,21 @@
 import { createClient, getAuthUser } from '@/lib/supabase/server';
+import { fetchAllRows } from '@/lib/supabase/fetchAll';
+import { FARM_TIME_ZONE, todayDateString, addDaysToDateString } from '@/lib/dateUtils';
 import Link from 'next/link';
 import DashboardMonthFilter from '@/components/dashboard/DashboardMonthFilter';
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+// Shows a dash instead of a misleading 0 when a count could not be loaded.
+function showCount(result: { count: number | null; error: unknown }): number | string {
+  if (result.error) {
+    console.error('[Dashboard] count query failed:', result.error);
+    return '—';
+  }
+  return result.count ?? 0;
+}
 
 export default async function DashboardPage(props: { searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) {
   const supabase = await createClient();
@@ -8,87 +23,109 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
   // Get current user (cached across request lifecycle)
   const user = await getAuthUser();
 
-  // Parse searchParams for month filtering
+  // "Today" in the farm's time zone. The server runs in UTC, which is still
+  // yesterday in Pakistan between midnight and 5am.
+  const todayStr = todayDateString(FARM_TIME_ZONE);
+  const [todayYear, todayMonthNumber] = todayStr.split('-').map(Number);
+
+  // Parse searchParams for month filtering (month is 0-11), ignoring invalid values
   const searchParams = props.searchParams ? await props.searchParams : {};
-  const today = new Date();
-  
-  const targetMonth = searchParams.month ? parseInt(searchParams.month as string) : today.getMonth();
-  const targetYear = searchParams.year ? parseInt(searchParams.year as string) : today.getFullYear();
-  
+  const monthParam = Number(firstParam(searchParams.month));
+  const yearParam = Number(firstParam(searchParams.year));
+  const hasValidMonth = firstParam(searchParams.month) !== undefined && Number.isInteger(monthParam) && monthParam >= 0 && monthParam <= 11;
+  const hasValidYear = firstParam(searchParams.year) !== undefined && Number.isInteger(yearParam) && yearParam >= 2000 && yearParam <= 2100;
+
+  const targetMonth = hasValidMonth ? monthParam : todayMonthNumber - 1;
+  const targetYear = hasValidYear ? yearParam : todayYear;
+
   const startDate = `${targetYear}-${String(targetMonth + 1).padStart(2, '0')}-01`;
-  
+
   const nextMonth = targetMonth === 11 ? 0 : targetMonth + 1;
   const nextMonthYear = targetMonth === 11 ? targetYear + 1 : targetYear;
   const endDate = `${nextMonthYear}-${String(nextMonth + 1).padStart(2, '0')}-01`;
 
-  // Fetch counts
-  // 1. Total Animals
-  const { count: totalAnimals } = await supabase
-    .from('animals')
-    .select('*', { count: 'exact', head: true });
+  const thirtyDaysFromNowStr = addDaysToDateString(todayStr, 30);
 
-  // 2. Active Records
-  const { count: totalRecords } = await supabase
-    .from('insemination_records')
-    .select('*', { count: 'exact', head: true });
+  const [
+    animalsResult,
+    recordsResult,
+    pregnanciesResult,
+    calvingsResult,
+    overdueVaccinesResult,
+    todayMilkData,
+    monthMilkData,
+    monthExpenseData,
+  ] = await Promise.all([
+    // 1. Total Animals
+    supabase.from('animals').select('*', { count: 'exact', head: true }),
 
-  // 3. Confirmed Pregnancies
-  const { count: confirmedPregnancies } = await supabase
-    .from('insemination_records')
-    .select('*', { count: 'exact', head: true })
-    .eq('pregnancy_status', 'Confirmed');
+    // 2. Active Records
+    supabase.from('insemination_records').select('*', { count: 'exact', head: true }),
 
-  // 4. Upcoming Calvings (next 30 days)
-  const todayStr = today.toISOString().split('T')[0];
+    // 3. Confirmed Pregnancies
+    supabase
+      .from('insemination_records')
+      .select('*', { count: 'exact', head: true })
+      .eq('pregnancy_status', 'Confirmed'),
 
-  const thirtyDaysFromNow = new Date();
-  thirtyDaysFromNow.setDate(today.getDate() + 30);
+    // 4. Upcoming Calvings (next 30 days)
+    supabase
+      .from('insemination_records')
+      .select('*', { count: 'exact', head: true })
+      .gte('expected_calving_date', todayStr)
+      .lte('expected_calving_date', thirtyDaysFromNowStr),
 
-  const { count: upcomingCalvings } = await supabase
-    .from('insemination_records')
-    .select('*', { count: 'exact', head: true })
-    .gte('expected_calving_date', todayStr)
-    .lte('expected_calving_date', thirtyDaysFromNow.toISOString().split('T')[0]);
+    // 5. Overdue Vaccines Count
+    supabase
+      .from('vaccination_records')
+      .select('*', { count: 'exact', head: true })
+      .lt('next_due_date', todayStr),
 
-  // 5. Today's Milk (L)
-  const { data: todayMilkData } = await supabase
-    .from('milk_sale_entries')
-    .select('total_liters')
-    .eq('date', todayStr);
+    // 6. Today's Milk (L)
+    fetchAllRows<{ total_liters: number | null }>("today's milk", (from, to) =>
+      supabase
+        .from('milk_sale_entries')
+        .select('total_liters', { count: 'exact' })
+        .eq('date', todayStr)
+        .order('id')
+        .range(from, to)
+    ),
 
-  const todayMilkTotal = (todayMilkData || []).reduce((sum, item) => sum + Number(item.total_liters || 0), 0);
+    // 7. Selected Month Revenue (Rs.)
+    fetchAllRows<{ total_amount: number | null }>('monthly revenue', (from, to) =>
+      supabase
+        .from('milk_sale_entries')
+        .select('total_amount', { count: 'exact' })
+        .gte('date', startDate)
+        .lt('date', endDate)
+        .order('id')
+        .range(from, to)
+    ),
 
-  // 6. Selected Month Revenue (Rs.)
-  const { data: monthMilkData, error: milkError } = await supabase
-    .from('milk_sale_entries')
-    .select('total_amount, date')
-    .gte('date', startDate)
-    .lt('date', endDate);
+    // 8. Selected Month Expenses (Rs.)
+    fetchAllRows<{ amount: number | null }>('monthly expenses', (from, to) =>
+      supabase
+        .from('expenses')
+        .select('amount', { count: 'exact' })
+        .gte('date', startDate)
+        .lt('date', endDate)
+        .order('id')
+        .range(from, to)
+    ),
+  ]);
 
-  const thisMonthRevenue = (monthMilkData || []).reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
+  const totalAnimals = showCount(animalsResult);
+  const totalRecords = showCount(recordsResult);
+  const confirmedPregnancies = showCount(pregnanciesResult);
+  const upcomingCalvings = showCount(calvingsResult);
+  const overdueVaccinesCount = showCount(overdueVaccinesResult);
 
-  // 7. Selected Month Expenses (Rs.)
-  const { data: monthExpenseData, error: expenseError } = await supabase
-    .from('expenses')
-    .select('amount, date')
-    .gte('date', startDate)
-    .lt('date', endDate);
+  const todayMilkTotal = todayMilkData.reduce((sum, item) => sum + Number(item.total_liters || 0), 0);
+  const thisMonthRevenue = monthMilkData.reduce((sum, item) => sum + Number(item.total_amount || 0), 0);
+  const thisMonthExpenses = monthExpenseData.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-  const thisMonthExpenses = (monthExpenseData || []).reduce((sum, item) => sum + Number(item.amount || 0), 0);
-
-  // 8. Selected Month Net Profit (Rs.)
+  // 9. Selected Month Net Profit (Rs.)
   const thisMonthNetProfit = thisMonthRevenue - thisMonthExpenses;
-  const isProfitable = thisMonthNetProfit >= 0;
-
-  // 9. Overdue Vaccines Count
-  const { data: vaccineData } = await supabase
-    .from('vaccination_records')
-    .select('next_due_date');
-
-  const overdueVaccinesCount = (vaccineData || []).filter(v => {
-    if (!v.next_due_date) return false;
-    return v.next_due_date < todayStr;
-  }).length;
 
   return (
     <div className="flex flex-col gap-6">
@@ -100,7 +137,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
           </p>
 
           {/* Warning Banner for Overdue Vaccines */}
-          {overdueVaccinesCount > 0 && (
+          {typeof overdueVaccinesCount === 'number' && overdueVaccinesCount > 0 && (
             <Link
               href="/dashboard/vaccinations?tab=overdue"
               className="mt-3 inline-flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-sm transition-all animate-pulse w-full sm:w-auto"
@@ -129,7 +166,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
             </div>
           </div>
           <div className="text-3xl sm:text-4xl font-bold text-blue-600">
-            {totalAnimals || 0}
+            {totalAnimals}
           </div>
         </Link>
 
@@ -148,7 +185,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
             </div>
           </div>
           <div className="text-3xl sm:text-4xl font-bold text-green-600">
-            {totalRecords || 0}
+            {totalRecords}
           </div>
         </Link>
 
@@ -262,7 +299,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
             </div>
           </div>
           <div className="text-3xl sm:text-4xl font-bold text-emerald-500">
-            {confirmedPregnancies || 0}
+            {confirmedPregnancies}
           </div>
         </Link>
 
@@ -281,7 +318,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
             </div>
           </div>
           <div className="text-3xl sm:text-4xl font-bold text-orange-500">
-            {upcomingCalvings || 0}
+            {upcomingCalvings}
           </div>
         </Link>
       </div>

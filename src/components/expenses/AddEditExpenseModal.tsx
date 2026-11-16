@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import { Expense, ExpenseCategory } from '@/lib/types'
 import { addExpense, updateExpense } from '@/app/dashboard/expenses/actions'
+import { todayDateString } from '@/lib/dateUtils'
+import { savePendingExpense } from '@/lib/offlineDb'
+import { useToast } from '@/components/ui/Toast'
 
 interface AddEditExpenseModalProps {
   isOpen: boolean
@@ -11,6 +14,7 @@ interface AddEditExpenseModalProps {
 }
 
 export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: AddEditExpenseModalProps) {
+  const { showToast } = useToast()
   const [category, setCategory] = useState<ExpenseCategory>('Feed')
   const [date, setDate] = useState('')
   const [amount, setAmount] = useState<number | ''>('')
@@ -28,7 +32,7 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
         setDescription(editExpense.description || '')
       } else {
         setCategory('Feed')
-        setDate(new Date().toISOString().split('T')[0])
+        setDate(todayDateString())
         setAmount('')
         setDescription('')
       }
@@ -52,7 +56,26 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
     setIsSubmitting(true)
     setError(null)
 
+    // New expenses can be queued on the device and synced later.
+    // Edits are not queued: they need the server copy of the record.
+    const saveOffline = async () => {
+      await savePendingExpense({
+        category,
+        amount,
+        date,
+        description: description.trim(),
+      })
+      onClose()
+      showToast('offline', 'Expense saved offline!', 'انٹرنیٹ آنے پر خود بخود sync ہو گا۔')
+    }
+
     try {
+      // ── OFFLINE MODE: save to IndexedDB ──
+      if (!navigator.onLine && !editExpense) {
+        await saveOffline()
+        return
+      }
+
       const formData = new FormData()
       formData.append('date', date)
       formData.append('category', category)
@@ -68,12 +91,24 @@ export default function AddEditExpenseModal({ isOpen, onClose, editExpense }: Ad
       }
 
       if (result?.error) {
-        setError(typeof result.error === 'string' ? result.error : (result.error as Error)?.message || 'Failed to save expense')
+        setError(typeof result.error === 'string' ? result.error : 'Failed to save expense')
       } else {
         onClose()
       }
-    } catch (err) {
-      setError('An unexpected error occurred')
+    } catch {
+      // Network failed mid-request — fall back to offline for new expenses
+      if (!navigator.onLine && !editExpense) {
+        try {
+          await saveOffline()
+          return
+        } catch {
+          setError('Could not save offline. Please try again.')
+        }
+      } else if (!navigator.onLine) {
+        setError('You are offline. Editing an expense needs an internet connection.')
+      } else {
+        setError('An unexpected error occurred')
+      }
     } finally {
       setIsSubmitting(false)
     }
